@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="theme-color" content="#ffffff"/>
+<title>Propra</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --mango: #F5A623;
+    --mango-light: #FFF3DC;
+    --mango-dark: #C4831A;
+    --black: #0A0A0A;
+    --gray-900: #111111;
+    --gray-800: #1C1C1C;
+    --gray-700: #2E2E2E;
+    --gray-500: #6B6B6B;
+    --gray-400: #9A9A9A;
+    --gray-200: #E5E5E5;
+    --gray-100: #F2F2F2;
+    --gray-50: #F8F8F8;
+    --white: #FFFFFF;
+    --red: #E53E3E;
+    --green: #2D7D46;
+    --green-light: #E6F4EC;
+    --red-light: #FEF0F0;
+    --orange: #D97706;
+    --orange-light: #FFF7E6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--white); color: var(--black); font-family: 'Montserrat', sans-serif; overscroll-behavior: none; -webkit-font-smoothing: antialiased; }
+  ::-webkit-scrollbar { display: none; }
+  input, textarea, select {
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
+    color: var(--black);
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    outline: none; letter-spacing: 0.01em;
+    width: 100%;
+    -webkit-appearance: none;
+    transition: border-color .2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--mango); box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
+  option { background: var(--white); color: var(--black); }
+  .tap { cursor: pointer; transition: opacity .12s, transform .1s; -webkit-tap-highlight-color: transparent; }
+  .tap:active { opacity: .75; transform: scale(.98); }
+  .fade { animation: fu .2s ease both; }
+  @keyframes fu { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .sheet-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:flex-end; backdrop-filter: blur(4px); }
+  .sheet-box { background:var(--white); border-radius:24px 24px 0 0; width:100%; max-height:93vh; overflow-y:auto; padding:0 0 60px; box-shadow: 0 -8px 40px rgba(0,0,0,.12); }
+  .handle { width:36px; height:4px; background:var(--gray-200); border-radius:2px; margin:14px auto 20px; }
+  .pill { display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+  .nav-bar { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; background:var(--white); border-top:1px solid var(--gray-100); display:flex; z-index:50; padding-bottom:env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,.06); }
+  .card { background:var(--white); border:1.5px solid var(--gray-100); border-radius:16px; }
+  .card-dark { background:var(--black); border-radius:16px; }
+  .section-title { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:800; color:var(--black); }
+  .label { font-size:11px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<!-- Static splash shown instantly while React/Babel loads -->
+<div id="static-splash" style="position:fixed;inset:0;background:#0A0A0A;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity 0.5s ease;">
+  <style>
+    @keyframes barLoad { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+  <!-- Icon -->
+  <div style="width:88px;height:88px;border-radius:26px;background:#F5A623;display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 0 50px rgba(245,166,35,.4);">
+    <svg width="52" height="48" viewBox="0 0 54 50" fill="none">
+      <rect x="34" y="14" width="5" height="9" rx="1.5" fill="#0A0A0A"/>
+      <path d="M5 26 L27 7 L49 26" stroke="#0A0A0A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <rect x="10" y="25" width="34" height="22" rx="3" fill="#0A0A0A"/>
+      <rect x="21" y="31" width="12" height="16" rx="2.5" fill="#F5A623"/>
+      <circle cx="30" cy="39" r="1.5" fill="#0A0A0A"/>
+      <rect x="13" y="29" width="6" height="6" rx="1.5" fill="#F5A623" opacity=".75"/>
+      <rect x="35" y="29" width="6" height="6" rx="1.5" fill="#F5A623" opacity=".75"/>
+    </svg>
+  </div>
+  <!-- Wordmark -->
+  <div style="font-family:sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#fff;margin-bottom:10px;animation:fadeUp .6s ease .2s both;">
+    Prop<span style="color:#F5A623;">ra</span>
+  </div>
+  <!-- Tagline -->
+  <div style="font-family:sans-serif;font-size:11px;font-weight:300;letter-spacing:4px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:48px;animation:fadeUp .5s ease .5s both;">
+    Property · Simplified
+  </div>
+  <!-- Loading bar -->
+  <div style="width:60px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;">
+    <div style="height:100%;background:#F5A623;transform-origin:left;animation:barLoad 2.5s cubic-bezier(.4,0,.2,1) .3s both;border-radius:2px;"></div>
+  </div>
+  <!-- propra.co -->
+  <div style="position:absolute;bottom:40px;font-family:sans-serif;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.2);text-transform:uppercase;">propra.co</div>
+</div>
+
+<div id="root"></div>
+<script type="text/babel">
+const {useState, useEffect} = React;
+
+// ── PALETTE ───────────────────────────────────────────────────────────────
+const M = "#F5A623";        // mango
+const ML = "#FFF3DC";       // mango light bg
+const MD = "#C4831A";       // mango dark
+const BLACK = "#0A0A0A";
+const GRAY50 = "#F8F8F8";
+const GRAY100 = "#F2F2F2";
+const GRAY200 = "#E5E5E5";
+const GRAY400 = "#9A9A9A";
+const GRAY500 = "#6B6B6B";
+const GREEN = "#2D7D46";
+const GREENL = "#E6F4EC";
+const RED = "#E53E3E";
+const REDL = "#FEF0F0";
+const ORANGEL = "#FFF7E6";
+
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────
+const T = {
+  en:{
+    appName:"Propra",
+    tag:"Property Management, Simplified",
+    h1:"Manage smarter,", h2:"earn better.",
+    sub:"Rentals, Airbnb & contracts in one clean app.",
+    btn_l:"Landlord Portal", btn_t:"Tenant Portal",
+    lang:"Español", back:"← Back", logout:"Sign out",
+    email:"Email", pass:"Password", signin:"Sign In →",
+    role_l:"Landlord", role_t:"Tenant",
+    nav_home:"Home", nav_props:"Properties", nav_repair:"Repairs", nav_tasks:"Tasks", nav_more:"More", nav_reports:"Reports", nav_notifs:"Alerts",
+    greeting:"Good morning 👋", sub_greeting:"Here's your portfolio today",
+    s_props:"Properties", s_open:"Open Issues", s_resolved:"Resolved", s_spend:"Total Spend",
+    rem_title:"Payment Reminders",
+    no_rem:"No upcoming reminders — all clear ✓",
+    recent_r:"Recent Repairs", upcoming_t:"Upcoming Tasks", see_all:"See all →",
+    add_prop:"+ Add Property", add_repair:"+ Log Repair", add_task:"+ Add Task",
+    save:"Save", cancel:"Cancel", resolve:"Mark Resolved",
+    prop_name:"Property Name", prop_addr:"Address",
+    prop_type:"Property Type",
+    t_rental:"🏠 Long-Term Rental", t_airbnb:"🏨 Airbnb / Short-Term", t_commercial:"🏢 Commercial",
+    t_name:"Tenant / Guest Name", phone:"Phone", emailf:"Email",
+    pay_freq:"Payment Frequency",
+    f_monthly:"Monthly", f_weekly:"Weekly", f_biweekly:"Bi-Weekly",
+    f_contract:"One-Time Contract", f_nightly:"Nightly (Airbnb)",
+    rent_amt:"Rent / Rate ($)",
+    next_due:"Next Payment Due",
+    l_start:"Lease Start", l_end:"Lease End",
+    checkin:"Check-in", checkout:"Check-out",
+    guests:"Guests", platform:"Platform",
+    deposit:"Security Deposit ($)", notes:"Notes",
+    r_prop:"Property", r_type:"Type of Work", r_desc:"Description",
+    r_date:"Date", r_cost:"Cost ($)", r_contractor:"Contractor",
+    r_status:"Status", r_next:"Next Service",
+    st_open:"Open", st_prog:"In Progress", st_done:"Resolved", st_sched:"Scheduled",
+    works:["Plumbing","Electrical","HVAC","Roof","Paint","Appliance","Pest Control","Cleaning","Structural","Filter","Locks","Other"],
+    task_n:"Task Description", task_c:"Category", task_d:"Due Date",
+    task_p:"Priority", task_cost:"Est. Cost ($)",
+    cats:["Paint","Filters","HVAC Service","Roof Inspection","Landscaping","Deep Clean","Pest Control","Safety Check","Plumbing","Electrical","Other"],
+    hi:"High", med:"Medium", lo:"Low",
+    empty:"Nothing yet — tap + to add.",
+    lease_ends:"Lease ends", daysL:"days",
+    in_prog:"In Progress",
+    overdue:"OVERDUE", due_today:"Due TODAY", due_in:"due in", due_d:"days",
+    send_rem:"Send Reminder", rem_sent:"Reminder sent ✓",
+    your_prop:"Your Property", pay_rent:"Pay Rent", history:"Payments",
+    report:"Report Issue", my_issues:"My Reports",
+    pay_card:"Credit / Debit Card", pay_bank:"Bank Transfer", pay_mp:"MercadoPago",
+    confirm_pay:"Confirm Payment",
+    pay_ok:"Payment sent! Receipt on its way ✓",
+    issue_ok:"Report sent. Landlord notified ✓",
+    issue_ph:"Describe the problem (leak, broken lock, AC issue...)",
+    submit:"Submit Report",
+    tenants:"Tenants", msgs:"Messages", call:"Call", msg:"Message",
+    tpl1:"Rent Reminder", tpl2:"Late Notice", tpl3:"Maintenance Update", tpl4:"5-Day Warning",
+    msg_to:"To", send_msg:"Send", msg_ph:"Write your message...",
+    nightly:"Nightly Rate", booking:"Booking Ref",
+    airbnb_lbl:"Short-Stay",
+    start_here:"Add your first property",
+    start_sub:"Tap below to get started",
+  },
+  es:{
+    appName:"Propra",
+    tag:"Administración Inteligente",
+    h1:"Administra mejor,", h2:"gana más.",
+    sub:"Rentas, Airbnb y contratos en una app limpia.",
+    btn_l:"Portal Propietario", btn_t:"Portal Inquilino",
+    lang:"English", back:"← Volver", logout:"Salir",
+    email:"Correo", pass:"Contraseña", signin:"Iniciar Sesión →",
+    role_l:"Propietario", role_t:"Inquilino",
+    nav_home:"Inicio", nav_props:"Propiedades", nav_repair:"Reparaciones", nav_tasks:"Tareas", nav_more:"Más", nav_reports:"Reportes", nav_notifs:"Alertas",
+    greeting:"Buenos días 👋", sub_greeting:"Tu portafolio de hoy",
+    s_props:"Propiedades", s_open:"Abiertos", s_resolved:"Resueltos", s_spend:"Gasto Total",
+    rem_title:"Recordatorios de Pago",
+    no_rem:"Sin recordatorios próximos — todo en orden ✓",
+    recent_r:"Reparaciones Recientes", upcoming_t:"Tareas Próximas", see_all:"Ver todo →",
+    add_prop:"+ Agregar Propiedad", add_repair:"+ Registrar Reparación", add_task:"+ Agregar Tarea",
+    save:"Guardar", cancel:"Cancelar", resolve:"Marcar Resuelto",
+    prop_name:"Nombre de Propiedad", prop_addr:"Dirección",
+    prop_type:"Tipo de Propiedad",
+    t_rental:"🏠 Renta a Largo Plazo", t_airbnb:"🏨 Airbnb / Corta Estancia", t_commercial:"🏢 Comercial",
+    t_name:"Inquilino / Huésped", phone:"Teléfono", emailf:"Correo",
+    pay_freq:"Frecuencia de Pago",
+    f_monthly:"Mensual", f_weekly:"Semanal", f_biweekly:"Quincenal",
+    f_contract:"Contrato Único", f_nightly:"Por Noche (Airbnb)",
+    rent_amt:"Renta / Tarifa ($)",
+    next_due:"Próximo Pago",
+    l_start:"Inicio Contrato", l_end:"Fin Contrato",
+    checkin:"Check-in", checkout:"Check-out",
+    guests:"Huéspedes", platform:"Plataforma",
+    deposit:"Depósito ($)", notes:"Notas",
+    r_prop:"Propiedad", r_type:"Tipo de Trabajo", r_desc:"Descripción",
+    r_date:"Fecha", r_cost:"Costo ($)", r_contractor:"Contratista",
+    r_status:"Estatus", r_next:"Próxima Revisión",
+    st_open:"Abierto", st_prog:"En Progreso", st_done:"Resuelto", st_sched:"Programado",
+    works:["Plomería","Eléctrico","HVAC/Clima","Techo","Pintura","Electrodoméstico","Plagas","Limpieza","Estructural","Filtro","Cerraduras","Otro"],
+    task_n:"Descripción de la Tarea", task_c:"Categoría", task_d:"Fecha Límite",
+    task_p:"Prioridad", task_cost:"Costo Est. ($)",
+    cats:["Pintura","Filtros","Servicio HVAC","Inspección Techo","Jardín","Limpieza Profunda","Control Plagas","Seguridad","Plomería","Eléctrico","Otro"],
+    hi:"Alta", med:"Media", lo:"Baja",
+    empty:"Nada todavía — toca + para agregar.",
+    lease_ends:"Termina", daysL:"días",
+    in_prog:"En Progreso",
+    overdue:"VENCIDO", due_today:"Vence HOY", due_in:"vence en", due_d:"días",
+    send_rem:"Enviar Recordatorio", rem_sent:"Recordatorio enviado ✓",
+    your_prop:"Tu Propiedad", pay_rent:"Pagar Renta", history:"Pagos",
+    report:"Reportar", my_issues:"Mis Reportes",
+    pay_card:"Tarjeta Crédito/Débito", pay_bank:"Transferencia Bancaria", pay_mp:"MercadoPago",
+    confirm_pay:"Confirmar Pago",
+    pay_ok:"¡Pago enviado! Recibo en camino ✓",
+    issue_ok:"Reporte enviado. Propietario notificado ✓",
+    issue_ph:"Describe el problema (gotera, cerradura rota, AC...)",
+    submit:"Enviar Reporte",
+    tenants:"Inquilinos", msgs:"Mensajes", call:"Llamar", msg:"Mensaje",
+    tpl1:"Recordatorio Renta", tpl2:"Aviso Mora", tpl3:"Mantenimiento", tpl4:"Aviso 5 Días",
+    msg_to:"Para", send_msg:"Enviar", msg_ph:"Escribe tu mensaje...",
+    nightly:"Tarifa por Noche", booking:"Referencia",
+    airbnb_lbl:"Corta Estancia",
+    start_here:"Agrega tu primera propiedad",
+    start_sub:"Toca abajo para comenzar",
+  }
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const daysUntil = d => d ? Math.ceil((new Date(d) - new Date()) / 86400000) : null;
+const getRemStatus = p => {
+  const d = daysUntil(p.nextDue);
+  if (d === null) return null;
+  if (d < 0) return { type:"overdue", days: Math.abs(d) };
+  if (d <= 5) return { type:"soon", days: d };
+  return null;
+};
+const freqLabel = (f, t) => ({
+  monthly: t.f_monthly, weekly: t.f_weekly,
+  biweekly: t.f_biweekly, contract: t.f_contract, nightly: t.f_nightly
+}[f] || f);
+
+const avatar = name => (name || "?").trim().split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+
+// ── STATUS STYLES ─────────────────────────────────────────────────────────
+const sPillStyle = s => ({
+  "Resolved":   { bg: GREENL, color: GREEN },
+  "In Progress":{ bg: ORANGEL, color: "#B45309" },
+  "Open":       { bg: REDL, color: RED },
+  "Scheduled":  { bg: ML, color: MD },
+  "Pending":    { bg: GRAY100, color: GRAY500 },
+}[s] || { bg: GRAY100, color: GRAY500 });
+
+const prioColor = p => ({ High: RED, Medium: "#D97706", Low: GREEN }[p] || GRAY400);
+
+// ─────────────────────────────────────────────────────────────────────────
+
+// ── SPLASH SCREEN ─────────────────────────────────────────────────────────
+function Splash({out}) {
+  return (
+    <div style={{
+      position:"fixed", inset:0,
+      background:"#0A0A0A",
+      display:"flex", flexDirection:"column",
+      alignItems:"center", justifyContent:"center",
+      zIndex:9999,
+      opacity: out ? 0 : 1,
+      transition: "opacity 0.55s ease",
+    }}>
+      <style>{`
+        @keyframes iconDrop {
+          0%   { opacity:0; transform:translateY(-18px) scale(.9); }
+          70%  { opacity:1; transform:translateY(3px) scale(1.02); }
+          100% { opacity:1; transform:translateY(0) scale(1); }
+        }
+        @keyframes wordIn {
+          0%   { opacity:0; transform:translateX(-10px); }
+          100% { opacity:1; transform:translateX(0); }
+        }
+        @keyframes tagIn {
+          0%   { opacity:0; }
+          100% { opacity:1; }
+        }
+        @keyframes barGrow {
+          0%   { transform:scaleX(0); }
+          100% { transform:scaleX(1); }
+        }
+        @keyframes glowPulse {
+          0%,100% { box-shadow: 0 0 40px rgba(245,166,35,.3); }
+          50%      { box-shadow: 0 0 70px rgba(245,166,35,.55); }
+        }
+      `}</style>
+
+      {/* ── LOGO MARK ── */}
+      <div style={{
+        animation:"iconDrop .65s cubic-bezier(.34,1.4,.64,1) .05s both",
+        marginBottom:24,
+      }}>
+        {/* Icon tile */}
+        <div style={{
+          width:96, height:96, borderRadius:30,
+          background:"#F5A623",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          margin:"0 auto 22px",
+          animation:"glowPulse 2.5s ease infinite .7s",
+          position:"relative",
+        }}>
+          {/* Minimal house SVG — clean lines only */}
+          <svg width="54" height="50" viewBox="0 0 54 50" fill="none">
+            {/* Chimney */}
+            <rect x="34" y="14" width="5" height="9" rx="1.5" fill="#0A0A0A"/>
+            {/* Roof — clean triangle */}
+            <path d="M5 26 L27 7 L49 26" stroke="#0A0A0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            {/* House body */}
+            <rect x="10" y="25" width="34" height="22" rx="3" fill="#0A0A0A"/>
+            {/* Door — mango cutout */}
+            <rect x="21" y="31" width="12" height="16" rx="2.5" fill="#F5A623"/>
+            {/* Door knob */}
+            <circle cx="30" cy="39" r="1.5" fill="#0A0A0A"/>
+            {/* Left window */}
+            <rect x="13" y="29" width="6" height="6" rx="1.5" fill="#F5A623" opacity=".75"/>
+            {/* Right window */}
+            <rect x="35" y="29" width="6" height="6" rx="1.5" fill="#F5A623" opacity=".75"/>
+          </svg>
+        </div>
+
+        {/* Wordmark row: icon dot + Propra */}
+        <div style={{
+          display:"flex", alignItems:"baseline",
+          justifyContent:"center", gap:0,
+          animation:"wordIn .5s ease .5s both",
+        }}>
+          <span style={{
+            fontFamily:"'Montserrat',sans-serif",
+            fontSize:42, fontWeight:100,
+            color:"#ffffff",
+            letterSpacing:"6px",
+            lineHeight:1,
+          }}>Prop</span>
+          <span style={{
+            fontFamily:"'Montserrat',sans-serif",
+            fontSize:42, fontWeight:100,
+            color:"#F5A623",
+            letterSpacing:"6px",
+            lineHeight:1,
+          }}>ra</span>
+        </div>
+      </div>
+
+      {/* Tagline */}
+      <div style={{
+        animation:"tagIn .6s ease .9s both",
+        fontFamily:"'Montserrat',sans-serif",
+        fontSize:12, fontWeight:500,
+        color:"rgba(255,255,255,.35)",
+        letterSpacing:5, textTransform:"uppercase",
+        marginBottom:52, fontWeight:200,
+      }}>
+        Property · Simplified
+      </div>
+
+      {/* Progress bar */}
+      <div style={{
+        width:56, height:2.5,
+        background:"rgba(255,255,255,.08)",
+        borderRadius:2, overflow:"hidden",
+      }}>
+        <div style={{
+          height:"100%", background:"#F5A623", borderRadius:2,
+          transformOrigin:"left",
+          animation:"barGrow 2s cubic-bezier(.22,1,.36,1) .4s both",
+        }}/>
+      </div>
+
+      {/* propra.co bottom */}
+      <div style={{
+        position:"absolute", bottom:42,
+        display:"flex", alignItems:"center", gap:8,
+        animation:"tagIn .5s ease 1.2s both",
+      }}>
+        <div style={{width:18,height:1,background:"rgba(255,255,255,.15)"}}/>
+        <span style={{
+          fontFamily:"'Montserrat',sans-serif",
+          fontSize:11, fontWeight:600,
+          color:"rgba(255,255,255,.2)",
+          letterSpacing:4, textTransform:"uppercase", fontWeight:200,
+        }}>propra.co</span>
+        <div style={{width:18,height:1,background:"rgba(255,255,255,.15)"}}/>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [screen, setScreen] = useState("splash");
+  const [splashOut, setSplashOut] = useState(false);
+  const [lang, setLang] = useState("en");
+  const [toast, setToast] = useState(null);
+  const [props_, setProps] = useState([]);
+  const [maint, setMaint] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [pays, setPays] = useState([]);
+  const t = T[lang];
+  const notify = msg => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+
+  useEffect(() => {
+    // Hide the static HTML splash once React is ready
+    const el = document.getElementById("static-splash");
+    if (el) {
+      setTimeout(() => {
+        el.style.opacity = "0";
+        setTimeout(() => el.style.display = "none", 500);
+      }, 800);
+    }
+    // Go straight to landing — static splash already showed the logo
+    if (screen === "splash") {
+      setTimeout(() => setScreen("landing"), 1000);
+    }
+  }, []);
+  const toggleLang = () => setLang(l => l === "en" ? "es" : "en");
+
+  return (
+    <div style={{ fontFamily:"'Montserrat',sans-serif", minHeight:"100vh", background:"#fff", color:BLACK, maxWidth:480, margin:"0 auto", position:"relative" }}>
+      {/* Toast */}
+      {toast && (
+        <div style={{ position:"fixed", top:20, left:"50%", transform:"translateX(-50%)", zIndex:9999, background:BLACK, color:"#fff", padding:"12px 24px", borderRadius:50, fontWeight:600, fontSize:13, boxShadow:"0 8px 32px rgba(0,0,0,.25)", whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:8 }}>
+          <span style={{ width:8, height:8, borderRadius:"50%", background:M, flexShrink:0 }}/>
+          {toast}
+        </div>
+      )}
+      {screen==="landing"  && <Landing  t={t} lang={lang} toggleLang={toggleLang} onL={()=>setScreen("login-l")} onT={()=>setScreen("login-t")}/>}
+      {screen==="login-l"  && <Login    t={t} lang={lang} toggleLang={toggleLang} role="l" onBack={()=>setScreen("landing")} onIn={()=>setScreen("landlord")}/>}
+      {screen==="login-t"  && <Login    t={t} lang={lang} toggleLang={toggleLang} role="t" onBack={()=>setScreen("landing")} onIn={()=>setScreen("tenant")}/>}
+      {screen==="landlord" && <Landlord t={t} lang={lang} toggleLang={toggleLang} props_={props_} setProps={setProps} maint={maint} setMaint={setMaint} tasks={tasks} setTasks={setTasks} notify={notify} onOut={()=>setScreen("landing")}/>}
+      {screen==="tenant"   && props_.length > 0 && <Tenant t={t} lang={lang} toggleLang={toggleLang} prop={props_[0]} pays={pays} setPays={setPays} maint={maint} setMaint={setMaint} notify={notify} onOut={()=>setScreen("landing")}/>}
+      {screen==="tenant"   && props_.length===0 && (
+        <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
+          <div style={{fontSize:52,marginBottom:16}}>🏠</div>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px",marginBottom:8}}>No properties yet</div>
+          <div style={{color:GRAY400,fontSize:14,marginBottom:24}}>Add a property from the landlord portal first.</div>
+          <Btn label={t.back} onClick={()=>setScreen("landing")} variant="outline"/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── LANDING ───────────────────────────────────────────────────────────────
+function Landing({t,lang,toggleLang,onL,onT}){
+  const [previewTab, setPreviewTab] = useState("rentals");
+
+  const DEMO_RENTALS = [];
+  const DEMO_AIRBNB = [];
+  const DEMO_REPAIRS = [];
+
+  return(
+    <div style={{background:"#fff",minHeight:"100vh",paddingBottom:40}}>
+      {/* ── STICKY NAV ── */}
+      <div style={{position:"sticky",top:0,zIndex:20,background:"#fff",borderBottom:`1px solid ${GRAY100}`,padding:"16px 22px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:15,fontWeight:200,color:BLACK,letterSpacing:"7px",textTransform:"uppercase"}}>PROPRA</div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="tap" onClick={toggleLang} style={{background:GRAY100,border:"none",color:GRAY500,padding:"7px 12px",borderRadius:50,fontSize:12,fontWeight:600}}>🌐</button>
+          <button className="tap" onClick={onL} style={{background:BLACK,border:"none",color:"#fff",padding:"9px 18px",borderRadius:50,fontSize:13,fontWeight:700,fontFamily:"'Montserrat',sans-serif"}}>Sign In</button>
+        </div>
+      </div>
+
+      {/* ── HERO BLOCK ── */}
+      <div style={{padding:"28px 22px 0"}}>
+        <div style={{background:M,borderRadius:24,padding:"30px 26px 28px",position:"relative",overflow:"hidden",marginBottom:24}}>
+          <div style={{position:"absolute",top:-30,right:-30,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,.15)"}}/>
+          <div style={{position:"absolute",bottom:-20,left:20,width:70,height:70,borderRadius:"50%",background:"rgba(0,0,0,.07)"}}/>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:"uppercase",color:"rgba(0,0,0,.45)",marginBottom:10}}>{t.tag}</div>
+          <h1 style={{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:100,lineHeight:1.2,color:BLACK,marginBottom:12,letterSpacing:"-0.5px"}}>
+            {t.h1}<br/><span style={{fontWeight:100,color:BLACK}}>{t.h2}</span>
+          </h1>
+          <p style={{fontSize:14,color:"rgba(0,0,0,.55)",lineHeight:1.6,marginBottom:20}}>{t.sub}</p>
+          <div style={{display:"flex",gap:10}}>
+            <button className="tap" onClick={onL} style={{flex:1,padding:"13px",background:BLACK,border:"none",color:"#fff",borderRadius:14,fontWeight:700,fontSize:14,fontFamily:"'Montserrat',sans-serif"}}>🏠 Landlord</button>
+            <button className="tap" onClick={onT} style={{flex:1,padding:"13px",background:"rgba(255,255,255,.6)",border:"none",color:BLACK,borderRadius:14,fontWeight:700,fontSize:14,fontFamily:"'Montserrat',sans-serif"}}>👤 Tenant</button>
+          </div>
+        </div>
+
+        {/* ── LIVE STATS ROW ── */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:28}}>
+          {[["5","Properties","🏠"],["$9.5k","Monthly","💰"],["3","Airbnb","🏨"],["2","Open Issues","🔧"]].map(([v,l,i])=>(
+            <div key={l} style={{background:GRAY50,borderRadius:14,padding:"12px 8px",textAlign:"center"}}>
+              <div style={{fontSize:16,marginBottom:4}}>{i}</div>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:BLACK,lineHeight:1}}>{v}</div>
+              <div style={{fontSize:9,color:GRAY400,marginTop:3,fontWeight:600,textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── PREVIEW SECTION HEADER ── */}
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:11,fontWeight:800,color:GRAY400,textTransform:"uppercase",letterSpacing:2,marginBottom:6}}>Live Preview</div>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px",color:BLACK}}>See how it works</div>
+        </div>
+
+        {/* ── TABS ── */}
+        <div style={{display:"flex",gap:0,background:GRAY100,borderRadius:14,padding:4,marginBottom:20}}>
+          {[["rentals","🏠 Rentals"],["airbnb","🏨 Airbnb"],["repairs","🔧 Repairs"]].map(([id,label])=>(
+            <button key={id} className="tap" onClick={()=>setPreviewTab(id)} style={{
+              flex:1,padding:"10px 4px",borderRadius:11,border:"none",
+              background:previewTab===id?"#fff":"transparent",
+              color:previewTab===id?BLACK:GRAY400,
+              fontWeight:previewTab===id?700:500,
+              fontSize:13,fontFamily:"'Montserrat',sans-serif",
+              boxShadow:previewTab===id?"0 2px 8px rgba(0,0,0,.08)":"none",
+              transition:"all .2s"
+            }}>{label}</button>
+          ))}
+        </div>
+
+        {/* ── RENTALS TAB ── */}
+        {previewTab==="rentals"&&(
+          <div className="fade">
+            <div style={{fontSize:13,color:GRAY400,marginBottom:14,lineHeight:1.6}}>
+              Track every tenant, payment frequency, and due date. Get automatic reminders 5 days before rent is due.
+            </div>
+            {/* Feature highlight */}
+            <div style={{background:GRAY50,borderRadius:14,padding:"14px 16px",marginBottom:14,display:"flex",alignItems:"center",gap:12}}>
+              <div style={{width:40,height:40,borderRadius:12,background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🔔</div>
+              <div>
+                <div style={{fontWeight:600,color:BLACK,fontSize:14}}>{lang==="en"?"Auto Payment Reminders":"Recordatorios Automáticos"}</div>
+                <div style={{fontSize:12,color:GRAY400,marginTop:2,lineHeight:1.5}}>{lang==="en"?"Get alerts 5 days before rent is due":"Alertas 5 días antes del vencimiento"}</div>
+              </div>
+            </div>
+            {/* Rental cards */}
+            {DEMO_RENTALS.length===0&&(            <div style={{textAlign:"center",padding:"40px 20px",background:GRAY50,borderRadius:16,border:`1.5px dashed ${GRAY200}`}}>
+              <div style={{fontSize:36,marginBottom:10,opacity:.25}}>○</div>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:BLACK,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>Ready for you</div>
+              <div style={{fontSize:13,color:GRAY400,lineHeight:1.7}}>Sign in as Landlord and add your first property to see it here.</div>
+            </div>)}
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {DEMO_RENTALS.map(r=>(
+                <div key={r.name} style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,padding:16}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:15,color:BLACK}}>{r.name}</div>
+                      <div style={{fontSize:12,color:GRAY400,marginTop:1}}>{r.freq} · Due {r.due}</div>
+                    </div>
+                    <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:18,color:BLACK}}>${r.rent}</div>
+                  </div>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:10,borderTop:`1px solid ${GRAY100}`}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <div style={{width:32,height:32,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,color:MD}}>{r.avatar}</div>
+                      <span style={{fontSize:13,fontWeight:500,color:BLACK}}>{r.tenant}</span>
+                    </div>
+                    <span className="pill" style={{background:r.color,color:r.tc}}>{r.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Frequency pills */}
+            <div style={{marginTop:16,padding:"14px 16px",background:GRAY50,borderRadius:14}}>
+              <div style={{fontSize:11,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Payment Frequencies Supported</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {["Monthly","Weekly","Bi-Weekly","Contract","Nightly"].map(f=>(
+                  <span key={f} style={{padding:"6px 14px",background:"#fff",border:`1px solid ${GRAY200}`,borderRadius:50,fontSize:12,fontWeight:600,color:BLACK}}>{f}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── AIRBNB TAB ── */}
+        {previewTab==="airbnb"&&(
+          <div className="fade">
+            <div style={{fontSize:13,color:GRAY400,marginBottom:14,lineHeight:1.6}}>
+              Manage short-term stays alongside your long-term rentals. Track check-ins, check-outs, guests, and booking platforms in one place.
+            </div>
+            {/* Stats row */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+              {[["3","Active Stays"],["10","Guests Tonight"],["$2,020","This Week"]].map(([v,l])=>(
+                <div key={l} style={{background:GRAY50,borderRadius:12,padding:"12px 10px",textAlign:"center"}}>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:20,color:BLACK}}>{v}</div>
+                  <div style={{fontSize:10,color:GRAY400,marginTop:2,fontWeight:600}}>{l}</div>
+                </div>
+              ))}
+            </div>
+            {/* Airbnb cards */}
+            {DEMO_AIRBNB.length===0&&(            <div style={{textAlign:"center",padding:"40px 20px",background:GRAY50,borderRadius:16,border:`1.5px dashed ${GRAY200}`}}>
+              <div style={{fontSize:36,marginBottom:10,opacity:.25}}>○</div>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:BLACK,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>Ready for you</div>
+              <div style={{fontSize:13,color:GRAY400,lineHeight:1.7}}>Sign in as Landlord and add your first property to see it here.</div>
+            </div>)}
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {DEMO_AIRBNB.map(a=>(
+                <div key={a.name} style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,padding:16}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                    <div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{fontWeight:700,fontSize:15,color:BLACK}}>🏨 {a.name}</span>
+                        <span className="pill" style={{background:"#fff0f3",color:"#E11D48"}}>{a.platform}</span>
+                      </div>
+                      <div style={{fontSize:12,color:GRAY400,marginTop:2}}>👥 {a.guests} guests · {a.rating}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:18,color:BLACK}}>${a.total}</div>
+                      <div style={{fontSize:10,color:GRAY400}}>{a.nights} nights</div>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",gap:8,paddingTop:10,borderTop:`1px solid ${GRAY100}`}}>
+                    <div style={{flex:1,background:GREENL,borderRadius:10,padding:"8px 10px",textAlign:"center"}}>
+                      <div style={{fontSize:9,fontWeight:700,color:GREEN,textTransform:"uppercase",letterSpacing:.5}}>Check-in</div>
+                      <div style={{fontSize:13,fontWeight:700,color:GREEN,marginTop:1}}>{a.checkin}</div>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",color:GRAY400,fontSize:16}}>→</div>
+                    <div style={{flex:1,background:REDL,borderRadius:10,padding:"8px 10px",textAlign:"center"}}>
+                      <div style={{fontSize:9,fontWeight:700,color:RED,textTransform:"uppercase",letterSpacing:.5}}>Check-out</div>
+                      <div style={{fontSize:13,fontWeight:700,color:RED,marginTop:1}}>{a.checkout}</div>
+                    </div>
+                    <div style={{flex:1,background:ML,borderRadius:10,padding:"8px 10px",textAlign:"center"}}>
+                      <div style={{fontSize:9,fontWeight:700,color:MD,textTransform:"uppercase",letterSpacing:.5}}>Guest</div>
+                      <div style={{fontSize:11,fontWeight:600,color:MD,marginTop:1}}>{a.guest.split(" ")[0]}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── REPAIRS TAB ── */}
+        {previewTab==="repairs"&&(
+          <div className="fade">
+            <div style={{fontSize:13,color:GRAY400,marginBottom:14,lineHeight:1.6}}>
+              Log every repair across all properties. Track costs, contractors, and status. Works for both rentals and Airbnb.
+            </div>
+            {/* Total spend card */}
+            <div style={{background:BLACK,borderRadius:16,padding:"18px 20px",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Total Repair Spend</div>
+                <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:32,color:M}}>$2,370</div>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:11,color:"rgba(255,255,255,.4)",marginBottom:4}}>This Month</div>
+                <div style={{display:"flex",gap:6}}>
+                  <span className="pill" style={{background:REDL,color:RED}}>1 Open</span>
+                  <span className="pill" style={{background:ML,color:MD}}>1 Active</span>
+                </div>
+              </div>
+            </div>
+            {/* Repair list */}
+            {DEMO_REPAIRS.length===0&&(            <div style={{textAlign:"center",padding:"40px 20px",background:GRAY50,borderRadius:16,border:`1.5px dashed ${GRAY200}`}}>
+              <div style={{fontSize:36,marginBottom:10,opacity:.25}}>○</div>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:BLACK,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>Ready for you</div>
+              <div style={{fontSize:13,color:GRAY400,lineHeight:1.7}}>Sign in as Landlord and add your first property to see it here.</div>
+            </div>)}
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {DEMO_REPAIRS.map((r,i)=>{
+                const st=sPillStyle(r.status);
+                return(
+                  <div key={i} style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,padding:16}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                      <div style={{fontWeight:700,fontSize:15,color:BLACK}}>{r.type}</div>
+                      <span className="pill" style={{background:st.bg,color:st.color}}>{r.status}</span>
+                    </div>
+                    <div style={{fontSize:13,color:GRAY500,marginBottom:6}}>{r.desc}</div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:8,borderTop:`1px solid ${GRAY100}`}}>
+                      <div style={{fontSize:12,color:GRAY400}}>{r.prop} · {r.date}</div>
+                      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:r.cost>0?BLACK:GRAY400}}>{r.cost>0?`$${r.cost}`:"—"}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{marginTop:14,background:GRAY50,borderRadius:14,padding:"14px 16px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Repair Types</div>
+              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                {["Plumbing","Electrical","HVAC","Roof","Paint","Pest","Locks","Other"].map(x=>(
+                  <span key={x} style={{padding:"5px 12px",background:"#fff",border:`1px solid ${GRAY200}`,borderRadius:50,fontSize:12,fontWeight:500,color:BLACK}}>{x}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOTTOM CTA ── */}
+        <div style={{marginTop:32,paddingTop:28,borderTop:`1px solid ${GRAY100}`}}>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px",color:BLACK,marginBottom:6,textAlign:"center"}}>Ready to start?</div>
+          <div style={{fontSize:14,color:GRAY400,textAlign:"center",marginBottom:20}}>Sign in to manage your properties</div>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <button className="tap" onClick={onL} style={{width:"100%",padding:"17px",background:BLACK,border:"none",color:"#fff",borderRadius:16,fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",gap:12}}>
+              <span style={{background:M,width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>🏠</span>
+              {t.btn_l}
+            </button>
+            <button className="tap" onClick={onT} style={{width:"100%",padding:"17px",background:"#fff",border:`2px solid ${GRAY200}`,color:BLACK,borderRadius:16,fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16}}>
+              👤 {t.btn_t}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+function Login({t,lang,toggleLang,role,onBack,onIn}){
+  const isL = role==="l";
+  return(
+    <div style={{minHeight:"100vh",background:"#fff",display:"flex",flexDirection:"column",padding:"0 22px 40px"}}>
+      <div style={{paddingTop:22,marginBottom:40}}>
+        <button className="tap" onClick={onBack} style={{background:"none",border:"none",color:GRAY400,fontSize:14,fontWeight:500,padding:0}}>{t.back}</button>
+      </div>
+      <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}}>
+        <div style={{marginBottom:36}}>
+          <div style={{width:56,height:56,borderRadius:16,background:isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,marginBottom:20}}>{isL?"🏠":"👤"}</div>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:32,fontWeight:200,letterSpacing:"-1px",color:BLACK,marginBottom:4}}>Welcome back</div>
+          <div style={{fontSize:14,color:GRAY400,fontWeight:400}}>{isL?t.role_l:t.role_t} login</div>
+        </div>
+        <Fld label={t.email}><input placeholder={isL?"your@email.com":"your@email.com"}/></Fld>
+        <Fld label={t.pass}><input type="password" placeholder="Password"/></Fld>
+        <div style={{height:16}}/>
+        <button className="tap" onClick={onIn} style={{width:"100%",padding:"17px",background:isL?BLACK:M,border:"none",borderRadius:16,color:isL?"#fff":BLACK,fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16}}>{t.signin}</button>
+        <div style={{textAlign:"center",fontSize:12,color:GRAY400,marginTop:16}}>Demo — tap to enter</div>
+      </div>
+      <button className="tap" onClick={toggleLang} style={{background:"none",border:"none",color:GRAY400,fontSize:13,textAlign:"center",marginTop:20}}>🌐 {t.lang}</button>
+    </div>
+  );
+}
+
+// ── LANDLORD ──────────────────────────────────────────────────────────────
+function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTasks,notify,onOut}){
+  const [tab,setTab]=useState("home");
+  const [sheet,setSheet]=useState(null);
+  const [morePage,setMorePage]=useState("tenants");
+  const [docs,setDocs]=useState([]);
+
+  const spend = maint.reduce((s,m)=>s+(m.cost||0),0);
+  const openC = maint.filter(m=>m.status==="Open"||m.status==="In Progress").length;
+  const resC  = maint.filter(m=>m.status==="Resolved").length;
+  const reminders = props_.filter(p=>getRemStatus(p));
+
+  const addProp  = d=>{setProps(p=>[...p,{...d,id:Date.now(),avatar:avatar(d.tenantName)}]);notify(lang==="en"?"Property added ✓":"Propiedad agregada ✓");setSheet(null);};
+  const addMaint = d=>{setMaint(m=>[...m,{...d,id:Date.now()}]);notify(lang==="en"?"Repair logged ✓":"Reparación registrada ✓");setSheet(null);};
+  const addTask  = d=>{setTasks(tk=>[...tk,{...d,id:Date.now()}]);notify(lang==="en"?"Task added ✓":"Tarea agregada ✓");setSheet(null);};
+  const resolve  = id=>{setMaint(m=>m.map(r=>r.id===id?{...r,status:"Resolved"}:r));notify(lang==="en"?"Resolved ✓":"Resuelto ✓");};
+  const sendRem  = p=>{notify(`${lang==="en"?"Reminder sent to":"Recordatorio enviado a"} ${p.tenantName||p.name} ✓`);};
+  const addDoc   = d=>{setDocs(x=>[...x,{...d,id:Date.now()}]);notify(lang==="en"?"Document saved ✓":"Documento guardado ✓");setSheet(null);};
+
+  const navs=[
+    {id:"home",icon:"⊞",label:t.nav_home},
+    {id:"props",icon:"🏘",label:t.nav_props},
+    {id:"repair",icon:"🔧",label:t.nav_repair},
+    {id:"tasks",icon:"☑",label:t.nav_tasks},
+    {id:"reports",icon:"📊",label:t.nav_reports},
+    {id:"notifs",icon:"🔔",label:t.nav_notifs},
+    {id:"more",icon:"···",label:t.nav_more},
+  ];
+
+  return(
+    <div style={{minHeight:"100vh",background:GRAY50,paddingBottom:80}}>
+      {/* Header */}
+      <div style={{background:"#fff",borderBottom:`1px solid ${GRAY100}`,padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:10}}>
+        <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:200,color:BLACK,letterSpacing:"6px",textTransform:"uppercase"}}>PROPRA</div>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          {reminders.length>0 && (
+            <div style={{background:M,color:BLACK,width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800}}>
+              {reminders.length}
+            </div>
+          )}
+          <button className="tap" onClick={toggleLang} style={{background:GRAY100,border:"none",color:GRAY500,padding:"6px 14px",borderRadius:50,fontSize:12,fontWeight:600}}>🌐</button>
+        </div>
+      </div>
+
+      <div style={{padding:"16px 16px 0"}}>
+
+        {/* ── HOME ── */}
+        {tab==="home"&&(
+          <div className="fade">
+            {/* Greeting */}
+            <div style={{padding:"4px 4px 18px"}}>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:26,fontWeight:200,letterSpacing:"-1px",color:BLACK}}>{t.greeting}</div>
+              <div style={{fontSize:13,color:GRAY400,marginTop:2,fontWeight:400}}>{t.sub_greeting}</div>
+            </div>
+
+            {/* Stats row — mango card + 3 white */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+              <div style={{background:M,borderRadius:16,padding:"18px 16px",gridColumn:"span 2",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:"rgba(0,0,0,.5)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>{t.s_props}</div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:44,fontWeight:200,letterSpacing:"-0.5px",color:BLACK,lineHeight:1}}>{props_.length}</div>
+                </div>
+                <div style={{fontSize:52,opacity:.15}}>🏘</div>
+              </div>
+              {[[t.s_open,openC,RED],[t.s_resolved,resC,GREEN],[t.s_spend,`$${spend.toLocaleString()}`,BLACK]].map(([l,v,c],i)=>(
+                <div key={l} style={{background:"#fff",borderRadius:16,padding:"16px 14px",border:`1px solid ${GRAY100}`,gridColumn:i===2?"span 2":"auto"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>{l}</div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:30,fontWeight:200,letterSpacing:"-1px",color:c}}>{v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Reminders */}
+            <div style={{background:"#fff",borderRadius:16,border:`1px solid ${GRAY100}`,overflow:"hidden",marginBottom:16}}>
+              <div style={{padding:"14px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{fontWeight:700,fontSize:14,color:BLACK}}>🔔 {t.rem_title}</div>
+                {reminders.length>0&&<span className="pill" style={{background:ML,color:MD}}>{reminders.length}</span>}
+              </div>
+              {reminders.length===0?(
+                <div style={{padding:"16px",fontSize:13,color:GRAY400}}>{t.no_rem}</div>
+              ):reminders.map(p=>{
+                const r=getRemStatus(p);
+                return(
+                  <div key={p.id} style={{padding:"14px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",gap:12,alignItems:"center"}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:600,fontSize:14,color:BLACK}}>{p.name}</div>
+                      <div style={{fontSize:12,color:GRAY400,marginTop:1}}>{p.tenantName} · ${p.rentAmount}</div>
+                      <div style={{marginTop:5}}>
+                        {r.type==="overdue"
+                          ? <span className="pill" style={{background:REDL,color:RED}}>⚠ {t.overdue} {r.days}d</span>
+                          : r.days===0
+                            ? <span className="pill" style={{background:ML,color:MD}}>🟡 {t.due_today}</span>
+                            : <span className="pill" style={{background:ML,color:MD}}>🔔 {t.due_in} {r.days} {t.due_d}</span>
+                        }
+                      </div>
+                    </div>
+                    <button className="tap" onClick={()=>sendRem(p)} style={{background:BLACK,border:"none",color:"#fff",padding:"9px 14px",borderRadius:12,fontSize:12,fontWeight:700,flexShrink:0}}>
+                      🔔 {t.send_rem}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Recent repairs */}
+            {maint.length>0&&(
+              <ListCard title={`🔧 ${t.recent_r}`} onMore={()=>setTab("repair")} t={t}>
+                {maint.slice(-3).reverse().map(m=>{
+                  const p=props_.find(x=>x.id===m.propId);
+                  const st=sPillStyle(m.status);
+                  return(
+                    <div key={m.id} style={{padding:"13px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div>
+                        <div style={{fontWeight:600,fontSize:14}}>{m.type}</div>
+                        <div style={{fontSize:12,color:GRAY400,marginTop:1}}>{p?.name} · {m.date}</div>
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+                        <span className="pill" style={{background:st.bg,color:st.color}}>{m.status}</span>
+                        {m.cost>0&&<span style={{fontSize:12,fontWeight:700,color:GRAY500}}>${m.cost}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </ListCard>
+            )}
+
+            {/* Upcoming tasks */}
+            {tasks.filter(tk=>tk.status!=="Done").length>0&&(
+              <div style={{marginTop:12}}>
+                <ListCard title={`☑ ${t.upcoming_t}`} onMore={()=>setTab("tasks")} t={t}>
+                  {tasks.filter(tk=>tk.status!=="Done").sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,3).map(tk=>{
+                    const p=props_.find(x=>x.id===tk.propId);
+                    return(
+                      <div key={tk.id} style={{padding:"13px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <div style={{width:8,height:8,borderRadius:"50%",background:prioColor(tk.priority),flexShrink:0}}/>
+                          <div>
+                            <div style={{fontWeight:600,fontSize:14}}>{tk.task}</div>
+                            <div style={{fontSize:12,color:GRAY400}}>{p?.name} · {tk.dueDate}</div>
+                          </div>
+                        </div>
+                        <span className="pill" style={{background:GRAY100,color:prioColor(tk.priority)}}>{tk.priority}</span>
+                      </div>
+                    );
+                  })}
+                </ListCard>
+              </div>
+            )}
+
+            {props_.length===0&&(
+              <div style={{textAlign:"center",padding:"48px 24px",background:"#fff",borderRadius:20,border:`2px dashed ${GRAY200}`}}>
+                <div style={{fontSize:52,marginBottom:12}}>🏘</div>
+                <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:22,fontWeight:200,letterSpacing:"-1px",color:BLACK,marginBottom:6}}>{t.start_here}</div>
+                <div style={{color:GRAY400,fontSize:13,marginBottom:24}}>{t.start_sub}</div>
+                <button className="tap" onClick={()=>{setTab("props");setSheet("addProp");}} style={{background:M,border:"none",color:BLACK,padding:"13px 28px",borderRadius:50,fontWeight:700,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>{t.add_prop}</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── PROPERTIES ── */}
+        {tab==="props"&&(
+          <div className="fade">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}}>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px"}}>{t.nav_props}</div>
+              <button className="tap" onClick={()=>setSheet("addProp")} style={{background:BLACK,border:"none",color:"#fff",padding:"10px 18px",borderRadius:50,fontWeight:600,fontSize:13}}>{t.add_prop}</button>
+            </div>
+            {props_.length===0 && <Empty t={t}/>}
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {props_.map(p=>{
+                const r=getRemStatus(p);
+                const oc=maint.filter(m=>m.propId===p.id&&m.status!=="Resolved").length;
+                const isAB=p.propType==="airbnb";
+                return(
+                  <div key={p.id} style={{background:"#fff",borderRadius:18,border:`1.5px solid ${r?M:GRAY100}`,overflow:"hidden"}}>
+                    {/* Top accent strip for reminder */}
+                    {r&&<div style={{height:4,background:M,width:"100%"}}/>}
+                    <div style={{padding:18}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                        <div style={{flex:1}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                            <span style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:17,color:BLACK}}>{p.name}</span>
+                            {isAB&&<span className="pill" style={{background:"#fff0f3",color:"#E11D48"}}>Airbnb</span>}
+                          </div>
+                          <div style={{fontSize:12,color:GRAY400}}>{p.address}</div>
+                        </div>
+                        <div style={{textAlign:"right",flexShrink:0,marginLeft:10}}>
+                          <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:20,color:BLACK}}>${p.rentAmount}</div>
+                          <div style={{fontSize:10,color:GRAY400,marginTop:1}}>{freqLabel(p.payFreq,t)}</div>
+                        </div>
+                      </div>
+
+                      {/* Badges */}
+                      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+                        {oc>0&&<span className="pill" style={{background:REDL,color:RED}}>{oc} {lang==="en"?"open":"abiertos"}</span>}
+                        {docs.filter(d=>d.propId===p.id).length>0&&<span className="pill" style={{background:GRAY100,color:GRAY500}}>📄 {docs.filter(d=>d.propId===p.id).length}</span>}
+                        {r?.type==="overdue"&&<span className="pill" style={{background:REDL,color:RED}}>⚠ {t.overdue}</span>}
+                        {r?.type==="soon"&&<span className="pill" style={{background:ML,color:MD}}>{r.days===0?t.due_today:`🔔 ${r.days}d`}</span>}
+                        {isAB&&p.checkIn&&<span className="pill" style={{background:GRAY100,color:GRAY500}}>📅 {p.checkIn}→{p.checkOut}</span>}
+                      </div>
+
+                      {/* Tenant row */}
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:12,borderTop:`1px solid ${GRAY100}`}}>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <div style={{width:36,height:36,borderRadius:"50%",background:isAB?"#fff0f3":ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,color:isAB?"#E11D48":MD,flexShrink:0}}>{p.avatar||"?"}</div>
+                          <div>
+                            <div style={{fontWeight:600,fontSize:14}}>{p.tenantName||"—"}</div>
+                            {p.nextDue&&<div style={{fontSize:11,color:r?MD:GRAY400}}>📅 {p.nextDue}</div>}
+                          </div>
+                        </div>
+                        <div style={{display:"flex",gap:8}}>
+                          {r&&<button className="tap" onClick={()=>sendRem(p)} style={{background:M,border:"none",color:BLACK,padding:"8px 12px",borderRadius:10,fontSize:12,fontWeight:700}}>🔔</button>}
+                          <button className="tap" onClick={()=>setSheet({type:"docs",prop:p})} style={{background:GRAY100,border:"none",color:BLACK,padding:"8px 12px",borderRadius:10,fontSize:13,fontWeight:600}}>📄</button>
+                          <button className="tap" onClick={()=>setSheet(p)} style={{background:GRAY100,border:"none",color:BLACK,padding:"8px 14px",borderRadius:10,fontSize:13,fontWeight:600}}>💬</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── REPAIRS ── */}
+        {tab==="repair"&&(
+          <div className="fade">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}}>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px"}}>🔧 {t.nav_repair}</div>
+              <button className="tap" onClick={()=>setSheet("addRepair")} style={{background:BLACK,border:"none",color:"#fff",padding:"10px 18px",borderRadius:50,fontWeight:600,fontSize:13}}>{t.add_repair}</button>
+            </div>
+            {/* Mini stats */}
+            <div style={{display:"flex",gap:8,marginBottom:14}}>
+              {[[t.s_open,openC,RED,REDL],[t.in_prog,maint.filter(m=>m.status==="In Progress").length,"#B45309",ORANGEL],[t.s_resolved,resC,GREEN,GREENL]].map(([l,v,c,bg])=>(
+                <div key={l} style={{flex:1,background:bg,borderRadius:14,padding:"12px",textAlign:"center"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:c,textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:26,fontWeight:200,letterSpacing:"-1px",color:c,marginTop:2}}>{v}</div>
+                </div>
+              ))}
+            </div>
+            {maint.length===0&&<Empty t={t}/>}
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {maint.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(m=>{
+                const p=props_.find(x=>x.id===m.propId);
+                const st=sPillStyle(m.status);
+                return(
+                  <div key={m.id} style={{background:"#fff",borderRadius:16,border:`1px solid ${GRAY100}`,padding:16}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                      <div style={{fontWeight:700,fontSize:15,color:BLACK}}>{m.type}</div>
+                      <span className="pill" style={{background:st.bg,color:st.color}}>{m.status}</span>
+                    </div>
+                    <div style={{fontSize:13,color:GRAY500,marginBottom:4}}>{m.description}</div>
+                    <div style={{fontSize:12,color:GRAY400,marginBottom:12}}>{p?.name} · {m.date}{m.contractor?` · ${m.contractor}`:""}</div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:10,borderTop:`1px solid ${GRAY100}`}}>
+                      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:18,color:BLACK}}>{m.cost?`$${m.cost}`:"—"}</div>
+                      {m.status!=="Resolved"&&(
+                        <button className="tap" onClick={()=>resolve(m.id)} style={{background:GREENL,border:"none",color:GREEN,padding:"8px 16px",borderRadius:10,fontSize:13,fontWeight:700}}>✓ {t.resolve}</button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── TASKS ── */}
+        {tab==="tasks"&&(
+          <div className="fade">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}}>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px"}}>☑ {t.nav_tasks}</div>
+              <button className="tap" onClick={()=>setSheet("addTask")} style={{background:BLACK,border:"none",color:"#fff",padding:"10px 18px",borderRadius:50,fontWeight:600,fontSize:13}}>{t.add_task}</button>
+            </div>
+            {tasks.length===0&&<Empty t={t}/>}
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {tasks.sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).map(tk=>{
+                const p=props_.find(x=>x.id===tk.propId);
+                const done=tk.status==="Done";
+                return(
+                  <div key={tk.id} style={{background:"#fff",borderRadius:16,border:`1px solid ${GRAY100}`,padding:16,opacity:done?.5:1}}>
+                    <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
+                      <div className="tap" onClick={()=>{setTasks(x=>x.map(r=>r.id===tk.id?{...r,status:"Done"}:r));notify(lang==="en"?"Task done ✓":"Tarea completada ✓");}} style={{width:22,height:22,borderRadius:6,border:`2px solid ${done?GREEN:GRAY200}`,background:done?GREEN:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                        {done&&<span style={{color:"#fff",fontSize:13,fontWeight:800}}>✓</span>}
+                      </div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:600,fontSize:15,color:BLACK,textDecoration:done?"line-through":"none"}}>{tk.task}</div>
+                        <div style={{fontSize:12,color:GRAY400,marginTop:2}}>{p?.name} · {tk.dueDate}</div>
+                        <div style={{display:"flex",gap:8,marginTop:8,alignItems:"center"}}>
+                          <span style={{fontSize:11,fontWeight:700,color:prioColor(tk.priority),background:GRAY100,padding:"3px 9px",borderRadius:20}}>{tk.priority}</span>
+                          {tk.estimatedCost>0&&<span style={{fontSize:13,fontWeight:700,color:GRAY500}}>${tk.estimatedCost}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── MORE ── */}
+        {tab==="reports"&&(
+          <ReportsTab props_={props_} maint={maint} tasks={tasks} lang={lang} t={t}/>
+        )}
+        {tab==="notifs"&&(
+          <NotifsTab props_={props_} maint={maint} tasks={tasks} lang={lang} t={t} notify={notify}/>
+        )}
+        {tab==="more"&&(
+          <div className="fade">
+            <div style={{padding:"4px 4px 18px",fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px"}}>···</div>
+            <div style={{display:"flex",gap:8,marginBottom:16}}>
+              {[["tenants",`👥 ${t.tenants}`],["messages",`💬 ${t.msgs}`]].map(([id,label])=>(
+                <button key={id} className="tap" onClick={()=>setMorePage(id)} style={{flex:1,padding:"11px",borderRadius:12,border:`1.5px solid ${morePage===id?BLACK:GRAY200}`,background:morePage===id?BLACK:"#fff",color:morePage===id?"#fff":GRAY400,fontWeight:600,fontSize:14,fontFamily:"'Montserrat',sans-serif"}}>{label}</button>
+              ))}
+            </div>
+            {morePage==="tenants"&&(
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                {props_.length===0&&<Empty t={t}/>}
+                {props_.map(p=>{
+                  const isAB=p.propType==="airbnb";
+                  return(
+                    <div key={p.id} style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,padding:18}}>
+                      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+                        <div style={{width:48,height:48,borderRadius:"50%",background:isAB?"#fff0f3":ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:16,color:isAB?"#E11D48":MD,flexShrink:0}}>{p.avatar||"?"}</div>
+                        <div>
+                          <div style={{fontWeight:700,fontSize:16,color:BLACK}}>{p.tenantName||"—"}</div>
+                          <div style={{fontSize:12,color:GRAY400}}>{p.name} {isAB?"· Airbnb":""}</div>
+                        </div>
+                      </div>
+                      <div style={{fontSize:13,color:GRAY500,lineHeight:2,borderTop:`1px solid ${GRAY100}`,paddingTop:12,marginBottom:12}}>
+                        {p.phone&&<div>📞 {p.phone}</div>}
+                        <div>💰 ${p.rentAmount} / {freqLabel(p.payFreq,t)}</div>
+                        {p.nextDue&&<div>📅 {lang==="en"?"Next due":"Próximo"}: {p.nextDue}</div>}
+                      </div>
+                      <div style={{display:"flex",gap:8}}>
+                        <button className="tap" onClick={()=>setSheet(p)} style={{flex:1,background:BLACK,border:"none",color:"#fff",padding:"11px",borderRadius:12,fontWeight:600,fontSize:14}}>💬 {t.msg}</button>
+                        <button className="tap" onClick={()=>notify(`Calling ${p.tenantName||p.name}...`)} style={{flex:1,background:GRAY50,border:`1px solid ${GRAY200}`,color:BLACK,padding:"11px",borderRadius:12,fontWeight:600,fontSize:14}}>📞 {t.call}</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {morePage==="messages"&&(
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {props_.length===0&&<Empty t={t}/>}
+                {props_.map(p=>(
+                  <div key={p.id} className="tap" onClick={()=>setSheet(p)} style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:14,padding:16,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:44,height:44,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:14,color:MD,flexShrink:0}}>{p.avatar||"?"}</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:700,fontSize:15}}>{p.tenantName||"—"}</div>
+                      <div style={{fontSize:12,color:GRAY400}}>{p.name}</div>
+                    </div>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:M}}/>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{marginTop:20,background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,overflow:"hidden"}}>
+              <button className="tap" onClick={toggleLang} style={{width:"100%",padding:"16px 18px",background:"none",border:"none",color:BLACK,fontSize:15,textAlign:"left",borderBottom:`1px solid ${GRAY100}`,display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}}>🌐 {t.lang}</button>
+              <button className="tap" onClick={onOut} style={{width:"100%",padding:"16px 18px",background:"none",border:"none",color:RED,fontSize:15,textAlign:"left",display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}}>↩ {t.logout}</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Nav */}
+      <div className="nav-bar">
+        {navs.map(n=>(
+          <button key={n.id} className="tap" onClick={()=>setTab(n.id)} style={{flex:1,padding:"10px 4px 8px",background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer",position:"relative",fontFamily:"'Montserrat',sans-serif"}}>
+            <span style={{fontSize:n.id==="home"||n.id==="props"?19:17,lineHeight:1.4}}>{n.icon}</span>
+            <span style={{fontSize:9,fontWeight:700,color:tab===n.id?BLACK:GRAY400,letterSpacing:.3}}>{n.label}</span>
+            {tab===n.id&&<div style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",width:24,height:3,borderRadius:2,background:M}}/>}
+            {n.id==="home"&&reminders.length>0&&<div style={{position:"absolute",top:6,right:"20%",width:7,height:7,borderRadius:"50%",background:M}}/>}
+          </button>
+        ))}
+      </div>
+
+      {/* Sheets */}
+      {sheet==="addProp"   &&<Overlay onClose={()=>setSheet(null)}><PropForm   t={t} lang={lang} onSave={addProp}  onCancel={()=>setSheet(null)}/></Overlay>}
+      {sheet==="addRepair" &&<Overlay onClose={()=>setSheet(null)}><RepairForm t={t} lang={lang} props_={props_} onSave={addMaint} onCancel={()=>setSheet(null)}/></Overlay>}
+      {sheet==="addTask"   &&<Overlay onClose={()=>setSheet(null)}><TaskForm   t={t} lang={lang} props_={props_} onSave={addTask}  onCancel={()=>setSheet(null)}/></Overlay>}
+      {sheet&&typeof sheet==="object"&&sheet.type==="docs"&&<Overlay onClose={()=>setSheet(null)}><DocsSheet t={t} lang={lang} prop={sheet.prop} docs={docs} onAdd={addDoc} onDelete={id=>setDocs(x=>x.filter(d=>d.id!==id))} onClose={()=>setSheet(null)}/></Overlay>}
+      {sheet&&typeof sheet==="object"&&!sheet.type&&<Overlay onClose={()=>setSheet(null)}><MsgForm t={t} lang={lang} prop={sheet} onSend={()=>{notify(`Sent to ${sheet.tenantName||sheet.name} ✓`);setSheet(null);}}/></Overlay>}
+    </div>
+  );
+}
+
+// ── TENANT ────────────────────────────────────────────────────────────────
+function Tenant({t,lang,toggleLang,prop,pays,setPays,maint,setMaint,notify,onOut}){
+  const [tab,setTab]=useState("home");
+  const [step,setStep]=useState(1);
+  const [method,setMethod]=useState("card");
+  const [issue,setIssue]=useState("");
+  const myPays=pays.filter(p=>p.propId===prop.id);
+  const myIssues=maint.filter(m=>m.propId===prop.id);
+  const rem=getRemStatus(prop);
+
+  const doPay=()=>{
+    if(step<3){setStep(s=>s+1);return;}
+    setPays(p=>[...p,{id:Date.now(),propId:prop.id,month:new Date().toLocaleDateString("en-US",{month:"short",year:"numeric"}),amount:prop.rentAmount,date:new Date().toISOString().split("T")[0],method:method==="card"?"Credit Card":method==="bank"?"Bank Transfer":"MercadoPago",receipt:`#R-${Math.floor(Math.random()*9000+1000)}`}]);
+    notify(t.pay_ok);setStep(1);setTab("home");
+  };
+
+  const navs=[
+    {id:"home",icon:"🏠",label:t.your_prop},
+    {id:"pay",icon:"💳",label:t.pay_rent},
+    {id:"history",icon:"📋",label:t.history},
+    {id:"report",icon:"🔧",label:t.report},
+  ];
+
+  return(
+    <div style={{minHeight:"100vh",background:GRAY50,paddingBottom:80}}>
+      <div style={{background:"#fff",borderBottom:`1px solid ${GRAY100}`,padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:10}}>
+        <div>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:200,letterSpacing:"-1px",color:BLACK}}>Propra</div>
+          <div style={{fontSize:11,color:GRAY400,fontWeight:400}}>{prop.tenantName||prop.name}</div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="tap" onClick={toggleLang} style={{background:GRAY100,border:"none",color:GRAY500,padding:"6px 12px",borderRadius:50,fontSize:12,fontWeight:600}}>🌐</button>
+          <button className="tap" onClick={onOut} style={{background:"none",border:`1px solid ${GRAY200}`,color:GRAY400,padding:"6px 12px",borderRadius:50,fontSize:12,fontWeight:500}}>{t.logout}</button>
+        </div>
+      </div>
+
+      <div style={{padding:"16px 16px 0"}}>
+        {tab==="home"&&(
+          <div className="fade">
+            {rem&&(
+              <div style={{background:rem.type==="overdue"?REDL:ML,border:`1px solid ${rem.type==="overdue"?"#fca5a544":M+"44"}`,borderRadius:16,padding:"16px",marginBottom:14,display:"flex",alignItems:"center",gap:12}}>
+                <div style={{fontSize:28}}>🔔</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,color:rem.type==="overdue"?RED:MD,fontSize:15}}>
+                    {rem.type==="overdue"?`${t.overdue} — ${rem.days} ${t.daysL}`:rem.days===0?t.due_today:`${t.due_in} ${rem.days} ${t.due_d}`}
+                  </div>
+                  <div style={{fontSize:13,color:GRAY500,marginTop:2}}>${prop.rentAmount} · {freqLabel(prop.payFreq,t)}</div>
+                </div>
+                <button className="tap" onClick={()=>setTab("pay")} style={{background:M,border:"none",color:BLACK,padding:"10px 16px",borderRadius:12,fontWeight:700,fontSize:13,flexShrink:0}}>{t.pay_rent}</button>
+              </div>
+            )}
+
+            <div style={{background:"#fff",borderRadius:18,border:`1px solid ${GRAY100}`,padding:20,marginBottom:14}}>
+              <div style={{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>{t.your_prop}</div>
+              <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:20,color:BLACK,marginBottom:2}}>{prop.name}</div>
+              <div style={{fontSize:13,color:GRAY400,marginBottom:18}}>{prop.address}</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+                {[["Rent",`$${prop.rentAmount}`,BLACK],[lang==="en"?"Freq":"Frec",freqLabel(prop.payFreq,t).substring(0,6),GRAY500],[lang==="en"?"Due":"Pago",prop.nextDue||"—",rem?MD:GRAY500]].map(([l,v,c])=>(
+                  <div key={l} style={{background:GRAY50,borderRadius:12,padding:"12px 10px",textAlign:"center"}}>
+                    <div style={{fontSize:9,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:.8,marginBottom:4}}>{l}</div>
+                    <div style={{fontWeight:700,fontSize:14,color:c}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button className="tap" onClick={()=>setTab("pay")} style={{width:"100%",padding:"18px",background:M,border:"none",borderRadius:16,color:BLACK,fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:17,marginBottom:14,display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+              <span>💳</span> {t.pay_rent} — ${prop.rentAmount}
+            </button>
+
+            {myIssues.filter(m=>m.status!=="Resolved").length>0&&(
+              <div style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:14,overflow:"hidden"}}>
+                <div style={{padding:"12px 16px",borderBottom:`1px solid ${GRAY100}`,fontSize:13,fontWeight:700,color:BLACK}}>{t.my_issues}</div>
+                {myIssues.filter(m=>m.status!=="Resolved").map(m=>{
+                  const st=sPillStyle(m.status);
+                  return(
+                    <div key={m.id} style={{padding:"12px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between"}}>
+                      <div><div style={{fontSize:14,fontWeight:500}}>{m.description.substring(0,38)}</div><div style={{fontSize:12,color:GRAY400}}>{m.date}</div></div>
+                      <span className="pill" style={{background:st.bg,color:st.color}}>{m.status}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab==="pay"&&(
+          <div className="fade">
+            <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px",marginBottom:20}}>💳 {t.pay_rent}</div>
+            <div style={{display:"flex",alignItems:"center",marginBottom:24}}>
+              {[1,2,3].map((s,i)=>(
+                <div key={s} style={{display:"flex",alignItems:"center",flex:i<2?1:0}}>
+                  <div style={{width:32,height:32,borderRadius:"50%",background:step>=s?M:"#fff",border:`2px solid ${step>=s?M:GRAY200}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:800,color:step>=s?BLACK:GRAY400,flexShrink:0}}>{step>s?"✓":s}</div>
+                  {i<2&&<div style={{flex:1,height:2,background:step>s?M:GRAY200,margin:"0 8px"}}/>}
+                </div>
+              ))}
+            </div>
+            <div style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,padding:20,marginBottom:16}}>
+              {step===1&&(
+                <div>
+                  <div style={{fontWeight:700,fontSize:17,color:BLACK,marginBottom:16}}>{lang==="en"?"Review Payment":"Revisar Pago"}</div>
+                  {[[lang==="en"?"Property":"Propiedad",prop.name],[lang==="en"?"Amount":"Monto",`$${prop.rentAmount}`],[lang==="en"?"Frequency":"Frecuencia",freqLabel(prop.payFreq,t)]].map(([l,v])=>(
+                    <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${GRAY100}`}}>
+                      <span style={{color:GRAY400,fontSize:14}}>{l}</span>
+                      <span style={{fontWeight:v.startsWith("$")?800:600,color:BLACK,fontSize:v.startsWith("$")?20:14,fontFamily:v.startsWith("$")?"'Montserrat',sans-serif":"inherit"}}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {step===2&&(
+                <div>
+                  <div style={{fontWeight:700,fontSize:17,color:BLACK,marginBottom:16}}>{lang==="en"?"Payment Method":"Método de Pago"}</div>
+                  {[["card",t.pay_card],["bank",t.pay_bank],["mp",t.pay_mp]].map(([m,label])=>(
+                    <div key={m} className="tap" onClick={()=>setMethod(m)} style={{padding:"14px 16px",borderRadius:14,border:`2px solid ${method===m?M:GRAY200}`,marginBottom:10,display:"flex",alignItems:"center",gap:12,background:method===m?ML:"#fff"}}>
+                      <div style={{width:20,height:20,borderRadius:"50%",border:`2px solid ${method===m?M:GRAY200}`,background:method===m?M:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{method===m&&<div style={{width:8,height:8,borderRadius:"50%",background:"#fff"}}/>}</div>
+                      <span style={{fontSize:15,fontWeight:500,color:BLACK}}>{label}</span>
+                    </div>
+                  ))}
+                  {method==="card"&&(
+                    <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:10}}>
+                      <input placeholder="Card number" placeholder="1234 5678 9012 3456"/>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                        <input placeholder="MM/YY" placeholder="MM/YY"/>
+                        <input placeholder="CVV" placeholder="CVV"/>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {step===3&&(
+                <div style={{textAlign:"center",padding:"20px 0"}}>
+                  <div style={{width:72,height:72,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 16px"}}>🔒</div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:20,color:BLACK,marginBottom:4}}>{t.confirm_pay}</div>
+                  <div style={{fontSize:13,color:GRAY400,marginBottom:20}}>{lang==="en"?"Secured & encrypted":"Seguro y encriptado"}</div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:42,color:M}}>${prop.rentAmount}</div>
+                </div>
+              )}
+            </div>
+            <button className="tap" onClick={doPay} style={{width:"100%",padding:"17px",background:M,border:"none",borderRadius:16,color:BLACK,fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:17}}>
+              {step<3?`${lang==="en"?"Continue":"Continuar"} →`:`${t.confirm_pay} — $${prop.rentAmount}`}
+            </button>
+          </div>
+        )}
+
+        {tab==="history"&&(
+          <div className="fade">
+            <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px",marginBottom:16}}>📋 {t.history}</div>
+            {myPays.length===0&&<Empty t={t}/>}
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {myPays.map(ph=>(
+                <div key={ph.id} style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:14,padding:"16px 18px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:16,color:BLACK}}>{ph.month}</div>
+                    <div style={{fontSize:12,color:GRAY400,marginTop:1}}>{ph.date} · {ph.method}</div>
+                    <div style={{fontSize:11,color:GRAY200,marginTop:1}}>{ph.receipt}</div>
+                  </div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:22,color:GREEN}}>${ph.amount}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab==="report"&&(
+          <div className="fade">
+            <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:200,letterSpacing:"-1px",marginBottom:16}}>🔧 {t.report}</div>
+            <div style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:16,padding:18,marginBottom:14}}>
+              <textarea value={issue} onChange={e=>setIssue(e.target.value)} placeholder={t.issue_ph} style={{minHeight:100,resize:"none",marginBottom:12,fontSize:15}}/>
+              <button className="tap" onClick={()=>{if(!issue.trim())return;setMaint(m=>[...m,{id:Date.now(),propId:prop.id,date:new Date().toISOString().split("T")[0],type:"Tenant Report",description:issue,cost:0,status:"Open",contractor:""}]);notify(t.issue_ok);setIssue("");setTab("home");}} style={{width:"100%",padding:"15px",background:BLACK,border:"none",borderRadius:14,color:"#fff",fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16}}>{t.submit}</button>
+            </div>
+            {myIssues.length>0&&(
+              <div style={{background:"#fff",border:`1px solid ${GRAY100}`,borderRadius:14,overflow:"hidden"}}>
+                <div style={{padding:"12px 16px",borderBottom:`1px solid ${GRAY100}`,fontSize:13,fontWeight:700,color:BLACK}}>{t.my_issues}</div>
+                {myIssues.map(m=>{
+                  const st=sPillStyle(m.status);
+                  return(
+                    <div key={m.id} style={{padding:"13px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div><div style={{fontSize:14,fontWeight:500}}>{m.description.substring(0,38)}</div><div style={{fontSize:12,color:GRAY400}}>{m.date}</div></div>
+                      <span className="pill" style={{background:st.bg,color:st.color}}>{m.status}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="nav-bar">
+        {navs.map(n=>(
+          <button key={n.id} className="tap" onClick={()=>setTab(n.id)} style={{flex:1,padding:"10px 4px 8px",background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer",position:"relative",fontFamily:"'Montserrat',sans-serif"}}>
+            <span style={{fontSize:18,lineHeight:1.4}}>{n.icon}</span>
+            <span style={{fontSize:9,fontWeight:700,color:tab===n.id?BLACK:GRAY400,letterSpacing:.3}}>{n.label}</span>
+            {tab===n.id&&<div style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",width:24,height:3,borderRadius:2,background:M}}/>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+
+// ── NOTIFICATIONS TAB ─────────────────────────────────────────────────────
+function NotifsTab({props_, maint, tasks, lang, t, notify}) {
+  const M="#F5A623",ML="#FFF3DC",MD="#C4831A",BLACK="#0A0A0A";
+  const GRAY50="#F8F8F8",GRAY100="#F2F2F2",GRAY200="#E5E5E5",GRAY400="#9A9A9A",GRAY500="#6B6B6B";
+  const GREEN="#2D7D46",GREENL="#E6F4EC",RED="#E53E3E",REDL="#FEF0F0",ORANGEL="#FFF7E6";
+
+  const [filter, setFilter] = React.useState("all");
+  const [dismissed, setDismissed] = React.useState([]);
+
+  const daysUntilLocal = d => d ? Math.ceil((new Date(d) - new Date()) / 86400000) : null;
+
+  // ── Build notification list dynamically ──
+  const allNotifs = [];
+
+  // Payment alerts from real properties
+  props_.forEach(p => {
+    const d = daysUntilLocal(p.nextDue);
+    if (d !== null && d < 0) {
+      allNotifs.push({
+        id: `overdue-${p.id}`,
+        type: "payment",
+        priority: "high",
+        icon: "⚠",
+        iconBg: REDL, iconColor: RED,
+        title: lang==="en" ? "Overdue Payment" : "Pago Vencido",
+        body: `${p.tenantName||p.name} — $${p.rentAmount} · ${Math.abs(d)} ${lang==="en"?"days overdue":"días vencido"}`,
+        time: lang==="en" ? "Past due" : "Vencido",
+        action: lang==="en" ? "Send Notice" : "Enviar Aviso",
+        actionFn: () => notify(`Notice sent to ${p.tenantName||p.name} ✓`),
+      });
+    } else if (d !== null && d <= 5) {
+      allNotifs.push({
+        id: `due-${p.id}`,
+        type: "payment",
+        priority: "medium",
+        icon: "🔔",
+        iconBg: ML, iconColor: MD,
+        title: d===0 ? (lang==="en"?"Due Today":"Vence Hoy") : (lang==="en"?"Payment Due Soon":"Pago Próximo"),
+        body: `${p.tenantName||p.name} — $${p.rentAmount} · ${d===0?(lang==="en"?"today":"hoy"):`${lang==="en"?"in":"en"} ${d} ${lang==="en"?"days":"días"}`}`,
+        time: d===0 ? (lang==="en"?"Today":"Hoy") : `${d}d`,
+        action: lang==="en" ? "Send Reminder" : "Recordar",
+        actionFn: () => notify(`Reminder sent to ${p.tenantName||p.name} ✓`),
+      });
+    }
+  });
+
+  // Open repair alerts
+  maint.filter(m => m.status==="Open").forEach(m => {
+    const p = props_.find(x=>x.id===m.propId);
+    allNotifs.push({
+      id: `repair-open-${m.id}`,
+      type: "repair",
+      priority: "medium",
+      icon: "🔧",
+      iconBg: ORANGEL, iconColor: "#B45309",
+      title: lang==="en" ? "Open Repair" : "Reparación Abierta",
+      body: `${m.type} — ${p?.name||lang==="en"?"Unknown":"Desconocida"} · ${m.date}`,
+      time: m.date,
+      action: lang==="en" ? "View" : "Ver",
+      actionFn: () => notify(`${m.type} opened ✓`),
+    });
+  });
+
+  // In progress repairs
+  maint.filter(m => m.status==="In Progress").forEach(m => {
+    const p = props_.find(x=>x.id===m.propId);
+    allNotifs.push({
+      id: `repair-prog-${m.id}`,
+      type: "repair",
+      priority: "low",
+      icon: "⚙",
+      iconBg: GRAY100, iconColor: GRAY500,
+      title: lang==="en" ? "Repair In Progress" : "En Progreso",
+      body: `${m.type} — ${p?.name||""} · ${m.contractor||lang==="en"?"No contractor":"Sin contratista"}`,
+      time: m.date,
+      action: lang==="en" ? "Mark Done" : "Completar",
+      actionFn: () => notify(`${m.type} marked resolved ✓`),
+    });
+  });
+
+  // Overdue tasks
+  tasks.filter(tk => tk.status!=="Done" && tk.dueDate && daysUntilLocal(tk.dueDate) < 0).forEach(tk => {
+    const p = props_.find(x=>x.id===tk.propId);
+    allNotifs.push({
+      id: `task-${tk.id}`,
+      type: "task",
+      priority: "medium",
+      icon: "☑",
+      iconBg: REDL, iconColor: RED,
+      title: lang==="en" ? "Overdue Task" : "Tarea Vencida",
+      body: `${tk.task} — ${p?.name||""} · ${tk.priority} priority`,
+      time: tk.dueDate,
+      action: lang==="en" ? "Complete" : "Completar",
+      actionFn: () => notify(`Task marked done ✓`),
+    });
+  });
+
+  // Upcoming tasks (within 7 days)
+  tasks.filter(tk => {
+    const d = daysUntilLocal(tk.dueDate);
+    return tk.status!=="Done" && d !== null && d >= 0 && d <= 7;
+  }).forEach(tk => {
+    const p = props_.find(x=>x.id===tk.propId);
+    const d = daysUntilLocal(tk.dueDate);
+    allNotifs.push({
+      id: `task-soon-${tk.id}`,
+      type: "task",
+      priority: "low",
+      icon: "📋",
+      iconBg: GRAY100, iconColor: GRAY500,
+      title: lang==="en" ? "Task Due Soon" : "Tarea Próxima",
+      body: `${tk.task} — ${p?.name||""} · ${lang==="en"?"in":"en"} ${d} ${lang==="en"?"days":"días"}`,
+      time: `${d}d`,
+      action: lang==="en" ? "View" : "Ver",
+      actionFn: () => {},
+    });
+  });
+
+  // No static demo notifications — all alerts come from real data
+  const staticNotifs = [];
+
+  const allCombined = [...allNotifs, ...staticNotifs].filter(n => !dismissed.includes(n.id));
+
+  const filtered = filter==="all" ? allCombined
+    : allCombined.filter(n => n.type===filter);
+
+  const highCount = allCombined.filter(n=>n.priority==="high").length;
+  const medCount  = allCombined.filter(n=>n.priority==="medium").length;
+
+  const priorityOrder = {high:0, medium:1, low:2};
+  const sorted = [...filtered].sort((a,b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+  const filters = [
+    ["all",    lang==="en"?"All":"Todo",     allCombined.length],
+    ["payment",lang==="en"?"Payments":"Pagos", allCombined.filter(n=>n.type==="payment").length],
+    ["repair", lang==="en"?"Repairs":"Reparaciones", allCombined.filter(n=>n.type==="repair").length],
+    ["task",   lang==="en"?"Tasks":"Tareas", allCombined.filter(n=>n.type==="task").length],
+    ["system", lang==="en"?"System":"Sistema", allCombined.filter(n=>n.type==="system").length],
+  ];
+
+  return (
+    <div className="fade">
+      {/* Header */}
+      <div style={{padding:"4px 4px 18px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+        <div style={{fontFamily:"'Montserrat',sans-serif", fontSize:20, fontWeight:200, letterSpacing:"3px", textTransform:"uppercase", color:BLACK}}>
+          {lang==="en"?"Alerts":"Alertas"}
+        </div>
+        <div style={{display:"flex", gap:8, alignItems:"center"}}>
+          {highCount > 0 && (
+            <div style={{background:RED, color:"#fff", padding:"4px 10px", borderRadius:20, fontSize:11, fontWeight:700}}>
+              {highCount} {lang==="en"?"urgent":"urgente"}
+            </div>
+          )}
+          {dismissed.length > 0 && (
+            <button className="tap" onClick={()=>setDismissed([])} style={{background:"none",border:"none",color:GRAY400,fontSize:12,fontFamily:"'Montserrat',sans-serif"}}>
+              {lang==="en"?"Restore":"Restaurar"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Summary bar */}
+      {(highCount > 0 || medCount > 0) && (
+        <div style={{background:BLACK, borderRadius:16, padding:"16px 18px", marginBottom:14, display:"flex", gap:16}}>
+          {highCount > 0 && (
+            <div style={{flex:1, textAlign:"center"}}>
+              <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:28, color:RED, letterSpacing:"-1px"}}>{highCount}</div>
+              <div style={{fontSize:10, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1.5, marginTop:2}}>{lang==="en"?"Urgent":"Urgente"}</div>
+            </div>
+          )}
+          {highCount > 0 && medCount > 0 && <div style={{width:1, background:"rgba(255,255,255,.1)"}}/>}
+          {medCount > 0 && (
+            <div style={{flex:1, textAlign:"center"}}>
+              <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:28, color:M, letterSpacing:"-1px"}}>{medCount}</div>
+              <div style={{fontSize:10, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1.5, marginTop:2}}>{lang==="en"?"Attention":"Atención"}</div>
+            </div>
+          )}
+          {(highCount > 0 || medCount > 0) && <div style={{width:1, background:"rgba(255,255,255,.1)"}}/>}
+          <div style={{flex:1, textAlign:"center"}}>
+            <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:28, color:"#fff", letterSpacing:"-1px"}}>{allCombined.length}</div>
+            <div style={{fontSize:10, color:"rgba(255,255,255,.4)", textTransform:"uppercase", letterSpacing:1.5, marginTop:2}}>{lang==="en"?"Total":"Total"}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter chips */}
+      <div style={{display:"flex", gap:7, overflowX:"auto", paddingBottom:4, marginBottom:16}}>
+        {filters.map(([id, label, count]) => count > 0 || id==="all" ? (
+          <button key={id} className="tap" onClick={()=>setFilter(id)} style={{
+            flexShrink:0, padding:"7px 14px",
+            borderRadius:50,
+            border:`1.5px solid ${filter===id ? BLACK : GRAY200}`,
+            background: filter===id ? BLACK : "#fff",
+            color: filter===id ? "#fff" : GRAY500,
+            fontSize:12, fontWeight:filter===id?500:400,
+            fontFamily:"'Montserrat',sans-serif",
+            display:"flex", alignItems:"center", gap:6,
+          }}>
+            {label}
+            {count > 0 && (
+              <span style={{
+                background: filter===id ? M : GRAY100,
+                color: filter===id ? BLACK : GRAY500,
+                borderRadius:20, padding:"1px 7px", fontSize:10, fontWeight:700,
+              }}>{count}</span>
+            )}
+          </button>
+        ) : null)}
+      </div>
+
+      {/* Notification list */}
+      {sorted.length === 0 ? (
+        <div style={{textAlign:"center", padding:"52px 24px", background:"#fff", borderRadius:16, border:`1.5px dashed ${GRAY200}`}}>
+          <div style={{fontSize:40, marginBottom:12, opacity:.3}}>🔔</div>
+          <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:18, color:BLACK, letterSpacing:"2px", textTransform:"uppercase", marginBottom:6}}>
+            {lang==="en"?"All Clear":"Todo en Orden"}
+          </div>
+          <div style={{fontSize:13, color:GRAY400}}>{lang==="en"?"No alerts right now":"Sin alertas por ahora"}</div>
+        </div>
+      ) : (
+        <div style={{display:"flex", flexDirection:"column", gap:8}}>
+          {sorted.map(n => (
+            <div key={n.id} style={{
+              background:"#fff",
+              border:`1.5px solid ${n.priority==="high" ? "#fca5a5" : n.priority==="medium" ? M+"55" : GRAY100}`,
+              borderRadius:16,
+              padding:16,
+              position:"relative",
+              overflow:"hidden",
+            }}>
+              {/* Priority accent line */}
+              {n.priority==="high" && <div style={{position:"absolute", left:0, top:0, bottom:0, width:3, background:RED, borderRadius:"3px 0 0 3px"}}/>}
+              {n.priority==="medium" && <div style={{position:"absolute", left:0, top:0, bottom:0, width:3, background:M, borderRadius:"3px 0 0 3px"}}/>}
+
+              <div style={{display:"flex", gap:12, alignItems:"flex-start"}}>
+                {/* Icon */}
+                <div style={{
+                  width:40, height:40, borderRadius:12,
+                  background:n.iconBg,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:17, flexShrink:0,
+                  color:n.iconColor,
+                }}>
+                  {n.icon}
+                </div>
+
+                {/* Content */}
+                <div style={{flex:1, minWidth:0}}>
+                  <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:3}}>
+                    <div style={{fontWeight:600, fontSize:14, color:BLACK, lineHeight:1.3}}>{n.title}</div>
+                    <div style={{fontSize:10, color:GRAY400, flexShrink:0, marginLeft:8, marginTop:1}}>{n.time}</div>
+                  </div>
+                  <div style={{fontSize:12, color:GRAY500, lineHeight:1.5, marginBottom: n.action ? 10 : 0}}>{n.body}</div>
+                  {n.action && (
+                    <div style={{display:"flex", gap:8}}>
+                      <button className="tap" onClick={n.actionFn} style={{
+                        padding:"7px 16px", borderRadius:20,
+                        background: n.priority==="high" ? RED : n.priority==="medium" ? M : GRAY100,
+                        color: n.priority==="high" ? "#fff" : n.priority==="medium" ? BLACK : GRAY500,
+                        border:"none", fontSize:12, fontWeight:600,
+                        fontFamily:"'Montserrat',sans-serif",
+                      }}>{n.action}</button>
+                      <button className="tap" onClick={()=>setDismissed(d=>[...d, n.id])} style={{
+                        padding:"7px 12px", borderRadius:20,
+                        background:"none", border:`1px solid ${GRAY200}`,
+                        color:GRAY400, fontSize:12,
+                        fontFamily:"'Montserrat',sans-serif",
+                      }}>{lang==="en"?"Dismiss":"Ignorar"}</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* No-action dismiss */}
+                {!n.action && (
+                  <button className="tap" onClick={()=>setDismissed(d=>[...d, n.id])} style={{
+                    background:"none", border:"none", color:GRAY200,
+                    fontSize:16, padding:"0 0 0 4px", flexShrink:0, alignSelf:"center",
+                  }}>×</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Clear all */}
+      {sorted.length > 0 && (
+        <button className="tap" onClick={()=>setDismissed(allCombined.map(n=>n.id))} style={{
+          width:"100%", marginTop:16, padding:"14px",
+          background:"none", border:`1px solid ${GRAY200}`,
+          borderRadius:14, color:GRAY400,
+          fontFamily:"'Montserrat',sans-serif", fontSize:13, fontWeight:400,
+          letterSpacing:"0.5px",
+        }}>
+          {lang==="en"?"Dismiss All":"Ignorar Todo"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ── REPORTS TAB ───────────────────────────────────────────────────────────
+function ReportsTab({props_, maint, tasks, lang, t}) {
+  const [view, setView] = useState("portfolio");
+  const M = "#F5A623";
+  const ML = "#FFF3DC";
+  const MD = "#C4831A";
+  const BLACK = "#0A0A0A";
+  const GRAY50 = "#F8F8F8";
+  const GRAY100 = "#F2F2F2";
+  const GRAY200 = "#E5E5E5";
+  const GRAY400 = "#9A9A9A";
+  const GRAY500 = "#6B6B6B";
+  const GREEN = "#2D7D46";
+  const GREENL = "#E6F4EC";
+  const RED = "#E53E3E";
+  const REDL = "#FEF0F0";
+
+  // ── Derived numbers ──
+  const totalRent = props_.reduce((s,p) => s + (Number(p.rentAmount)||0), 0);
+  const totalRepairCost = maint.reduce((s,m) => s + (Number(m.cost)||0), 0);
+  const openRepairs = maint.filter(m => m.status === "Open" || m.status === "In Progress").length;
+  const resolvedRepairs = maint.filter(m => m.status === "Resolved").length;
+  const occupancy = props_.length > 0 ? Math.round((props_.filter(p => p.tenantName).length / props_.length) * 100) : 0;
+  const netIncome = totalRent - totalRepairCost;
+  const hasData = props_.length > 0;
+  const capRate = totalRent > 0 ? ((netIncome / (totalRent * 12)) * 100).toFixed(1) : 0;
+
+  // ── Demo monthly data (scales with real data if present) ──
+  const base = totalRent;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const incomeData  = [.88,.91,.95,.98,1,1.02,.97,1.04,1,1.06,1.03,1.08].map(f => Math.round(base * f));
+  const expenseData = [.18,.14,.22,.16,.19,.13,.25,.17,.21,.15,.18,.20].map(f => Math.round(base * f));
+  const netData     = incomeData.map((v,i) => v - expenseData[i]);
+  const maxBar      = Math.max(...incomeData);
+  const ytdIncome   = incomeData.slice(0,3).reduce((a,b)=>a+b,0);
+  const ytdExpense  = expenseData.slice(0,3).reduce((a,b)=>a+b,0);
+  const ytdNet      = ytdIncome - ytdExpense;
+
+  // Repair breakdown by type
+  const repairByType = maint.reduce((acc, m) => {
+    acc[m.type] = (acc[m.type]||0) + (Number(m.cost)||0);
+    return acc;
+  }, {});
+  const topRepairs = Object.entries(repairByType).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+  const Num = ({value, size=32, color=BLACK, prefix="$"}) => (
+    <span style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:size, color, letterSpacing:"-1px", lineHeight:1}}>
+      {prefix}{typeof value === "number" ? value.toLocaleString() : value}
+    </span>
+  );
+
+  const Label = ({text}) => (
+    <div style={{fontSize:10, fontWeight:500, color:GRAY400, textTransform:"uppercase", letterSpacing:2, marginBottom:6}}>{text}</div>
+  );
+
+  const Card = ({children, style={}}) => (
+    <div style={{background:"#fff", border:`1px solid ${GRAY100}`, borderRadius:16, padding:18, ...style}}>{children}</div>
+  );
+
+  return (
+    <div className="fade" style={{paddingBottom:8}}>
+      {/* Header */}
+      <div style={{padding:"4px 4px 18px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+        <div style={{fontFamily:"'Montserrat',sans-serif", fontSize:20, fontWeight:200, letterSpacing:"3px", textTransform:"uppercase", color:BLACK}}>
+          {lang==="en"?"Reports":"Reportes"}
+        </div>
+        <div style={{fontSize:11, color:GRAY400, fontWeight:400}}>2025</div>
+      </div>
+
+      {/* View toggle */}
+      <div style={{display:"flex", gap:0, background:GRAY100, borderRadius:14, padding:4, marginBottom:20}}>
+        {[["portfolio", lang==="en"?"Portfolio":"Portafolio"],
+          ["income",    lang==="en"?"Income":"Ingresos"],
+          ["tax",       lang==="en"?"Tax":"Impuestos"]
+        ].map(([id, label]) => (
+          <button key={id} className="tap" onClick={()=>setView(id)} style={{
+            flex:1, padding:"10px 4px", borderRadius:11, border:"none",
+            background: view===id ? "#fff" : "transparent",
+            color: view===id ? BLACK : GRAY400,
+            fontWeight: view===id ? 600 : 400,
+            fontSize:12, fontFamily:"'Montserrat',sans-serif",
+            boxShadow: view===id ? "0 2px 8px rgba(0,0,0,.08)" : "none",
+            transition:"all .2s", letterSpacing:"0.5px"
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {/* ── PORTFOLIO VIEW ── */}
+      {view==="portfolio" && (
+        <div className="fade">
+          {/* Key metrics grid */}
+          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12}}>
+            {/* Market Value — full width mango */}
+            <div style={{background:BLACK, borderRadius:16, padding:"20px 18px", gridColumn:"span 2", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+              <div>
+                <Label text={lang==="en"?"Total Portfolio Income / mo":"Ingresos Totales / mes"}/>
+                <Num value={totalRent||3200} size={38} color={M}/>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:10, color:"rgba(255,255,255,.3)", textTransform:"uppercase", letterSpacing:1.5, marginBottom:4}}>Properties</div>
+                <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:32, color:"#fff"}}>{props_.length||0}</div>
+              </div>
+            </div>
+
+            {/* Net Income */}
+            <Card>
+              <Label text={lang==="en"?"Net Income":"Neto"}/>
+              <Num value={netIncome > 0 ? netIncome : 2780} size={24} color={GREEN}/>
+              <div style={{fontSize:10, color:GRAY400, marginTop:4}}>{lang==="en"?"after repairs":"después de reparaciones"}</div>
+            </Card>
+
+            {/* Occupancy */}
+            <Card>
+              <Label text={lang==="en"?"Occupancy":"Ocupación"}/>
+              <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:28, color:occupancy>=80?GREEN:RED, letterSpacing:"-1px"}}>
+                {props_.length > 0 ? `${occupancy}%` : "—"}
+              </div>
+              <div style={{marginTop:8, height:4, background:GRAY100, borderRadius:2}}>
+                <div style={{height:"100%", width:`${occupancy||85}%`, background:occupancy>=80?GREEN:RED, borderRadius:2, transition:"width .6s ease"}}/>
+              </div>
+            </Card>
+
+            {/* Cap Rate */}
+            <Card>
+              <Label text="Cap Rate"/>
+              <Num value={props_.length>0 ? capRate : "9.2"} size={28} color={BLACK} prefix=""/>
+              <div style={{fontSize:10, color:GRAY400, marginTop:4}}>%</div>
+            </Card>
+
+            {/* Repair Spend */}
+            <Card>
+              <Label text={lang==="en"?"Repair Spend":"Reparaciones"}/>
+              <Num value={totalRepairCost} size={24} color={totalRepairCost>2000?RED:BLACK}/>
+              <div style={{fontSize:10, color:GRAY400, marginTop:4}}>{openRepairs} {lang==="en"?"open":"abiertos"}</div>
+            </Card>
+          </div>
+
+          {/* Cash Flow bar chart */}
+          <Card style={{marginBottom:12}}>
+            <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16}}>
+              <Label text={lang==="en"?"Net Cash Flow by Month":"Flujo Neto por Mes"}/>
+              <div style={{display:"flex", gap:10, alignItems:"center"}}>
+                <div style={{display:"flex", alignItems:"center", gap:4}}>
+                  <div style={{width:8, height:8, borderRadius:2, background:M}}/>
+                  <span style={{fontSize:9, color:GRAY400}}>{lang==="en"?"Income":"Ingreso"}</span>
+                </div>
+                <div style={{display:"flex", alignItems:"center", gap:4}}>
+                  <div style={{width:8, height:8, borderRadius:2, background:GRAY200}}/>
+                  <span style={{fontSize:9, color:GRAY400}}>{lang==="en"?"Expense":"Gasto"}</span>
+                </div>
+              </div>
+            </div>
+            {/* SVG Bar Chart */}
+            <svg width="100%" viewBox="0 0 320 110" preserveAspectRatio="xMidYMid meet">
+              {/* Grid lines */}
+              {[0,1,2,3].map(i => (
+                <line key={i} x1="0" y1={10 + i*25} x2="320" y2={10 + i*25}
+                  stroke={GRAY100} strokeWidth="1"/>
+              ))}
+              {/* Bars */}
+              {months.map((mo, i) => {
+                const x = i * 26 + 4;
+                const incH = (incomeData[i] / maxBar) * 80;
+                const expH = (expenseData[i] / maxBar) * 80;
+                const isCurrentMonth = i === 2;
+                return (
+                  <g key={mo}>
+                    {/* Income bar */}
+                    <rect x={x} y={90-incH} width={11} height={incH} rx="2"
+                      fill={isCurrentMonth ? M : GRAY200} opacity={isCurrentMonth?1:.7}/>
+                    {/* Expense bar overlay */}
+                    <rect x={x} y={90-expH} width={11} height={expH} rx="2"
+                      fill={isCurrentMonth ? BLACK : GRAY400} opacity=".35"/>
+                    {/* Month label */}
+                    <text x={x+5.5} y="108" textAnchor="middle"
+                      fontSize="7" fill={GRAY400} fontFamily="Montserrat">{mo}</text>
+                  </g>
+                );
+              })}
+              {/* Net line */}
+              <polyline
+                points={netData.map((v,i) => `${i*26+9.5},${90-(v/maxBar)*80}`).join(" ")}
+                fill="none" stroke={M} strokeWidth="1.5" strokeDasharray="3,2" opacity=".6"/>
+            </svg>
+          </Card>
+
+          {/* Per-property breakdown */}
+          {props_.length > 0 && (
+            <Card>
+              <Label text={lang==="en"?"Per Property":"Por Propiedad"}/>
+              {props_.map(p => {
+                const repairs = maint.filter(m=>m.propId===p.id).reduce((s,m)=>s+(Number(m.cost)||0),0);
+                const net = (Number(p.rentAmount)||0) - repairs;
+                const pct = totalRent > 0 ? Math.round((Number(p.rentAmount)||0)/totalRent*100) : 0;
+                return (
+                  <div key={p.id} style={{paddingTop:12, marginTop:12, borderTop:`1px solid ${GRAY100}`}}>
+                    <div style={{display:"flex", justifyContent:"space-between", marginBottom:6}}>
+                      <div style={{fontWeight:500, fontSize:13, color:BLACK}}>{p.name}</div>
+                      <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:16, color:BLACK}}>${(Number(p.rentAmount)||0).toLocaleString()}</div>
+                    </div>
+                    <div style={{height:4, background:GRAY100, borderRadius:2, marginBottom:4}}>
+                      <div style={{height:"100%", width:`${pct}%`, background:M, borderRadius:2}}/>
+                    </div>
+                    <div style={{display:"flex", justifyContent:"space-between"}}>
+                      <span style={{fontSize:10, color:GRAY400}}>{pct}% {lang==="en"?"of portfolio":"del portafolio"}</span>
+                      <span style={{fontSize:11, fontWeight:500, color:net>=0?GREEN:RED}}>Net ${net.toLocaleString()}</span>
+                    </div>
+                  </div>
+                );
+              })}
+              {props_.length === 0 && <div style={{fontSize:13, color:GRAY400, paddingTop:8}}>{t.empty}</div>}
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* ── INCOME VIEW ── */}
+      {view==="income" && (
+        <div className="fade">
+          {/* YTD summary */}
+          <Card style={{marginBottom:12, background:BLACK}}>
+            <Label text="YTD Summary 2025"/>
+            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginTop:8}}>
+              {[[lang==="en"?"Income":"Ingresos", ytdIncome, M],
+                [lang==="en"?"Expenses":"Gastos", ytdExpense, GRAY400],
+                ["Net", ytdNet, ytdNet>=0?"#4ade80":RED]
+              ].map(([l,v,c]) => (
+                <div key={l}>
+                  <div style={{fontSize:9, color:"rgba(255,255,255,.3)", textTransform:"uppercase", letterSpacing:1.5, marginBottom:4}}>{l}</div>
+                  <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:20, color:c, letterSpacing:"-0.5px"}}>${v.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Monthly income table */}
+          <Card style={{marginBottom:12}}>
+            <Label text={lang==="en"?"Monthly Breakdown":"Desglose Mensual"}/>
+            <div style={{marginTop:8}}>
+              {months.slice(0,6).map((mo,i) => (
+                <div key={mo} style={{display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:`1px solid ${GRAY100}`}}>
+                  <div style={{width:28, fontSize:11, fontWeight:500, color:GRAY500}}>{mo}</div>
+                  <div style={{flex:1}}>
+                    <div style={{height:5, background:GRAY100, borderRadius:3}}>
+                      <div style={{height:"100%", width:`${Math.round(incomeData[i]/maxBar*100)}%`, background:i===2?M:GRAY200, borderRadius:3}}/>
+                    </div>
+                  </div>
+                  <div style={{width:64, textAlign:"right", fontFamily:"'Montserrat',sans-serif", fontWeight:300, fontSize:13, color:BLACK}}>${incomeData[i].toLocaleString()}</div>
+                  <div style={{width:52, textAlign:"right", fontSize:11, color:RED}}>-${expenseData[i].toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Repair cost breakdown */}
+          <Card>
+            <Label text={lang==="en"?"Repair Cost by Type":"Costos por Tipo"}/>
+            {topRepairs.length > 0 ? topRepairs.map(([type, cost]) => {
+              const maxCost = topRepairs[0][1];
+              return (
+                <div key={type} style={{marginTop:12}}>
+                  <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
+                    <span style={{fontSize:13, fontWeight:400, color:BLACK}}>{type}</span>
+                    <span style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:14, color:BLACK}}>${cost.toLocaleString()}</span>
+                  </div>
+                  <div style={{height:4, background:GRAY100, borderRadius:2}}>
+                    <div style={{height:"100%", width:`${Math.round(cost/maxCost*100)}%`, background:M, borderRadius:2}}/>
+                  </div>
+                </div>
+              );
+            }) : (
+              <div style={{paddingTop:12}}>
+                {[["Plumbing",420],["Electrical",350],["HVAC",280],["Paint",100]].map(([type,cost])=>(
+                  <div key={type} style={{marginTop:12}}>
+                    <div style={{display:"flex", justifyContent:"space-between", marginBottom:4}}>
+                      <span style={{fontSize:13, color:BLACK}}>{type}</span>
+                      <span style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:14}}>${cost}</span>
+                    </div>
+                    <div style={{height:4, background:GRAY100, borderRadius:2}}>
+                      <div style={{height:"100%", width:`${Math.round(cost/420*100)}%`, background:M, borderRadius:2}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
+
+      {/* ── TAX VIEW ── */}
+      {view==="tax" && (
+        <div className="fade">
+          {/* Tax year header */}
+          <Card style={{marginBottom:12, background:BLACK}}>
+            <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
+              <div>
+                <Label text={lang==="en"?"Tax Year Summary":"Resumen Fiscal"}/>
+                <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:100, fontSize:28, color:"#fff", letterSpacing:"2px", marginTop:4}}>2025</div>
+              </div>
+              <div style={{background:GREENL, color:GREEN, padding:"6px 12px", borderRadius:20, fontSize:11, fontWeight:600}}>
+                ✓ {lang==="en"?"Ready":"Listo"}
+              </div>
+            </div>
+          </Card>
+
+          {/* Tax figures */}
+          <Card style={{marginBottom:12}}>
+            <Label text={lang==="en"?"Annual Summary":"Resumen Anual"}/>
+            {[
+              [lang==="en"?"Total Rental Income":"Ingresos Totales",    totalRent*12||0,    BLACK, false],
+              [lang==="en"?"Total Repair Expenses":"Gastos Reparaciones", totalRepairCost, RED,   true],
+              [lang==="en"?"Net Operating Income":"Ingreso Neto Op.",   totalRent*12 - totalRepairCost, GREEN, false],
+              [lang==="en"?"Est. Tax Deductions":"Deducciones Est.",    Math.round((totalRepairCost*1.3)), M, true],
+            ].map(([label, value, color, sub]) => (
+              <div key={label} style={{display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 0", borderBottom:`1px solid ${GRAY100}`}}>
+                <div>
+                  <div style={{fontSize:14, fontWeight: sub?300:400, color:BLACK}}>{label}</div>
+                  {sub && <div style={{fontSize:10, color:GRAY400, marginTop:1}}>{lang==="en"?"deductible":"deducible"}</div>}
+                </div>
+                <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:20, color}}>${value.toLocaleString()}</div>
+              </div>
+            ))}
+          </Card>
+
+          {/* Tax readiness checklist */}
+          <Card style={{marginBottom:12}}>
+            <Label text={lang==="en"?"Tax Readiness":"Preparación Fiscal"}/>
+            <div style={{marginTop:8, display:"flex", flexDirection:"column", gap:0}}>
+              {[
+                [true,  lang==="en"?"All properties documented":"Propiedades documentadas"],
+                [true,  lang==="en"?"Repair costs logged":"Gastos registrados"],
+                [props_.length>0, lang==="en"?"Tenant info complete":"Info de inquilinos completa"],
+                [maint.length>0,  lang==="en"?"Maintenance records saved":"Registros de mantenimiento"],
+              ].map(([done, label], i) => (
+                <div key={i} style={{display:"flex", alignItems:"center", gap:12, padding:"12px 0", borderBottom:`1px solid ${GRAY100}`}}>
+                  <div style={{
+                    width:28, height:28, borderRadius:"50%",
+                    background: done ? GREENL : GRAY100,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    flexShrink:0,
+                  }}>
+                    <span style={{fontSize:13, color: done ? GREEN : GRAY400}}>{done?"✓":"○"}</span>
+                  </div>
+                  <span style={{fontSize:13, fontWeight: done?400:300, color: done?BLACK:GRAY400}}>{label}</span>
+                  {done && <span style={{marginLeft:"auto", fontSize:10, fontWeight:600, color:GREEN}}>100%</span>}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Export button */}
+          <button className="tap" style={{
+            width:"100%", padding:"16px",
+            background:M, border:"none",
+            borderRadius:16, color:BLACK,
+            fontFamily:"'Montserrat',sans-serif",
+            fontWeight:600, fontSize:14,
+            letterSpacing:"1px", textTransform:"uppercase",
+            display:"flex", alignItems:"center", justifyContent:"center", gap:10
+          }}>
+            <span>↓</span>
+            {lang==="en"?"Generate Tax Package":"Generar Paquete Fiscal"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ── DOCS SHEET ────────────────────────────────────────────────────────────
+function DocsSheet({t, lang, prop, docs, onAdd, onDelete, onClose}) {
+  const M="#F5A623",ML="#FFF3DC",MD="#C4831A",BLACK="#0A0A0A";
+  const GRAY50="#F8F8F8",GRAY100="#F2F2F2",GRAY200="#E5E5E5";
+  const GRAY400="#9A9A9A",GRAY500="#6B6B6B";
+  const GREEN="#2D7D46",GREENL="#E6F4EC",RED="#E53E3E",REDL="#FEF0F0";
+
+  const [adding, setAdding] = React.useState(false);
+  const [form, setForm] = React.useState({
+    propId: prop.id,
+    name: "", type: "lease", notes: "",
+    date: new Date().toISOString().split("T")[0],
+    expiry: ""
+  });
+  const u = (k,v) => setForm(f=>({...f,[k]:v}));
+
+  const propDocs = docs.filter(d => d.propId === prop.id);
+
+  const DOC_TYPES = {
+    lease:      { icon:"📋", label: lang==="en"?"Lease / Contract":"Contrato / Arrendamiento", color: "#2D7D46", bg: "#E6F4EC" },
+    insurance:  { icon:"🛡",  label: lang==="en"?"Insurance":"Seguro",                         color: "#1D4ED8", bg: "#EFF6FF" },
+    inspection: { icon:"🔍", label: lang==="en"?"Inspection Report":"Reporte de Inspección",   color: "#7C3AED", bg: "#F5F3FF" },
+    permit:     { icon:"📜", label: lang==="en"?"Permit / License":"Permiso / Licencia",       color: "#B45309", bg: "#FFF7E6" },
+    photo:      { icon:"📷", label: lang==="en"?"Photos":"Fotos",                              color: "#0F766E", bg: "#F0FDFA" },
+    tax:        { icon:"🧾", label: lang==="en"?"Tax Document":"Documento Fiscal",             color: "#BE123C", bg: "#FFF1F2" },
+    other:      { icon:"📎", label: lang==="en"?"Other":"Otro",                                color: GRAY500,   bg: GRAY100  },
+  };
+
+  const isExpiringSoon = expiry => {
+    if (!expiry) return false;
+    const d = Math.ceil((new Date(expiry) - new Date()) / 86400000);
+    return d >= 0 && d <= 30;
+  };
+  const isExpired = expiry => {
+    if (!expiry) return false;
+    return new Date(expiry) < new Date();
+  };
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6}}>
+        <div>
+          <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:20, letterSpacing:"3px", textTransform:"uppercase", color:BLACK}}>
+            {lang==="en"?"Documents":"Documentos"}
+          </div>
+          <div style={{fontSize:12, color:GRAY400, marginTop:3}}>{prop.name}</div>
+        </div>
+        <div style={{display:"flex", gap:8, alignItems:"center"}}>
+          <span style={{background:GRAY100, color:GRAY500, padding:"4px 10px", borderRadius:20, fontSize:11, fontWeight:600}}>
+            {propDocs.length} {lang==="en"?"files":"archivos"}
+          </span>
+        </div>
+      </div>
+
+      {/* Doc type legend pills */}
+      <div style={{display:"flex", gap:6, flexWrap:"wrap", marginBottom:18, marginTop:12}}>
+        {Object.entries(DOC_TYPES).map(([k,v]) => (
+          <span key={k} style={{padding:"4px 10px", borderRadius:20, background:v.bg, color:v.color, fontSize:11, fontWeight:600}}>
+            {v.icon} {v.label}
+          </span>
+        ))}
+      </div>
+
+      {/* Add button */}
+      {!adding && (
+        <button className="tap" onClick={()=>setAdding(true)} style={{
+          width:"100%", padding:"14px", marginBottom:16,
+          background:BLACK, border:"none", color:"#fff",
+          borderRadius:14, fontFamily:"'Montserrat',sans-serif",
+          fontWeight:500, fontSize:14, letterSpacing:"1px",
+          display:"flex", alignItems:"center", justifyContent:"center", gap:10
+        }}>
+          <span style={{fontSize:20, fontWeight:200}}>+</span>
+          {lang==="en"?"Add Document":"Agregar Documento"}
+        </button>
+      )}
+
+      {/* Add form */}
+      {adding && (
+        <div style={{background:GRAY50, borderRadius:16, padding:16, marginBottom:16, border:`1.5px solid ${M}`}}>
+          <div style={{fontWeight:600, fontSize:14, color:BLACK, marginBottom:14}}>
+            {lang==="en"?"New Document":"Nuevo Documento"}
+          </div>
+
+          {/* Doc name */}
+          <div style={{marginBottom:12}}>
+            <label style={{fontSize:10, fontWeight:600, color:GRAY400, display:"block", marginBottom:6, textTransform:"uppercase", letterSpacing:2}}>
+              {lang==="en"?"Document Name":"Nombre del Documento"}
+            </label>
+            <input value={form.name} onChange={e=>u("name",e.target.value)}
+              placeholder={lang==="en"?"e.g. Lease Agreement 2025":"ej. Contrato de Arrendamiento 2025"}/>
+          </div>
+
+          {/* Doc type */}
+          <div style={{marginBottom:12}}>
+            <label style={{fontSize:10, fontWeight:600, color:GRAY400, display:"block", marginBottom:6, textTransform:"uppercase", letterSpacing:2}}>
+              {lang==="en"?"Type":"Tipo"}
+            </label>
+            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:8}}>
+              {Object.entries(DOC_TYPES).map(([k,v]) => (
+                <button key={k} className="tap" onClick={()=>u("type",k)} style={{
+                  padding:"10px 12px", borderRadius:12,
+                  border:`1.5px solid ${form.type===k ? v.color : GRAY200}`,
+                  background: form.type===k ? v.bg : "#fff",
+                  color: form.type===k ? v.color : GRAY400,
+                  fontSize:12, fontWeight:form.type===k?700:400,
+                  fontFamily:"'Montserrat',sans-serif",
+                  display:"flex", alignItems:"center", gap:6,
+                  textAlign:"left",
+                }}>
+                  <span>{v.icon}</span> {v.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Date + Expiry */}
+          <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12}}>
+            <div>
+              <label style={{fontSize:10, fontWeight:600, color:GRAY400, display:"block", marginBottom:6, textTransform:"uppercase", letterSpacing:2}}>
+                {lang==="en"?"Date Added":"Fecha"}
+              </label>
+              <input type="date" value={form.date} onChange={e=>u("date",e.target.value)}/>
+            </div>
+            <div>
+              <label style={{fontSize:10, fontWeight:600, color:GRAY400, display:"block", marginBottom:6, textTransform:"uppercase", letterSpacing:2}}>
+                {lang==="en"?"Expiry Date":"Vencimiento"}
+              </label>
+              <input type="date" value={form.expiry} onChange={e=>u("expiry",e.target.value)}
+                placeholder={lang==="en"?"Optional":"Opcional"}/>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div style={{marginBottom:16}}>
+            <label style={{fontSize:10, fontWeight:600, color:GRAY400, display:"block", marginBottom:6, textTransform:"uppercase", letterSpacing:2}}>
+              {lang==="en"?"Notes":"Notas"}
+            </label>
+            <textarea rows={2} value={form.notes} onChange={e=>u("notes",e.target.value)}
+              placeholder={lang==="en"?"Policy number, agent contact, renewal info...":"Número de póliza, contacto, renovación..."}
+              style={{resize:"none"}}/>
+          </div>
+
+          <div style={{display:"flex", gap:10}}>
+            <button className="tap" onClick={()=>setAdding(false)} style={{
+              flex:1, padding:"13px", background:"#fff", border:`1px solid ${GRAY200}`,
+              color:GRAY400, borderRadius:13, fontFamily:"'Montserrat',sans-serif", fontSize:14
+            }}>{lang==="en"?"Cancel":"Cancelar"}</button>
+            <button className="tap" onClick={()=>{
+              if(!form.name.trim()) return;
+              onAdd({...form, propId:prop.id});
+              setAdding(false);
+              setForm({propId:prop.id, name:"", type:"lease", notes:"", date:new Date().toISOString().split("T")[0], expiry:""});
+            }} style={{
+              flex:2, padding:"13px", background:M, border:"none",
+              color:BLACK, borderRadius:13, fontFamily:"'Montserrat',sans-serif",
+              fontWeight:700, fontSize:14
+            }}>{lang==="en"?"Save Document":"Guardar Documento"}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Document list */}
+      {propDocs.length === 0 && !adding && (
+        <div style={{textAlign:"center", padding:"40px 20px", background:GRAY50, borderRadius:16, border:`1.5px dashed ${GRAY200}`}}>
+          <div style={{fontSize:40, marginBottom:10, opacity:.2}}>📄</div>
+          <div style={{fontFamily:"'Montserrat',sans-serif", fontWeight:200, fontSize:16, letterSpacing:"2px", textTransform:"uppercase", color:BLACK, marginBottom:6}}>
+            {lang==="en"?"No Documents Yet":"Sin Documentos"}
+          </div>
+          <div style={{fontSize:13, color:GRAY400, lineHeight:1.6}}>
+            {lang==="en"?"Add leases, insurance, inspection reports and more":"Agrega contratos, seguros, reportes y más"}
+          </div>
+        </div>
+      )}
+
+      <div style={{display:"flex", flexDirection:"column", gap:10}}>
+        {propDocs.map(doc => {
+          const dt = DOC_TYPES[doc.type] || DOC_TYPES.other;
+          const expired = isExpired(doc.expiry);
+          const expiring = isExpiringSoon(doc.expiry);
+          return (
+            <div key={doc.id} style={{
+              background:"#fff",
+              border:`1.5px solid ${expired ? "#fca5a5" : expiring ? M+"66" : GRAY100}`,
+              borderRadius:16, padding:16,
+              position:"relative", overflow:"hidden"
+            }}>
+              {/* Color left strip */}
+              <div style={{position:"absolute", left:0, top:0, bottom:0, width:3, background:dt.color, borderRadius:"3px 0 0 3px"}}/>
+
+              <div style={{display:"flex", gap:12, alignItems:"flex-start", paddingLeft:8}}>
+                {/* Icon */}
+                <div style={{
+                  width:44, height:44, borderRadius:13,
+                  background:dt.bg, display:"flex", alignItems:"center",
+                  justifyContent:"center", fontSize:22, flexShrink:0
+                }}>{dt.icon}</div>
+
+                {/* Info */}
+                <div style={{flex:1, minWidth:0}}>
+                  <div style={{fontWeight:600, fontSize:15, color:BLACK, marginBottom:2}}>{doc.name}</div>
+                  <div style={{fontSize:11, color:dt.color, fontWeight:600, marginBottom:4}}>{dt.label}</div>
+
+                  {/* Expiry badge */}
+                  {doc.expiry && (
+                    <div style={{marginBottom:6}}>
+                      {expired
+                        ? <span style={{background:REDL, color:RED, padding:"3px 10px", borderRadius:20, fontSize:10, fontWeight:700}}>⚠ {lang==="en"?"Expired":"Vencido"} · {doc.expiry}</span>
+                        : expiring
+                          ? <span style={{background:ML, color:MD, padding:"3px 10px", borderRadius:20, fontSize:10, fontWeight:700}}>🔔 {lang==="en"?"Expires":"Vence"} · {doc.expiry}</span>
+                          : <span style={{background:GREENL, color:GREEN, padding:"3px 10px", borderRadius:20, fontSize:10, fontWeight:600}}>✓ {lang==="en"?"Valid until":"Válido hasta"} {doc.expiry}</span>
+                      }
+                    </div>
+                  )}
+
+                  {doc.notes && (
+                    <div style={{fontSize:12, color:GRAY500, lineHeight:1.5, marginBottom:4}}>{doc.notes}</div>
+                  )}
+                  <div style={{fontSize:11, color:GRAY400}}>{lang==="en"?"Added":"Agregado"}: {doc.date}</div>
+                </div>
+
+                {/* Delete */}
+                <button className="tap" onClick={()=>onDelete(doc.id)} style={{
+                  background:"none", border:"none", color:GRAY200,
+                  fontSize:20, padding:4, flexShrink:0, lineHeight:1
+                }}>×</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Note about real storage */}
+      {propDocs.length > 0 && (
+        <div style={{marginTop:16, padding:"12px 14px", background:ML, borderRadius:12, display:"flex", gap:10, alignItems:"flex-start"}}>
+          <span style={{fontSize:16}}>💡</span>
+          <div style={{fontSize:11, color:MD, lineHeight:1.6}}>
+            {lang==="en"
+              ? "Documents are saved in this session. In the full version, files will be stored securely in the cloud."
+              : "Los documentos se guardan en esta sesión. En la versión completa, se almacenarán en la nube de forma segura."
+            }
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SHARED ────────────────────────────────────────────────────────────────
+const Empty = ({t}) => (
+  <div style={{textAlign:"center",padding:"36px 24px",background:"#fff",borderRadius:16,border:`1.5px dashed ${GRAY200}`,marginBottom:12}}>
+    <div style={{fontSize:36,marginBottom:8,opacity:.3}}>○</div>
+    <div style={{fontSize:14,color:GRAY400}}>{t.empty}</div>
+  </div>
+);
+
+const ListCard = ({title,onMore,t,children}) => (
+  <div style={{background:"#fff",borderRadius:16,border:`1px solid ${GRAY100}`,overflow:"hidden",marginBottom:0}}>
+    <div style={{padding:"14px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div style={{fontWeight:700,fontSize:14,color:BLACK}}>{title}</div>
+      <button className="tap" onClick={onMore} style={{background:"none",border:"none",color:M,fontSize:13,fontWeight:700,fontFamily:"'Montserrat',sans-serif"}}>{t.see_all}</button>
+    </div>
+    {children}
+  </div>
+);
+
+function Overlay({children,onClose}){
+  return(
+    <div className="sheet-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="sheet-box">
+        <div className="handle"/>
+        <div style={{padding:"0 20px"}}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+const Fld = ({label,children}) => (
+  <div style={{marginBottom:14}}>
+    {label&&<label style={{fontSize:10,fontWeight:500,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}}>{label}</label>}
+    {children}
+  </div>
+);
+
+const Btn = ({label,onClick,variant="primary"}) => (
+  <button className="tap" onClick={onClick} style={{
+    padding:"14px 24px", borderRadius:50, fontFamily:"'Montserrat',sans-serif", fontWeight:700, fontSize:15, cursor:"pointer",
+    background: variant==="primary"?BLACK:variant==="mango"?M:"#fff",
+    color: variant==="primary"?"#fff":variant==="mango"?BLACK:BLACK,
+    border: variant==="outline"?`2px solid ${GRAY200}`:"none",
+    width:"100%"
+  }}>{label}</button>
+);
+
+const FormBtns = ({t,onSave,onCancel}) => (
+  <div style={{display:"flex",gap:10,marginTop:20,paddingBottom:10}}>
+    <button className="tap" onClick={onCancel} style={{flex:1,padding:"14px",background:GRAY100,border:"none",color:BLACK,borderRadius:14,fontWeight:600,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>{t.cancel}</button>
+    <button className="tap" onClick={onSave} style={{flex:2,padding:"14px",background:M,border:"none",color:BLACK,borderRadius:14,fontWeight:800,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>{t.save}</button>
+  </div>
+);
+
+// ── PROPERTY FORM ─────────────────────────────────────────────────────────
+function PropForm({t,lang,onSave,onCancel}){
+  const [f,setF]=useState({name:"",address:"",propType:"rental",tenantName:"",phone:"",emailAddr:"",payFreq:"monthly",rentAmount:"",nextDue:"",leaseStart:"",leaseEnd:"",checkIn:"",checkOut:"",guests:"",platform:"",bookingRef:"",deposit:"",notes:""});
+  const u=(k,v)=>setF(p=>({...p,[k]:v}));
+  const ab=f.propType==="airbnb";
+  return(
+    <div>
+      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:22,color:BLACK,marginBottom:20}}>New Property</div>
+      <Fld label={t.prop_name}><input value={f.name} onChange={e=>u("name",e.target.value)} placeholder={lang==="en"?"e.g. Main St House":"ej. Casa Principal"}/></Fld>
+      <Fld label={t.prop_addr}><input value={f.address} onChange={e=>u("address",e.target.value)}/></Fld>
+      <Fld label={t.prop_type}>
+        <select value={f.propType} onChange={e=>u("propType",e.target.value)}>
+          <option value="rental">{t.t_rental}</option>
+          <option value="airbnb">{t.t_airbnb}</option>
+          <option value="commercial">{t.t_commercial}</option>
+        </select>
+      </Fld>
+      <Fld label={t.t_name}><input value={f.tenantName} onChange={e=>u("tenantName",e.target.value)}/></Fld>
+      <Fld label={t.phone}><input type="tel" value={f.phone} onChange={e=>u("phone",e.target.value)}/></Fld>
+      <Fld label={t.emailf}><input type="email" value={f.emailAddr} onChange={e=>u("emailAddr",e.target.value)}/></Fld>
+      <Fld label={t.pay_freq}>
+        <select value={f.payFreq} onChange={e=>u("payFreq",e.target.value)}>
+          {!ab&&<><option value="monthly">{t.f_monthly}</option><option value="weekly">{t.f_weekly}</option><option value="biweekly">{t.f_biweekly}</option><option value="contract">{t.f_contract}</option></>}
+          {ab&&<><option value="nightly">{t.f_nightly}</option><option value="contract">{t.f_contract}</option></>}
+        </select>
+      </Fld>
+      <Fld label={ab?t.nightly:t.rent_amt}><input type="number" value={f.rentAmount} onChange={e=>u("rentAmount",e.target.value)} placeholder="0"/></Fld>
+      {ab?(
+        <>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <Fld label={t.checkin}><input type="date" value={f.checkIn} onChange={e=>u("checkIn",e.target.value)}/></Fld>
+            <Fld label={t.checkout}><input type="date" value={f.checkOut} onChange={e=>u("checkOut",e.target.value)}/></Fld>
+          </div>
+          <Fld label={t.guests}><input type="number" value={f.guests} onChange={e=>u("guests",e.target.value)} placeholder="1"/></Fld>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <Fld label={t.platform}><input value={f.platform} onChange={e=>u("platform",e.target.value)} placeholder="Airbnb, VRBO..."/></Fld>
+            <Fld label={t.booking}><input value={f.bookingRef} onChange={e=>u("bookingRef",e.target.value)} placeholder="Booking reference..."/></Fld>
+          </div>
+        </>
+      ):(
+        <>
+          <Fld label={t.next_due}><input type="date" value={f.nextDue} onChange={e=>u("nextDue",e.target.value)}/></Fld>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <Fld label={t.l_start}><input type="date" value={f.leaseStart} onChange={e=>u("leaseStart",e.target.value)}/></Fld>
+            <Fld label={t.l_end}><input type="date" value={f.leaseEnd} onChange={e=>u("leaseEnd",e.target.value)}/></Fld>
+          </div>
+        </>
+      )}
+      <Fld label={t.deposit}><input type="number" value={f.deposit} onChange={e=>u("deposit",e.target.value)} placeholder="0"/></Fld>
+      <Fld label={t.notes}><textarea rows={2} value={f.notes} onChange={e=>u("notes",e.target.value)} style={{resize:"none"}}/></Fld>
+      <FormBtns t={t} onSave={()=>onSave({...f,rentAmount:Number(f.rentAmount),deposit:Number(f.deposit)})} onCancel={onCancel}/>
+    </div>
+  );
+}
+
+// ── REPAIR FORM ───────────────────────────────────────────────────────────
+function RepairForm({t,lang,props_,onSave,onCancel}){
+  const [f,setF]=useState({propId:"",date:new Date().toISOString().split("T")[0],type:"",description:"",cost:"",status:"Open",contractor:"",nextService:""});
+  const u=(k,v)=>setF(p=>({...p,[k]:v}));
+  return(
+    <div>
+      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:22,color:BLACK,marginBottom:20}}>Log Repair</div>
+      <Fld label={t.r_prop}>
+        <select value={f.propId} onChange={e=>u("propId",Number(e.target.value))}>
+          <option value="">{lang==="en"?"Select property...":"Seleccionar..."}</option>
+          {props_.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+      </Fld>
+      <Fld label={t.r_type}>
+        <select value={f.type} onChange={e=>u("type",e.target.value)}>
+          <option value="">{lang==="en"?"Select type...":"Tipo..."}</option>
+          {t.works.map(w=><option key={w} value={w}>{w}</option>)}
+        </select>
+      </Fld>
+      <Fld label={t.r_desc}><textarea rows={3} value={f.description} onChange={e=>u("description",e.target.value)} placeholder={lang==="en"?"What happened?":"¿Qué pasó?"} style={{resize:"none"}}/></Fld>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        <Fld label={t.r_date}><input type="date" value={f.date} onChange={e=>u("date",e.target.value)}/></Fld>
+        <Fld label={t.r_cost}><input type="number" value={f.cost} onChange={e=>u("cost",e.target.value)} placeholder="0"/></Fld>
+      </div>
+      <Fld label={t.r_contractor}><input value={f.contractor} onChange={e=>u("contractor",e.target.value)} placeholder={lang==="en"?"Contractor name":"Nombre"}/></Fld>
+      <Fld label={t.r_status}>
+        <select value={f.status} onChange={e=>u("status",e.target.value)}>
+          <option value="Open">{t.st_open}</option>
+          <option value="In Progress">{t.st_prog}</option>
+          <option value="Resolved">{t.st_done}</option>
+          <option value="Scheduled">{t.st_sched}</option>
+        </select>
+      </Fld>
+      <Fld label={t.r_next}><input type="date" value={f.nextService} onChange={e=>u("nextService",e.target.value)}/></Fld>
+      <FormBtns t={t} onSave={()=>onSave({...f,cost:Number(f.cost)})} onCancel={onCancel}/>
+    </div>
+  );
+}
+
+// ── TASK FORM ─────────────────────────────────────────────────────────────
+function TaskForm({t,lang,props_,onSave,onCancel}){
+  const [f,setF]=useState({propId:"",task:"",category:"",dueDate:"",priority:"Medium",estimatedCost:"",status:"Pending"});
+  const u=(k,v)=>setF(p=>({...p,[k]:v}));
+  return(
+    <div>
+      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:22,color:BLACK,marginBottom:20}}>Add Task</div>
+      <Fld label={t.r_prop}>
+        <select value={f.propId} onChange={e=>u("propId",Number(e.target.value))}>
+          <option value="">{lang==="en"?"Select...":"Seleccionar..."}</option>
+          {props_.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+      </Fld>
+      <Fld label={t.task_n}><input value={f.task} onChange={e=>u("task",e.target.value)} placeholder={lang==="en"?"e.g. Replace air filter":"ej. Cambiar filtro"}/></Fld>
+      <Fld label={t.task_c}>
+        <select value={f.category} onChange={e=>u("category",e.target.value)}>
+          <option value="">{lang==="en"?"Select...":"Seleccionar..."}</option>
+          {t.cats.map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+      </Fld>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        <Fld label={t.task_d}><input type="date" value={f.dueDate} onChange={e=>u("dueDate",e.target.value)}/></Fld>
+        <Fld label={t.task_p}>
+          <select value={f.priority} onChange={e=>u("priority",e.target.value)}>
+            <option value="High">{t.hi}</option>
+            <option value="Medium">{t.med}</option>
+            <option value="Low">{t.lo}</option>
+          </select>
+        </Fld>
+      </div>
+      <Fld label={t.task_cost}><input type="number" value={f.estimatedCost} onChange={e=>u("estimatedCost",e.target.value)} placeholder="0"/></Fld>
+      <FormBtns t={t} onSave={()=>onSave({...f,estimatedCost:Number(f.estimatedCost)})} onCancel={onCancel}/>
+    </div>
+  );
+}
+
+// ── MSG FORM ──────────────────────────────────────────────────────────────
+function MsgForm({t,lang,prop,onSend}){
+  const [text,setText]=useState("");
+  const [tpl,setTpl]=useState("");
+  const name=prop.tenantName||prop.name||"";
+  const amt=prop.rentAmount||"";
+  const freq=freqLabel(prop.payFreq,t).toLowerCase();
+  const days=daysUntil(prop.nextDue);
+  const tmpls=[
+    {k:"t1",l:t.tpl1,v:lang==="en"?`Hi ${name}, this is a reminder that your ${freq} payment of $${amt} is due. Please pay on time. Thank you.`:`Hola ${name}, recordatorio de que su pago ${freq} de $${amt} está por vencer. Por favor realícelo a tiempo. Gracias.`},
+    {k:"t2",l:t.tpl2,v:lang==="en"?`Hi ${name}, your payment of $${amt} is overdue. Please pay immediately to avoid late fees.`:`Hola ${name}, su pago de $${amt} está vencido. Por favor pague de inmediato para evitar cargos.`},
+    {k:"t3",l:t.tpl3,v:lang==="en"?`Hi ${name}, our team will visit soon to complete pending maintenance. We'll confirm the time.`:`Hola ${name}, nuestro equipo visitará pronto para el mantenimiento pendiente. Confirmaremos hora.`},
+    {k:"t4",l:t.tpl4,v:lang==="en"?`Hi ${name}, heads up — your ${freq} payment of $${amt} is due in ${days||5} days. Please have it ready!`:`Hola ${name}, aviso — su pago ${freq} de $${amt} vence en ${days||5} días. ¡Por favor téngalo listo!`},
+  ];
+  return(
+    <div>
+      <div style={{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:22,color:BLACK,marginBottom:4}}>💬 {t.msgs}</div>
+      <div style={{fontSize:13,color:GRAY400,marginBottom:18}}>{t.msg_to}: {name} · {prop.phone||prop.emailAddr||"—"}</div>
+      <div style={{fontSize:11,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Templates</div>
+      <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:14}}>
+        {tmpls.map(tp=>(
+          <button key={tp.k} className="tap" onClick={()=>{setTpl(tp.k);setText(tp.v);}} style={{padding:"7px 13px",borderRadius:50,border:`1.5px solid ${tpl===tp.k?M:GRAY200}`,background:tpl===tp.k?ML:"#fff",color:tpl===tp.k?MD:GRAY500,fontSize:12,fontWeight:600,fontFamily:"'Montserrat',sans-serif"}}>{tp.l}</button>
+        ))}
+      </div>
+      <textarea value={text} onChange={e=>setText(e.target.value)} placeholder={t.msg_ph} style={{minHeight:120,resize:"none",marginBottom:14,fontSize:15}}/>
+      <div style={{display:"flex",gap:10,paddingBottom:10}}>
+        <button className="tap" onClick={()=>setText("")} style={{flex:1,padding:"14px",background:GRAY100,border:"none",color:BLACK,borderRadius:14,fontWeight:600,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>{t.cancel}</button>
+        <button className="tap" onClick={onSend} style={{flex:2,padding:"14px",background:M,border:"none",color:BLACK,borderRadius:14,fontWeight:800,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>📤 {t.send_msg}</button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

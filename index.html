@@ -326,7 +326,8 @@ function Landing({onL,onT,onC,lang,toggleLang}) {
         h("p",{style:{fontSize:14,color:"rgba(0,0,0,.55)",lineHeight:1.6,marginBottom:20}},lang==="en"?"Rentals, Airbnb & repairs in one clean app.":"Rentas, Airbnb y reparaciones en una app."),
         h("div",{style:{display:"flex",gap:10}},
           h("button",{className:"tap",onClick:onL,style:sBtn(BLACK,WHITE,{flex:1,borderRadius:14,padding:13,fontSize:14})},"🏠 "+(lang==="en"?"Landlord":"Propietario")),
-          h("button",{className:"tap",onClick:onT,style:sBtn("rgba(255,255,255,.6)",BLACK,{flex:1,borderRadius:14,padding:13,fontSize:14})},"👤 "+(lang==="en"?"Tenant":"Inquilino"))
+          h("button",{className:"tap",onClick:onT,style:sBtn("rgba(255,255,255,.6)",BLACK,{flex:1,borderRadius:14,padding:13,fontSize:14})},"👤 "+(lang==="en"?"Tenant":"Inquilino")),
+            h("button",{className:"tap",onClick:onC,style:sBtn("rgba(255,255,255,.6)",BLACK,{flex:1,borderRadius:14,padding:13,fontSize:14})},"🔧 "+(lang==="en"?"Contractor":"Contratista"))
         )
       ),
       // Feature pills
@@ -370,7 +371,10 @@ function Landing({onL,onT,onC,lang,toggleLang}) {
             h("span",{style:{background:M,width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}},"🏠"),
             lang==="en"?"Landlord Portal":"Portal Propietario"
           ),
-          h("button",{className:"tap",onClick:onT,style:{...sBtn(WHITE,BLACK),width:"100%",padding:17,fontSize:16,border:`2px solid ${GRAY200}`}},"👤 "+(lang==="en"?"Tenant Portal":"Portal Inquilino"))
+          h("div",{style:{display:"flex",gap:10}},
+            h("button",{className:"tap",onClick:onT,style:{...sBtn(WHITE,BLACK),flex:1,padding:15,fontSize:14,border:`2px solid ${GRAY200}`,borderRadius:14}},"👤 "+(lang==="en"?"Tenant":"Inquilino")),
+            h("button",{className:"tap",onClick:onC,style:{...sBtn(CARD_BLUE,WHITE),flex:1,padding:15,fontSize:14,borderRadius:14}},"🔧 "+(lang==="en"?"Contractor":"Contratista"))
+          )
         )
       )
     )
@@ -1094,6 +1098,7 @@ function App() {
     screen==="landing"  && h(Landing,{onL:()=>setScreen("login-l"),onT:()=>setScreen("login-t"),onC:()=>setScreen("login-c"),lang,toggleLang}),
     screen==="login-l"  && h(Login,{role:"l",onBack:()=>setScreen("landing"),lang,toggleLang}),
     screen==="login-t"  && h(Login,{role:"t",onBack:()=>setScreen("landing"),lang,toggleLang}),
+    screen==="login-c"  && h(Login,{role:"c",onBack:()=>setScreen("landing"),lang,toggleLang}),
     screen==="landlord" && h(Landlord,{user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang}),
     screen==="contractor" && h(Contractor,{user,props_,maint,tasks,notify,lang,toggleLang,resolve})
   );

@@ -696,31 +696,151 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
   );
 
   // MORE TAB
-  const MoreTab = () => h("div",{className:"fade"},
-    h("div",{style:{padding:"4px 4px 18px",fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"···"),
-    h("div",{style:{...card(),overflow:"hidden",marginBottom:12}},
-      h("button",{className:"tap",onClick:toggleLang,style:{width:"100%",padding:"16px 18px",background:"none",border:"none",color:BLACK,fontSize:15,textAlign:"left",borderBottom:`1px solid ${GRAY100}`,display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}},"🌐 "+(lang==="en"?"Español":"English")),
-      h("button",{className:"tap",onClick:handleLogout,style:{width:"100%",padding:"16px 18px",background:"none",border:"none",color:RED,fontSize:15,textAlign:"left",display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}},"↩ Sign Out")
-    ),
-    // Tenants list
-    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:700,color:BLACK,marginBottom:12}},"👥 Tenants"),
-    props_.length===0 && h(Empty),
-    h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-      ...props_.map(p=>h("div",{key:p.id,style:{...card()}},
-        h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:14}},
-          h("div",{style:{width:48,height:48,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:16,color:MD,flexShrink:0}},avatar(p.tenant_name||p.tenantName)),
-          h("div",null,
-            h("div",{style:{fontWeight:700,fontSize:16,color:BLACK}},(p.tenant_name||p.tenantName)||"—"),
-            h("div",{style:{fontSize:12,color:GRAY400}},p.name)
+  const MoreTab = () => {
+    const [moreSec, setMoreSec] = useState("tenants");
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [inviteRole, setInviteRole] = useState("tenant");
+    const [inviteProp, setInviteProp] = useState("");
+    const [generatedLink, setGeneratedLink] = useState("");
+    const [copied, setCopied] = useState(false);
+
+    const generateInvite = async () => {
+      if(!inviteEmail) { notify("Enter an email address"); return; }
+      try {
+        // Save invite to Supabase
+        const {data,error} = await sb.from("invites").insert([{
+          landlord_id: user.id,
+          email: inviteEmail,
+          role: inviteRole,
+          prop_id: inviteProp ? Number(inviteProp) : null,
+          used: false
+        }]).select().single();
+
+        if(error) { notify("Error creating invite"); return; }
+
+        // Generate invite link
+        const link = `https://propra.co?invite=${data.id}&role=${inviteRole}&email=${encodeURIComponent(inviteEmail)}`;
+        setGeneratedLink(link);
+        setInviteEmail("");
+      } catch(e) { notify("Error — try again"); }
+    };
+
+    const copyLink = () => {
+      navigator.clipboard.writeText(generatedLink).then(()=>{
+        setCopied(true);
+        notify("Link copied! Send it on WhatsApp 🚀");
+        setTimeout(()=>setCopied(false), 3000);
+      });
+    };
+
+    const whatsappLink = `https://wa.me/?text=${encodeURIComponent("Hi! I'm inviting you to Propra, my property management app. Click this link to create your account: "+generatedLink)}`;
+
+    return h("div",{className:"fade"},
+      h("div",{style:{padding:"4px 4px 18px",fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"···"),
+
+      // Settings card
+      h("div",{style:{...card(),overflow:"hidden",marginBottom:16}},
+        h("button",{className:"tap",onClick:toggleLang,style:{width:"100%",padding:"16px 18px",background:"none",border:"none",color:BLACK,fontSize:15,textAlign:"left",borderBottom:`1px solid ${GRAY100}`,display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}},"🌐 "+(lang==="en"?"Español":"English")),
+        h("button",{className:"tap",onClick:handleLogout,style:{width:"100%",padding:"16px 18px",background:"none",border:"none",color:RED,fontSize:15,textAlign:"left",display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}},"↩ Sign Out")
+      ),
+
+      // Section tabs
+      h("div",{style:{display:"flex",gap:0,background:CREAM2,borderRadius:14,padding:4,marginBottom:16}},
+        ...["tenants","contractors"].map(id=>
+          h("button",{key:id,className:"tap",onClick:()=>setMoreSec(id),style:{
+            flex:1,padding:"10px 4px",borderRadius:11,border:"none",
+            background:moreSec===id?WHITE:"transparent",
+            color:moreSec===id?BLACK:GRAY400,
+            fontWeight:moreSec===id?700:400,
+            fontSize:13,fontFamily:"'Montserrat',sans-serif",
+            boxShadow:moreSec===id?"0 2px 8px rgba(0,0,0,.08)":"none"
+          }},{tenants:"👥 Tenants",contractors:"🔧 Contractors"}[id])
+        )
+      ),
+
+      // ── INVITE FORM ──
+      h("div",{style:{background:CARD_DARK,borderRadius:22,padding:20,marginBottom:16}},
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:700,color:WHITE,marginBottom:4}},
+          "✉️ Invite "+(moreSec==="tenants"?"Tenant":"Contractor")
+        ),
+        h("div",{style:{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:16}},"They'll get a link to create their account"),
+
+        // Email input
+        h("div",{style:{marginBottom:12}},
+          h("input",{
+            value:inviteEmail,
+            onChange:e=>setInviteEmail(e.target.value),
+            placeholder:"their@email.com",
+            style:{background:"rgba(255,255,255,.1)",border:"1.5px solid rgba(255,255,255,.15)",color:WHITE,borderRadius:12,padding:"12px 16px",fontFamily:"'Montserrat',sans-serif",fontSize:14,width:"100%"}
+          })
+        ),
+
+        // Property selector (for tenants)
+        moreSec==="tenants" && props_.length>0 && h("div",{style:{marginBottom:12}},
+          h("select",{
+            value:inviteProp,
+            onChange:e=>setInviteProp(e.target.value),
+            style:{background:"rgba(255,255,255,.1)",border:"1.5px solid rgba(255,255,255,.15)",color:WHITE,borderRadius:12,padding:"12px 16px",fontFamily:"'Montserrat',sans-serif",fontSize:14,width:"100%"}
+          },
+            h("option",{value:"",style:{background:BLACK}},"Select property (optional)"),
+            ...props_.map(p=>h("option",{key:p.id,value:p.id,style:{background:BLACK}},p.name))
           )
         ),
-        h("div",{style:{display:"flex",gap:8}},
-          h("button",{className:"tap",onClick:()=>setSheet({type:"msg",prop:p}),style:sBtn(BLACK,WHITE,{flex:1,borderRadius:12,padding:11,fontSize:14})},"💬 Message"),
-          h("button",{className:"tap",onClick:()=>notify("Calling "+(p.tenant_name||p.name)+"..."),style:sBtn(GRAY100,BLACK,{flex:1,borderRadius:12,padding:11,fontSize:14,border:`1px solid ${GRAY200}`})},"📞 Call")
+
+        h("button",{className:"tap",onClick:()=>{setInviteRole(moreSec==="tenants"?"tenant":"contractor");generateInvite();},
+          style:sBtn(M,BLACK,{width:"100%",borderRadius:12,padding:13,fontSize:14})},
+          "Generate Invite Link →"
+        ),
+
+        // Generated link
+        generatedLink && h("div",{style:{marginTop:14,background:"rgba(255,255,255,.08)",borderRadius:14,padding:14}},
+          h("div",{style:{fontSize:11,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:1,marginBottom:8}},"✓ Invite Ready"),
+          h("div",{style:{fontSize:11,color:"rgba(255,255,255,.5)",wordBreak:"break-all",marginBottom:12,lineHeight:1.5}},generatedLink),
+          h("div",{style:{display:"flex",gap:8}},
+            h("button",{className:"tap",onClick:copyLink,style:sBtn(copied?GREENL:WHITE,copied?GREEN:BLACK,{flex:1,borderRadius:10,padding:10,fontSize:13})},
+              copied?"✓ Copied!":"📋 Copy Link"
+            ),
+            h("a",{href:whatsappLink,target:"_blank",style:{...sBtn("#25D366",WHITE,{flex:1,borderRadius:10,padding:10,fontSize:13,textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6})}},
+              "💬 WhatsApp"
+            )
+          )
         )
-      ))
-    )
-  );
+      ),
+
+      // ── TENANTS LIST ──
+      moreSec==="tenants" && h("div",null,
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:14,fontWeight:700,color:GRAY500,textTransform:"uppercase",letterSpacing:1,marginBottom:10}},"Current Tenants"),
+        props_.length===0 && h(Empty),
+        h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+          ...props_.filter(p=>p.tenant_name||p.tenantName).map(p=>
+            h("div",{key:p.id,style:{...card()}},
+              h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:14}},
+                h("div",{style:{width:48,height:48,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:16,color:MD,flexShrink:0}},avatar(p.tenant_name||p.tenantName)),
+                h("div",null,
+                  h("div",{style:{fontWeight:700,fontSize:16,color:BLACK}},(p.tenant_name||p.tenantName)||"—"),
+                  h("div",{style:{fontSize:12,color:GRAY400}},p.name)
+                )
+              ),
+              h("div",{style:{display:"flex",gap:8}},
+                h("button",{className:"tap",onClick:()=>setSheet({type:"msg",prop:p}),style:sBtn(BLACK,WHITE,{flex:1,borderRadius:12,padding:11,fontSize:13})},"💬 Message"),
+                h("button",{className:"tap",onClick:()=>notify("Calling "+(p.tenant_name||p.name)+"..."),style:sBtn(GRAY100,BLACK,{flex:1,borderRadius:12,padding:11,fontSize:13,border:`1px solid ${GRAY200}`})},"📞 Call")
+              )
+            )
+          )
+        )
+      ),
+
+      // ── CONTRACTORS LIST ──
+      moreSec==="contractors" && h("div",null,
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:14,fontWeight:700,color:GRAY500,textTransform:"uppercase",letterSpacing:1,marginBottom:10}},"Active Contractors"),
+        h("div",{style:{...card(),textAlign:"center",padding:"32px 20px"}},
+          h("div",{style:{fontSize:40,marginBottom:10,opacity:.3}},"🔧"),
+          h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.6}},"Invite contractors using the form above.
+They'll see open repairs and can clock in/out.")
+        )
+      )
+    );
+  };
 
   // DOCS SHEET
   const DocsSheetComp = ({prop}) => {

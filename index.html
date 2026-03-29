@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   :root {
@@ -113,6 +114,11 @@
 <div id="root"></div>
 <script type="text/babel">
 const {useState, useEffect} = React;
+
+// ── SUPABASE CLIENT ───────────────────────────────────────────────────────
+const SUPABASE_URL = "https://feducxxoewcztqrwddyi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlZHVjeHhvZXdjenRxcndkZHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDEyMjksImV4cCI6MjA5MDMxNzIyOX0.orlTPVn2OpL9mwDlYYgabJzCwbQkfefyRq52HZvpIxI";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ── PALETTE ───────────────────────────────────────────────────────────────
 const M = "#F5A623";        // mango
@@ -465,7 +471,7 @@ function App() {
       {screen==="landing"  && <Landing  t={t} lang={lang} toggleLang={toggleLang} onL={()=>setScreen("login-l")} onT={()=>setScreen("login-t")}/>}
       {screen==="login-l"  && <Login    t={t} lang={lang} toggleLang={toggleLang} role="l" onBack={()=>setScreen("landing")} onIn={()=>setScreen("landlord")}/>}
       {screen==="login-t"  && <Login    t={t} lang={lang} toggleLang={toggleLang} role="t" onBack={()=>setScreen("landing")} onIn={()=>setScreen("tenant")}/>}
-      {screen==="landlord" && <Landlord t={t} lang={lang} toggleLang={toggleLang} props_={props_} setProps={setProps} maint={maint} setMaint={setMaint} tasks={tasks} setTasks={setTasks} notify={notify} onOut={()=>setScreen("landing")}/>}
+      {screen==="landlord" && <Landlord t={t} lang={lang} toggleLang={toggleLang} props_={props_} setProps={setProps} maint={maint} setMaint={setMaint} tasks={tasks} setTasks={setTasks} docs={docs} setDocs={setDocs} notify={notify} user={user} addProp={addProp} addMaint={addMaint} addTask={addTask} addDoc={addDoc} deleteDoc={deleteDoc} completeTask={completeTask} resolve={resolve} sendRem={sendRem} onOut={()=>setScreen("landing")}/>}
       {screen==="tenant"   && props_.length > 0 && <Tenant t={t} lang={lang} toggleLang={toggleLang} prop={props_[0]} pays={pays} setPays={setPays} maint={maint} setMaint={setMaint} notify={notify} onOut={()=>setScreen("landing")}/>}
       {screen==="tenant"   && props_.length===0 && (
         <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:32,textAlign:"center"}}>
@@ -756,7 +762,7 @@ function Login({t,lang,toggleLang,role,onBack,onIn}){
 }
 
 // ── LANDLORD ──────────────────────────────────────────────────────────────
-function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTasks,notify,onOut}){
+function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTasks,docs,setDocs,notify,user,addProp,addMaint,addTask,addDoc,deleteDoc,completeTask,resolve,sendRem,onOut}){
   const [tab,setTab]=useState("home");
   const [sheet,setSheet]=useState(null);
   const [morePage,setMorePage]=useState("tenants");
@@ -767,9 +773,7 @@ function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTas
   const resC  = maint.filter(m=>m.status==="Resolved").length;
   const reminders = props_.filter(p=>getRemStatus(p));
 
-  const addProp  = d=>{setProps(p=>[...p,{...d,id:Date.now(),avatar:avatar(d.tenantName)}]);notify(lang==="en"?"Property added ✓":"Propiedad agregada ✓");setSheet(null);};
-  const addMaint = d=>{setMaint(m=>[...m,{...d,id:Date.now()}]);notify(lang==="en"?"Repair logged ✓":"Reparación registrada ✓");setSheet(null);};
-  const addTask  = d=>{setTasks(tk=>[...tk,{...d,id:Date.now()}]);notify(lang==="en"?"Task added ✓":"Tarea agregada ✓");setSheet(null);};
+// handlers passed as props from App
   const resolve  = id=>{setMaint(m=>m.map(r=>r.id===id?{...r,status:"Resolved"}:r));notify(lang==="en"?"Resolved ✓":"Resuelto ✓");};
   const sendRem  = p=>{notify(`${lang==="en"?"Reminder sent to":"Recordatorio enviado a"} ${p.tenantName||p.name} ✓`);};
   const addDoc   = d=>{setDocs(x=>[...x,{...d,id:Date.now()}]);notify(lang==="en"?"Document saved ✓":"Documento guardado ✓");setSheet(null);};
@@ -788,7 +792,10 @@ function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTas
     <div style={{minHeight:"100vh",background:CREAM,paddingBottom:80}}>
       {/* Header */}
       <div style={{background:CREAM,borderBottom:"none",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:10}}>
-        <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:200,color:BLACK,letterSpacing:"6px",textTransform:"uppercase"}}>PROPRA</div>
+        <div>
+          <div style={{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:200,color:BLACK,letterSpacing:"6px",textTransform:"uppercase"}}>PROPRA</div>
+          {user&&<div style={{fontSize:10,color:GRAY400,marginTop:1}}>{user.email}</div>}
+        </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {reminders.length>0 && (
             <div style={{background:M,color:BLACK,width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800}}>
@@ -1036,7 +1043,7 @@ function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTas
                 return(
                   <div key={tk.id} style={{background:"#fff",borderRadius:16,border:`1px solid ${GRAY100}`,padding:16,opacity:done?.5:1}}>
                     <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
-                      <div className="tap" onClick={()=>{setTasks(x=>x.map(r=>r.id===tk.id?{...r,status:"Done"}:r));notify(lang==="en"?"Task done ✓":"Tarea completada ✓");}} style={{width:22,height:22,borderRadius:6,border:`2px solid ${done?GREEN:GRAY200}`,background:done?GREEN:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                      <div className="tap" onClick={()=>completeTask(tk.id)} style={{width:22,height:22,borderRadius:6,border:`2px solid ${done?GREEN:GRAY200}`,background:done?GREEN:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
                         {done&&<span style={{color:"#fff",fontSize:13,fontWeight:800}}>✓</span>}
                       </div>
                       <div style={{flex:1}}>
@@ -1137,7 +1144,7 @@ function Landlord({t,lang,toggleLang,props_,setProps,maint,setMaint,tasks,setTas
       {sheet==="addProp"   &&<Overlay onClose={()=>setSheet(null)}><PropForm   t={t} lang={lang} onSave={addProp}  onCancel={()=>setSheet(null)}/></Overlay>}
       {sheet==="addRepair" &&<Overlay onClose={()=>setSheet(null)}><RepairForm t={t} lang={lang} props_={props_} onSave={addMaint} onCancel={()=>setSheet(null)}/></Overlay>}
       {sheet==="addTask"   &&<Overlay onClose={()=>setSheet(null)}><TaskForm   t={t} lang={lang} props_={props_} onSave={addTask}  onCancel={()=>setSheet(null)}/></Overlay>}
-      {sheet&&typeof sheet==="object"&&sheet.type==="docs"&&<Overlay onClose={()=>setSheet(null)}><DocsSheet t={t} lang={lang} prop={sheet.prop} docs={docs} onAdd={addDoc} onDelete={id=>setDocs(x=>x.filter(d=>d.id!==id))} onClose={()=>setSheet(null)}/></Overlay>}
+      {sheet&&typeof sheet==="object"&&sheet.type==="docs"&&<Overlay onClose={()=>setSheet(null)}><DocsSheet t={t} lang={lang} prop={sheet.prop} docs={docs} onAdd={addDoc} onDelete={deleteDoc} onClose={()=>setSheet(null)}/></Overlay>}
       {sheet&&typeof sheet==="object"&&!sheet.type&&<Overlay onClose={()=>setSheet(null)}><MsgForm t={t} lang={lang} prop={sheet} onSend={()=>{notify(`Sent to ${sheet.tenantName||sheet.name} ✓`);setSheet(null);}}/></Overlay>}
     </div>
   );

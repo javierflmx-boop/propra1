@@ -418,7 +418,7 @@ function Login({role,onBack,lang,toggleLang}) {
     ),
     h("div",{style:{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}},
       h("div",{style:{marginBottom:36}},
-        h("div",{style:{width:64,height:64,borderRadius:20,background:isC?"#2C5F8A":isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)}}"}},(isC?"🔧":isL?"🏠":"👤")),
+        h("div",{style:{width:64,height:64,borderRadius:20,background:isC?"#2C5F8A":isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)"}},((isC?"🔧":isL?"🏠":"👤")),
         h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:800,color:BLACK,marginBottom:4}},isSignup?"Create Account":"Welcome back"),
         h("div",{style:{fontSize:14,color:GRAY400,fontWeight:400}},isC?"Contractor":isL?"Landlord":"Tenant")
       ),
@@ -436,6 +436,7 @@ function Login({role,onBack,lang,toggleLang}) {
       )
     ),
     h("button",{className:"tap",onClick:toggleLang,style:{background:"none",border:"none",color:GRAY400,fontSize:13,textAlign:"center",marginTop:20,fontFamily:"'Montserrat',sans-serif"}},"🌐 "+(lang==="en"?"Español":"English"))
+  )
   );
 }
 
@@ -733,7 +734,7 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
       });
     };
 
-    const whatsappLink = `https://wa.me/?text=${encodeURIComponent("Hi! I'm inviting you to Propra, my property management app. Click this link to create your account: "+generatedLink)}`;
+    const whatsappLink = "https://wa.me/?text="+encodeURIComponent("Hi! Youre invited to Propra - property management app. Create your account here: "+generatedLink);
 
     return h("div",{className:"fade"},
       h("div",{style:{padding:"4px 4px 18px",fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"···"),
@@ -763,7 +764,7 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
         h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:700,color:WHITE,marginBottom:4}},
           "✉️ Invite "+(moreSec==="tenants"?"Tenant":"Contractor")
         ),
-        h("div",{style:{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:16}},"They'll get a link to create their account"),
+        h("div",{style:{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:16}},"They will get a link to create their account"),
 
         // Email input
         h("div",{style:{marginBottom:12}},

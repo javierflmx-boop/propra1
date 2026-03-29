@@ -307,14 +307,7 @@ function MsgForm({prop,onSend,onCancel}) {
 function Landing({onL,onT,onC,lang,toggleLang}) {
   const [tab,setTab] = useState("rentals");
   return h("div",{style:{background:CREAM,minHeight:"100vh",paddingBottom:40}},
-    // Nav
-    h("div",{style:{background:CREAM,padding:"16px 22px",display:"flex",justifyContent:"space-between",alignItems:"center",boxShadow:"0 2px 16px rgba(0,0,0,.04)"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:15,fontWeight:200,color:BLACK,letterSpacing:"6px",textTransform:"uppercase"}},"PROPRA"),
-      h("div",{style:{display:"flex",gap:8}},
-        h("button",{className:"tap",onClick:toggleLang,style:{background:GRAY100,border:"none",color:GRAY500,padding:"7px 12px",borderRadius:50,fontSize:12,fontWeight:600,fontFamily:"'Montserrat',sans-serif"}},"🌐"),
-        h("button",{className:"tap",onClick:onL,style:sBtn(BLACK,WHITE,{padding:"9px 20px",borderRadius:50,fontSize:13,boxShadow:"0 2px 12px rgba(0,0,0,.2)"})},"Sign In")
-      )
-    ),
+
     h("div",{style:{padding:"24px 22px 0"}},
       // Hero
       h("div",{style:{background:M,borderRadius:24,padding:"30px 26px 28px",position:"relative",overflow:"hidden",marginBottom:24}},
@@ -323,13 +316,33 @@ function Landing({onL,onT,onC,lang,toggleLang}) {
         h("h1",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:30,fontWeight:800,lineHeight:1.15,color:BLACK,marginBottom:12}},
           lang==="en"?"Manage smarter,\nearn better.":"Administra mejor,\ngana más."
         ),
-        h("p",{style:{fontSize:14,color:"rgba(0,0,0,.55)",lineHeight:1.6,marginBottom:20}},lang==="en"?"Rentals, Airbnb & repairs in one clean app.":"Rentas, Airbnb y reparaciones en una app."),
-        h("div",{style:{display:"flex",gap:10}},
-          h("button",{className:"tap",onClick:onL,style:sBtn(BLACK,WHITE,{flex:1,borderRadius:14,padding:13,fontSize:14})},"🏠 "+(lang==="en"?"Landlord":"Propietario")),
-          h("button",{className:"tap",onClick:onT,style:sBtn("rgba(255,255,255,.6)",BLACK,{flex:1,borderRadius:14,padding:13,fontSize:14})},"👤 "+(lang==="en"?"Tenant":"Inquilino")),
-            h("button",{className:"tap",onClick:onC,style:sBtn("rgba(255,255,255,.6)",BLACK,{flex:1,borderRadius:14,padding:13,fontSize:14})},"🔧 "+(lang==="en"?"Contractor":"Contratista"))
+        h("p",{style:{fontSize:14,color:"rgba(0,0,0,.55)",lineHeight:1.6,marginBottom:0}},lang==="en"?"Rentals, Airbnb & repairs in one clean app.":"Rentas, Airbnb y reparaciones en una app."),
+
+      ),
+      // App name centered hero
+      h("div",{style:{textAlign:"center",padding:"40px 20px 32px"}},
+        h("div",{style:{width:80,height:80,borderRadius:24,background:BLACK,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 4px 24px rgba(0,0,0,.15)"}},
+          h("svg",{width:46,height:42,viewBox:"0 0 54 50",fill:"none"},
+            h("rect",{x:34,y:13,width:5,height:10,rx:2,fill:M}),
+            h("path",{d:"M4 26 L27 6 L50 26",stroke:M,strokeWidth:3,strokeLinecap:"round",strokeLinejoin:"round",fill:"none"}),
+            h("rect",{x:10,y:25,width:34,height:22,rx:3,fill:M}),
+            h("rect",{x:20,y:31,width:14,height:16,rx:3,fill:BLACK}),
+            h("circle",{cx:31,cy:39,r:1.5,fill:M}),
+            h("rect",{x:12,y:28,width:7,height:7,rx:2,fill:BLACK,opacity:.5}),
+            h("rect",{x:35,y:28,width:7,height:7,rx:2,fill:BLACK,opacity:.5})
+          )
+        ),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:38,fontWeight:100,letterSpacing:"6px",color:BLACK,marginBottom:8}},
+          "PROP",h("span",{style:{color:M}},"RA")
+        ),
+        h("div",{style:{fontSize:12,color:GRAY400,fontWeight:400,letterSpacing:3,textTransform:"uppercase",marginBottom:16}},
+          lang==="en"?"Property Management, Simplified":"Administración de Propiedades"
+        ),
+        h("button",{className:"tap",onClick:toggleLang,style:{background:"none",border:`1px solid ${GRAY200}`,color:GRAY400,padding:"6px 16px",borderRadius:50,fontSize:11,fontWeight:500,fontFamily:"'Montserrat',sans-serif",letterSpacing:1}},
+          "🌐 "+(lang==="en"?"Español":"English")
         )
       ),
+
       // Feature pills
       h("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:24}},
         ...["🏠\nRentals","🏨\nAirbnb","🔧\nRepairs","📊\nReports"].map(item=>{
@@ -362,18 +375,50 @@ function Landing({onL,onT,onC,lang,toggleLang}) {
         h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:BLACK,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}},"Ready for you"),
         h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.7}},lang==="en"?"Sign in and add your first property to see it here.":"Inicia sesión para agregar tu primera propiedad.")
       ),
-      // CTA
-      h("div",{style:{paddingTop:24,borderTop:`1px solid ${GRAY200}`}},
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:800,color:BLACK,marginBottom:6,textAlign:"center"}},lang==="en"?"Ready to start?":"¿Listo para empezar?"),
-        h("div",{style:{fontSize:14,color:GRAY400,textAlign:"center",marginBottom:20}}),
-        h("div",{style:{display:"flex",flexDirection:"column",gap:12}},
-          h("button",{className:"tap",onClick:onL,style:{...sBtn(BLACK,WHITE),width:"100%",padding:17,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",gap:12}},
-            h("span",{style:{background:M,width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}},"🏠"),
-            lang==="en"?"Landlord Portal":"Portal Propietario"
+      // CTA - single clean section
+      h("div",{style:{paddingTop:28,borderTop:`1px solid ${GRAY200}`}},
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:22,fontWeight:800,color:BLACK,marginBottom:4,textAlign:"center"}},
+          lang==="en"?"Choose your portal":"Elige tu portal"
+        ),
+        h("div",{style:{fontSize:13,color:GRAY400,textAlign:"center",marginBottom:24,lineHeight:1.6}},
+          lang==="en"?"Sign in or create your account":"Inicia sesión o crea tu cuenta"
+        ),
+        // Landlord - main big button
+        h("button",{className:"tap",onClick:onL,style:{width:"100%",padding:"18px",background:BLACK,border:"none",borderRadius:20,color:WHITE,fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",gap:12,marginBottom:10,boxShadow:"0 4px 20px rgba(0,0,0,.15)"}},
+          h("span",{style:{width:32,height:32,borderRadius:"50%",background:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}},"🏠"),
+          h("div",{style:{textAlign:"left"}},
+            h("div",null,lang==="en"?"Landlord Portal":"Portal Propietario"),
+            h("div",{style:{fontSize:11,fontWeight:400,opacity:.6,marginTop:1}},lang==="en"?"Manage properties, repairs & tenants":"Gestiona propiedades y reparaciones")
+          )
+        ),
+        // Tenant + Contractor row
+        h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}},
+          h("button",{className:"tap",onClick:onT,style:{padding:"16px 12px",background:WHITE,border:`1.5px solid ${GRAY200}`,borderRadius:16,color:BLACK,fontFamily:"'Montserrat',sans-serif",fontWeight:600,fontSize:14,display:"flex",flexDirection:"column",alignItems:"center",gap:6}},
+            h("span",{style:{fontSize:24}},"👤"),
+            h("div",null,lang==="en"?"Tenant":"Inquilino"),
+            h("div",{style:{fontSize:10,color:GRAY400,fontWeight:400}},lang==="en"?"Pay rent & report":"Pagar renta")
           ),
-          h("div",{style:{display:"flex",gap:10}},
-            h("button",{className:"tap",onClick:onT,style:{...sBtn(WHITE,BLACK),flex:1,padding:15,fontSize:14,border:`2px solid ${GRAY200}`,borderRadius:14}},"👤 "+(lang==="en"?"Tenant":"Inquilino")),
-            h("button",{className:"tap",onClick:onC,style:{...sBtn(CARD_BLUE,WHITE),flex:1,padding:15,fontSize:14,borderRadius:14}},"🔧 "+(lang==="en"?"Contractor":"Contratista"))
+          h("button",{className:"tap",onClick:onC,style:{padding:"16px 12px",background:CARD_BLUE,border:"none",borderRadius:16,color:WHITE,fontFamily:"'Montserrat',sans-serif",fontWeight:600,fontSize:14,display:"flex",flexDirection:"column",alignItems:"center",gap:6}},
+            h("span",{style:{fontSize:24}},"🔧"),
+            h("div",null,lang==="en"?"Contractor":"Contratista"),
+            h("div",{style:{fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:400}},lang==="en"?"Jobs & time log":"Trabajos y tiempo")
+          )
+        ),
+        // What each can do
+        h("div",{style:{background:GRAY100,borderRadius:16,padding:"14px 16px",marginTop:4}},
+          h("div",{style:{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}},lang==="en"?"What each portal includes":"Qué incluye cada portal"),
+          ...[
+            ["🏠",lang==="en"?"Landlord":"Propietario", lang==="en"?"Full access — properties, finances, documents, reports":"Acceso total — propiedades, finanzas, documentos"],
+            ["👤",lang==="en"?"Tenant":"Inquilino",      lang==="en"?"Pay rent, report issues, view lease":"Pagar renta, reportar problemas, ver contrato"],
+            ["🔧",lang==="en"?"Contractor":"Contratista",lang==="en"?"Open jobs, clock in/out, time log — no private data":"Trabajos, registro de tiempo — sin datos privados"],
+          ].map(([icon,role,desc])=>
+            h("div",{key:role,style:{display:"flex",gap:10,alignItems:"flex-start",marginBottom:8}},
+              h("span",{style:{fontSize:16,flexShrink:0}},icon),
+              h("div",null,
+                h("div",{style:{fontSize:13,fontWeight:600,color:BLACK}},role),
+                h("div",{style:{fontSize:11,color:GRAY500,lineHeight:1.4}},desc)
+              )
+            )
           )
         )
       )

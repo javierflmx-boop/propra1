@@ -304,7 +304,7 @@ function MsgForm({prop,onSend,onCancel}) {
 }
 
 // ── LANDING ──
-function Landing({onL,onT,lang,toggleLang}) {
+function Landing({onL,onT,onC,lang,toggleLang}) {
   const [tab,setTab] = useState("rentals");
   return h("div",{style:{background:CREAM,minHeight:"100vh",paddingBottom:40}},
     // Nav
@@ -385,13 +385,17 @@ function Login({role,onBack,lang,toggleLang}) {
   const [error,setError] = useState("");
   const [isSignup,setIsSignup] = useState(false);
   const isL = role==="l";
+  const isC = role==="c";
 
   const handleAuth = async () => {
     if(!email||!pass){setError("Enter email and password");return;}
     setLoading(true);setError("");
     try {
       if(isSignup) {
-        const {error:e} = await sb.auth.signUp({email,password:pass});
+        const {data,error:e} = await sb.auth.signUp({
+          email, password:pass,
+          options:{data:{role: isC?"contractor":isL?"landlord":"tenant"}}
+        });
         if(e) setError(e.message);
         else setError("✓ Check your email to confirm signup");
       } else {
@@ -410,15 +414,15 @@ function Login({role,onBack,lang,toggleLang}) {
     ),
     h("div",{style:{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}},
       h("div",{style:{marginBottom:36}},
-        h("div",{style:{width:64,height:64,borderRadius:20,background:isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)}}"}},(isL?"🏠":"👤")),
+        h("div",{style:{width:64,height:64,borderRadius:20,background:isC?"#2C5F8A":isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)}}"}},(isC?"🔧":isL?"🏠":"👤")),
         h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:800,color:BLACK,marginBottom:4}},isSignup?"Create Account":"Welcome back"),
-        h("div",{style:{fontSize:14,color:GRAY400,fontWeight:400}},isL?"Landlord":"Tenant")
+        h("div",{style:{fontSize:14,color:GRAY400,fontWeight:400}},isC?"Contractor":isL?"Landlord":"Tenant")
       ),
       h(Fld,{label:"Email"},h("input",{type:"email",value:email,onChange:e=>setEmail(e.target.value),placeholder:"your@email.com"})),
       h(Fld,{label:"Password"},h("input",{type:"password",value:pass,onChange:e=>setPass(e.target.value),placeholder:"••••••••",onKeyDown:e=>e.key==="Enter"&&handleAuth()})),
       error && h("div",{style:{background:isSuccess?GREENL:REDL,color:isSuccess?GREEN:RED,padding:"12px 16px",borderRadius:12,fontSize:13,marginBottom:12,fontWeight:500}},error),
       h("div",{style:{height:8}}),
-      h("button",{className:"tap",onClick:handleAuth,disabled:loading,style:{...sBtn(isL?BLACK:M,isL?WHITE:BLACK),width:"100%",padding:17,fontSize:16,opacity:loading?.7:1}},
+      h("button",{className:"tap",onClick:handleAuth,disabled:loading,style:{...sBtn(isC?CARD_BLUE:isL?BLACK:M,isC?WHITE:isL?WHITE:BLACK),width:"100%",padding:17,fontSize:16,opacity:loading?.7:1}},
         loading?"Loading...":(isSignup?"Create Account →":"Sign In →")
       ),
       h("div",{style:{textAlign:"center",marginTop:16}},
@@ -811,6 +815,205 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
   );
 }
 
+
+// ── CONTRACTOR PORTAL ─────────────────────────────────────────────────────
+function Contractor({user,props_,maint,tasks,notify,lang,toggleLang,resolve}) {
+  const [tab,setTab] = useState("jobs");
+  const [clockedIn,setClockedIn] = useState(null); // {jobId, propName, startTime}
+  const [clockLog,setClockLog] = useState([]);
+
+  const handleLogout = async () => { await sb.auth.signOut(); };
+
+  // Only show open/in-progress repairs — NO private data
+  const openJobs = maint.filter(m=>m.status==="Open"||m.status==="In Progress");
+  const myDone   = maint.filter(m=>m.status==="Resolved");
+
+  // Clock in/out
+  const clockIn = (job) => {
+    if(clockedIn) { notify("Clock out first!"); return; }
+    setClockedIn({jobId:job.id,propName:props_.find(p=>p.id===job.prop_id)?.name||"Property",type:job.type,startTime:new Date()});
+    notify("Clocked in ✓ Timer started");
+  };
+  const clockOut = async () => {
+    if(!clockedIn) return;
+    const hrs = ((new Date()-clockedIn.startTime)/3600000).toFixed(2);
+    setClockLog(l=>[...l,{...clockedIn,endTime:new Date(),hours:hrs,date:new Date().toLocaleDateString()}]);
+    // Update job to in progress
+    await sb.from("repairs").update({status:"In Progress"}).eq("id",clockedIn.jobId);
+    notify(`Clocked out — ${hrs}h logged ✓`);
+    setClockedIn(null);
+  };
+
+  const elapsed = clockedIn ? ((new Date()-clockedIn.startTime)/60000).toFixed(0)+"m" : null;
+
+  const Header = () => h("div",{style:{background:CARD_BLUE,padding:"20px 20px 16px",position:"sticky",top:0,zIndex:10}},
+    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
+      h("div",null,
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:13,fontWeight:200,color:"rgba(255,255,255,.5)",letterSpacing:"4px",textTransform:"uppercase",marginBottom:4}},"PROPRA"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:700,color:WHITE}},"Contractor Portal"),
+        user && h("div",{style:{fontSize:11,color:"rgba(255,255,255,.5)",marginTop:2}},user.email)
+      ),
+      h("div",{style:{display:"flex",gap:8,alignItems:"center"}},
+        h("button",{className:"tap",onClick:toggleLang,style:{background:"rgba(255,255,255,.15)",border:"none",color:WHITE,padding:"6px 12px",borderRadius:50,fontSize:12,fontWeight:600,fontFamily:"'Montserrat',sans-serif"}},"🌐"),
+        h("button",{className:"tap",onClick:handleLogout,style:{background:"rgba(255,255,255,.15)",border:"none",color:WHITE,padding:"6px 12px",borderRadius:50,fontSize:12,fontFamily:"'Montserrat',sans-serif"}},"↩")
+      )
+    ),
+    // Clock in banner
+    clockedIn && h("div",{style:{background:"rgba(255,255,255,.12)",borderRadius:16,padding:"14px 16px",marginTop:14,display:"flex",alignItems:"center",justifyContent:"space-between"}},
+      h("div",null,
+        h("div",{style:{color:WHITE,fontWeight:700,fontSize:14}},"⏱ "+clockedIn.type+" · "+clockedIn.propName),
+        h("div",{style:{color:"rgba(255,255,255,.6)",fontSize:12,marginTop:2}},"Started "+clockedIn.startTime.toLocaleTimeString()+" · "+elapsed+" elapsed")
+      ),
+      h("button",{className:"tap",onClick:clockOut,style:{background:RED,border:"none",color:WHITE,padding:"10px 16px",borderRadius:12,fontWeight:700,fontSize:13,fontFamily:"'Montserrat',sans-serif"}},"Clock Out")
+    )
+  );
+
+  const navs = [
+    {id:"jobs",icon:"🔧",label:"Open Jobs"},
+    {id:"done",icon:"✓",label:"Done"},
+    {id:"time",icon:"⏱",label:"Time Log"},
+  ];
+
+  const NavBar = () => h("div",{className:"nav-bar"},
+    ...navs.map(n=>h("button",{key:n.id,className:"tap",onClick:()=>setTab(n.id),style:{flex:1,padding:"10px 4px 8px",background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer",position:"relative",fontFamily:"'Montserrat',sans-serif"}},
+      h("span",{style:{fontSize:18,lineHeight:1.4}},n.icon),
+      h("span",{style:{fontSize:9,fontWeight:700,color:tab===n.id?BLACK:GRAY400,letterSpacing:.3}},n.label),
+      tab===n.id && h("div",{style:{position:"absolute",bottom:2,left:"50%",transform:"translateX(-50%)",width:20,height:3,borderRadius:2,background:CARD_BLUE}})
+    ))
+  );
+
+  // OPEN JOBS
+  const JobsTab = () => h("div",{className:"fade"},
+    h("div",{style:{padding:"4px 4px 18px"}},
+      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"Open Jobs"),
+      h("div",{style:{fontSize:13,color:GRAY400,marginTop:2}},openJobs.length+" jobs need attention")
+    ),
+    // Stats
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:16}},
+      h("div",{style:{background:CARD_RED,borderRadius:18,padding:"14px 10px",textAlign:"center"}},
+        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Open"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:700,color:WHITE,marginTop:2}},maint.filter(m=>m.status==="Open").length)
+      ),
+      h("div",{style:{background:CARD_MANGO,borderRadius:18,padding:"14px 10px",textAlign:"center"}},
+        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(0,0,0,.45)",textTransform:"uppercase",letterSpacing:1}},"Active"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:700,color:BLACK,marginTop:2}},maint.filter(m=>m.status==="In Progress").length)
+      ),
+      h("div",{style:{background:CARD_GREEN,borderRadius:18,padding:"14px 10px",textAlign:"center"}},
+        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Done"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:700,color:WHITE,marginTop:2}},myDone.length)
+      )
+    ),
+    openJobs.length===0 && h("div",{style:{textAlign:"center",padding:"48px 24px",background:WHITE,borderRadius:20,border:`2px dashed ${GRAY200}`}},
+      h("div",{style:{fontSize:52,marginBottom:12}},"✅"),
+      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:700,color:BLACK,marginBottom:6}},"All clear!"),
+      h("div",{style:{color:GRAY400,fontSize:13}},"No open jobs right now")
+    ),
+    h("div",{style:{display:"flex",flexDirection:"column",gap:12}},
+      ...openJobs.map(job=>{
+        const p = props_.find(x=>x.id===job.prop_id);
+        const st = statusStyle(job.status);
+        const isActive = clockedIn?.jobId===job.id;
+        return h("div",{key:job.id,style:{background:WHITE,borderRadius:22,boxShadow:`0 2px 14px rgba(0,0,0,.08)`,overflow:"hidden",border:isActive?`2px solid ${CARD_BLUE}`:"none"}},
+          isActive && h("div",{style:{background:CARD_BLUE,padding:"8px 16px",display:"flex",alignItems:"center",gap:8}},
+            h("div",{style:{width:8,height:8,borderRadius:"50%",background:"#4ade80",flexShrink:0}}),
+            h("div",{style:{color:WHITE,fontSize:12,fontWeight:600}},"⏱ Active · "+elapsed+" elapsed")
+          ),
+          h("div",{style:{padding:18}},
+            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}},
+              h("div",null,
+                h("div",{style:{fontWeight:800,fontSize:16,color:BLACK,marginBottom:4}},job.type),
+                // Property name shown — but NO rent/financial info
+                h("div",{style:{fontSize:13,color:GRAY500}},p?.name||"Property"),
+                h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},p?.address||"")
+              ),
+              h("span",{className:"pill",style:{background:st.bg,color:st.color}},job.status)
+            ),
+            job.description && h("div",{style:{background:GRAY100,borderRadius:12,padding:"10px 14px",marginBottom:12,fontSize:13,color:BLACK}},job.description),
+            h("div",{style:{fontSize:11,color:GRAY400,marginBottom:12}},job.date?" Reported: "+job.date:""),
+            // Actions — NO cost info shown to contractor
+            h("div",{style:{display:"flex",gap:8}},
+              !isActive
+                ? h("button",{className:"tap",onClick:()=>clockIn(job),style:{...sBtn(CARD_BLUE,WHITE),flex:1,borderRadius:12,padding:11,fontSize:13}},"⏱ Clock In")
+                : h("button",{className:"tap",onClick:clockOut,style:{...sBtn(RED,WHITE),flex:1,borderRadius:12,padding:11,fontSize:13}},"⏹ Clock Out"),
+              job.status!=="Resolved" && h("button",{className:"tap",onClick:()=>resolve(job.id),style:{...sBtn(GREENL,GREEN),flex:1,borderRadius:12,padding:11,fontSize:13}},"✓ Mark Done")
+            )
+          )
+        );
+      })
+    )
+  );
+
+  // DONE JOBS
+  const DoneTab = () => h("div",{className:"fade"},
+    h("div",{style:{padding:"4px 4px 18px"}},
+      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"Completed"),
+    ),
+    myDone.length===0 && h(Empty),
+    h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+      ...myDone.map(job=>{
+        const p=props_.find(x=>x.id===job.prop_id);
+        return h("div",{key:job.id,style:{...card()}},
+          h("div",{style:{display:"flex",alignItems:"center",gap:12}},
+            h("div",{style:{width:40,height:40,borderRadius:12,background:GREENL,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}},"✓"),
+            h("div",{style:{flex:1}},
+              h("div",{style:{fontWeight:700,fontSize:15,color:BLACK}},job.type),
+              h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},(p?.name||"")+(job.date?" · "+job.date:""))
+            ),
+            h("span",{className:"pill",style:{background:GREENL,color:GREEN}},"Done")
+          )
+        );
+      })
+    )
+  );
+
+  // TIME LOG
+  const TimeTab = () => h("div",{className:"fade"},
+    h("div",{style:{padding:"4px 4px 18px"}},
+      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"⏱ Time Log"),
+    ),
+    // Total hours today
+    h("div",{style:{background:CARD_DARK,borderRadius:22,padding:"20px 18px",marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}},
+      h("div",null,
+        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:2,marginBottom:6}},"Total Hours Today"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:36,fontWeight:700,color:M}},
+          clockLog.reduce((s,e)=>s+Number(e.hours),0).toFixed(1)+"h"
+        )
+      ),
+      h("div",{style:{textAlign:"right"}},
+        h("div",{style:{fontSize:10,color:"rgba(255,255,255,.3)",marginBottom:3}},"Jobs completed"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:24,color:WHITE}},clockLog.length)
+      )
+    ),
+    clockLog.length===0 && h("div",{style:{textAlign:"center",padding:"36px",background:"rgba(255,255,255,.7)",borderRadius:20,border:`1.5px dashed ${GRAY200}`}},
+      h("div",{style:{fontSize:36,marginBottom:8,opacity:.3}},"⏱"),
+      h("div",{style:{fontSize:13,color:GRAY400}},"Clock in on a job to start tracking time")
+    ),
+    h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+      ...clockLog.slice().reverse().map((entry,i)=>{
+        return h("div",{key:i,style:{...card()}},
+          h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+            h("div",null,
+              h("div",{style:{fontWeight:700,fontSize:15,color:BLACK}},entry.type),
+              h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},entry.propName+" · "+entry.date)
+            ),
+            h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:22,color:CARD_BLUE}},entry.hours+"h")
+          )
+        );
+      })
+    )
+  );
+
+  return h("div",{style:{minHeight:"100vh",background:CREAM,paddingBottom:80}},
+    h(Header),
+    h("div",{style:{padding:"16px 16px 0"}},
+      tab==="jobs" && h(JobsTab),
+      tab==="done" && h(DoneTab),
+      tab==="time" && h(TimeTab)
+    ),
+    h(NavBar)
+  );
+}
+
 // ── APP ──
 function App() {
   const [screen,setScreen] = useState("splash");
@@ -840,12 +1043,21 @@ function App() {
 
   useEffect(()=>{
     sb.auth.getSession().then(({data:{session}})=>{
-      if(session?.user){setUser(session.user);loadAll(session.user.id);setScreen("landlord");}
-      else setScreen("landing");
+      if(session?.user){
+        setUser(session.user);
+        loadAll(session.user.id);
+        const role = session.user.user_metadata?.role||"landlord";
+        setScreen(role==="contractor"?"contractor":role==="tenant"?"tenant":"landlord");
+      } else setScreen("landing");
     }).catch(()=>setScreen("landing"));
 
     const {data:{subscription}} = sb.auth.onAuthStateChange((event,session)=>{
-      if(event==="SIGNED_IN"&&session?.user){setUser(session.user);loadAll(session.user.id);setScreen("landlord");}
+      if(event==="SIGNED_IN"&&session?.user){
+        setUser(session.user);
+        loadAll(session.user.id);
+        const role = session.user.user_metadata?.role||"landlord";
+        setScreen(role==="contractor"?"contractor":role==="tenant"?"tenant":"landlord");
+      }
       else if(event==="SIGNED_OUT"){setUser(null);setProps([]);setMaint([]);setTasks([]);setDocs([]);setScreen("landing");}
     });
     return ()=>subscription.unsubscribe();
@@ -879,10 +1091,11 @@ function App() {
   return h("div",{style:{fontFamily:"'Montserrat',sans-serif",minHeight:"100vh",background:CREAM,color:BLACK,maxWidth:480,margin:"0 auto",position:"relative"}},
     toast && h(Toast,{msg:toast}),
     screen==="splash"   && h(Splash,{onDone:null}),
-    screen==="landing"  && h(Landing,{onL:()=>setScreen("login-l"),onT:()=>setScreen("login-t"),lang,toggleLang}),
+    screen==="landing"  && h(Landing,{onL:()=>setScreen("login-l"),onT:()=>setScreen("login-t"),onC:()=>setScreen("login-c"),lang,toggleLang}),
     screen==="login-l"  && h(Login,{role:"l",onBack:()=>setScreen("landing"),lang,toggleLang}),
     screen==="login-t"  && h(Login,{role:"t",onBack:()=>setScreen("landing"),lang,toggleLang}),
-    screen==="landlord" && h(Landlord,{user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang})
+    screen==="landlord" && h(Landlord,{user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang}),
+    screen==="contractor" && h(Contractor,{user,props_,maint,tasks,notify,lang,toggleLang,resolve})
   );
 }
 

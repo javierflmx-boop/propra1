@@ -463,7 +463,7 @@ function Login({role,onBack,lang,toggleLang}) {
     ),
     h("div",{style:{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}},
       h("div",{style:{marginBottom:36}},
-        h("div",{style:{width:64,height:64,borderRadius:20,background:isC?"#2C5F8A":isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)"}},(isC?"🔧":isL?"🏠":"👤"),
+        h("div",{style:{width:64,height:64,borderRadius:20,background:isC?"#2C5F8A":isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)"}},(isC?"🔧":isL?"🏠":"👤")),
         h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:800,color:BLACK,marginBottom:4}},isSignup?"Create Account":"Welcome back"),
         h("div",{style:{fontSize:14,color:GRAY400,fontWeight:400}},isC?"Contractor":isL?"Landlord":"Tenant")
       ),
@@ -481,7 +481,6 @@ function Login({role,onBack,lang,toggleLang}) {
       )
     ),
     h("button",{className:"tap",onClick:toggleLang,style:{background:"none",border:"none",color:GRAY400,fontSize:13,textAlign:"center",marginTop:20,fontFamily:"'Montserrat',sans-serif"}},"🌐 "+(lang==="en"?"Español":"English"))
-  )
   );
 }
 

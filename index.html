@@ -1,1274 +1,746 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-<meta name="theme-color" content="#F2EFE9"/>
-<title>Propra</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="407AI">
+<title>407AI</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:#F2EFE9;color:#0A0A0A;font-family:'Montserrat',sans-serif;font-weight:300;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-::-webkit-scrollbar{display:none}
-input,textarea,select{background:#fff;border:1.5px solid #E8E4DC;color:#0A0A0A;padding:13px 16px;border-radius:12px;font-family:'Montserrat',sans-serif;font-size:15px;font-weight:300;outline:none;width:100%;-webkit-appearance:none;transition:border-color .2s}
-input:focus,textarea:focus,select:focus{border-color:#F5A623;box-shadow:0 0 0 3px rgba(245,166,35,.12)}
-.tap{cursor:pointer;transition:opacity .12s,transform .1s;-webkit-tap-highlight-color:transparent}
-.tap:active{opacity:.75;transform:scale(.98)}
-.fade{animation:fu .2s ease both}
-@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(4px)}
-.sheet-box{background:#F2EFE9;border-radius:28px 28px 0 0;width:100%;max-height:93vh;overflow-y:auto;padding:0 0 60px;box-shadow:0 -8px 40px rgba(0,0,0,.15)}
-.handle{width:36px;height:4px;background:#E5E0D8;border-radius:2px;margin:14px auto 20px}
-.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 24px rgba(0,0,0,.1);border-radius:20px 20px 0 0}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
 
-/* Splash */
-@keyframes iconDrop{0%{opacity:0;transform:translateY(-18px) scale(.9)}70%{opacity:1;transform:translateY(3px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes wordIn{0%{opacity:0;transform:translateX(-10px)}100%{opacity:1;transform:translateX(0)}}
-@keyframes tagIn{0%{opacity:0}100%{opacity:1}}
-@keyframes barGrow{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+:root {
+  --bg: #f0ede6;
+  --white: #faf9f6;
+  --mango: #e8920a;
+  --mango-light: #f5a800;
+  --mango-glow: rgba(232,146,10,0.12);
+  --text: #1a1814;
+  --text2: #6b6560;
+  --border: #e2ddd6;
+  --card-amber: #e8920a;
+  --card-rust: #c4440a;
+  --card-dark: #1e1c18;
+  --card-sage: #4a6741;
+  --card-tan: #c8b99a;
+  --green: #4a6741;
+  --green-soft: #edf3eb;
+  --green-border: #b8cdb4;
+  --radius: 22px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:999;background:var(--card-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.7s ease;}
+#splash.hide{opacity:0;pointer-events:none;}
+.splash-logo{font-size:100px;font-weight:100;letter-spacing:-6px;color:#fff;}
+.splash-logo b{color:var(--mango-light);font-weight:300;}
+.splash-bar{width:40px;height:2px;background:var(--mango);margin-top:32px;border-radius:2px;animation:barGrow 1.8s ease-in-out infinite;}
+.splash-sub{font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);letter-spacing:4px;text-transform:uppercase;margin-top:16px;}
+@keyframes barGrow{0%,100%{width:20px;opacity:0.3}50%{width:60px;opacity:1}}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid var(--border);padding:16px 20px 14px;display:flex;align-items:center;flex-shrink:0;}
+.logo{font-size:22px;font-weight:200;letter-spacing:-0.5px;color:var(--text);}
+.logo b{color:var(--mango);font-weight:800;}
+.key-btn{margin-left:auto;background:none;border:1.5px solid var(--border);border-radius:100px;padding:7px 16px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--text2);cursor:pointer;transition:all 0.2s;}
+.key-btn.set{border-color:var(--green-border);color:var(--green);background:var(--green-soft);}
+
+/* BOTTOM TABS — big colored blocks, stacked card style */
+.tabs{display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px);height:72px;position:relative;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;transition:all 0.2s;border-radius:16px 16px 0 0;margin:0 2px;}
+.tab-top-label{font-size:13px;font-weight:900;letter-spacing:-0.5px;color:rgba(0,0,0,0.5);transition:all 0.2s;line-height:1;}
+.tab-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,0.45);transition:all 0.2s;}
+
+/* Each tab its own bold color */
+#tab-chat{background:#8a9e2a;}
+#tab-photo{background:#e8520a;}
+#tab-estimates{background:#3aaedc;}
+#tab-settings{background:#f5b800;}
+
+/* Active tab pops up */
+.tab.active{transform:translateY(-6px);box-shadow:0 -4px 20px rgba(0,0,0,0.15);}
+.tab.active .tab-top-label{color:rgba(0,0,0,0.85);}
+.tab.active .tab-label{color:rgba(0,0,0,0.65);}
+.tab:not(.active){opacity:0.75;}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* CHAT */
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+#chat::-webkit-scrollbar{width:0;}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* User bubble */
+.msg-user{align-self:flex-end;max-width:80%;animation:rise 0.25s ease;}
+.msg-user-lbl{font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px;text-align:right;padding-right:6px;}
+.msg-user-bbl{background:var(--card-dark);color:#f5f0e8;padding:14px 20px;border-radius:20px 20px 4px 20px;font-size:15px;font-weight:300;line-height:1.65;}
+
+/* AI quote card — money-app style */
+.msg-ai{align-self:flex-start;width:100%;animation:rise 0.25s ease;}
+.msg-ai-lbl{font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--mango);margin-bottom:8px;padding-left:4px;}
+
+.quote-card{display:flex;flex-direction:column;gap:10px;}
+
+/* BIG total card */
+.qcard-total{background:var(--card-amber);border-radius:var(--radius);padding:26px 22px 22px;position:relative;overflow:hidden;box-shadow:0 6px 24px rgba(232,146,10,0.3);}
+.qcard-total::before{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.1);}
+.qcard-total::after{content:'';position:absolute;right:30px;bottom:-50px;width:120px;height:120px;border-radius:50%;background:rgba(0,0,0,0.07);}
+.qcard-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;position:relative;z-index:1;}
+.qcard-price{font-size:52px;font-weight:900;color:#fff;letter-spacing:-3px;line-height:0.95;position:relative;z-index:1;}
+.qcard-job{font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);margin-top:12px;text-transform:uppercase;letter-spacing:1.5px;position:relative;z-index:1;}
+
+/* 2-column grid for sub-cards */
+.qcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+.qcard-mini{border-radius:18px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.qcard-mini::after{content:'';position:absolute;right:-20px;bottom:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08);}
+.qcard-mini-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;opacity:0.7;}
+.qcard-mini-val{font-size:26px;font-weight:900;letter-spacing:-1px;line-height:1;}
+.qcard-mini-sub{font-size:11px;font-weight:400;margin-top:4px;opacity:0.65;}
+
+.qcard-labor{background:#c4440a;color:#fff;}
+.qcard-materials{background:#e8dcc8;color:#3a2a10;}
+.qcard-other{background:#1e1c18;color:#fff;}
+.qcard-profit{background:#4a6741;color:#fff;}
+
+/* Note + save */
+.qcard-note{background:var(--white);border-radius:16px;padding:14px 18px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.qc-save{display:block;background:var(--white);border:none;border-radius:16px;width:100%;padding:15px 20px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);cursor:pointer;transition:all 0.2s;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.qc-save:active{background:var(--green-soft);}
+.qc-save.saved{background:var(--green-soft);}
+
+/* Plain AI message */
+.msg-ai-plain{background:var(--white);border:1px solid var(--border);border-radius:4px 20px 20px 20px;padding:14px 20px;font-size:15px;font-weight:300;line-height:1.72;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+
+/* Thinking */
+.thinking{align-self:flex-start;display:flex;gap:6px;align-items:center;padding:14px 20px;background:var(--white);border:1px solid var(--border);border-radius:4px 20px 20px 20px;}
+.dot{width:7px;height:7px;border-radius:50%;animation:bob 1.3s infinite ease-in-out;}
+.dot:nth-child(1){background:var(--mango);}
+.dot:nth-child(2){background:#d4cfc8;animation-delay:0.18s;}
+.dot:nth-child(3){background:#c8c3bc;animation-delay:0.36s;}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* Chips */
+.chips{padding:4px 16px 12px;display:flex;gap:7px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{font-size:11px;font-weight:600;letter-spacing:0.3px;padding:8px 16px;background:var(--white);border:1.5px solid var(--border);color:var(--text2);border-radius:100px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.chip:active{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
+
+/* Input bar */
+.bar{background:var(--white);border-top:1px solid var(--border);padding:10px 16px 12px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+#inp{flex:1;background:var(--bg);border:1.5px solid var(--border);color:var(--text);padding:13px 20px;font-family:'Outfit',sans-serif;font-weight:300;font-size:15px;resize:none;min-height:48px;max-height:100px;outline:none;border-radius:100px;transition:border-color 0.2s,background 0.2s;line-height:1.5;}
+#inp:focus{border-color:var(--mango);background:var(--white);}
+#inp::placeholder{color:#b8b2aa;font-style:italic;}
+#go{background:var(--mango);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;box-shadow:0 4px 12px rgba(232,146,10,0.4);}
+#go:active{transform:scale(0.95);}
+#go:disabled{background:var(--border);box-shadow:none;cursor:not-allowed;}
+
+/* PHOTO SCREEN */
+#photoScreen{background:var(--bg);}
+.scroll{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
+.scroll::-webkit-scrollbar{width:0;}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
+
+.upload-zone{background:var(--white);border:2px dashed var(--border);border-radius:var(--radius);padding:40px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.upload-zone.has-img{padding:0;overflow:hidden;border-style:solid;border-color:var(--mango);}
+.upload-icon{font-size:40px;}
+.upload-title{font-size:17px;font-weight:700;color:var(--text);}
+.upload-sub{font-size:13px;font-weight:300;color:var(--text2);line-height:1.5;}
+#previewImg{width:100%;max-height:260px;object-fit:cover;display:none;border-radius:20px;}
+
+.photo-note{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:14px 18px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:300;color:var(--text);outline:none;resize:none;min-height:72px;transition:border-color 0.2s;line-height:1.6;width:100%;}
+.photo-note:focus{border-color:var(--mango);}
+.photo-note::placeholder{color:#b8b2aa;font-style:italic;}
+
+.primary-btn{background:var(--card-dark);color:#fff;border:none;border-radius:16px;padding:17px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.primary-btn:active{transform:scale(0.98);}
+.primary-btn:disabled{background:var(--border);box-shadow:none;cursor:not-allowed;color:var(--text2);}
+
+.photo-result{background:var(--white);border-radius:var(--radius);padding:22px;font-size:15px;font-weight:300;line-height:1.72;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);}
+.photo-result.show{display:block;animation:rise 0.25s ease;}
+
+.ghost-btn{background:none;border:1.5px solid var(--border);border-radius:12px;padding:11px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;transition:all 0.2s;}
+.ghost-btn:active{border-color:#c4440a;color:#c4440a;}
+
+/* ESTIMATES */
+#estimatesScreen{background:var(--bg);}
+.est-list{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.est-list::-webkit-scrollbar{width:0;}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;gap:12px;}
+.empty-icon{font-size:48px;}
+.empty-title{font-size:20px;font-weight:800;color:var(--text);}
+.empty-sub{font-size:14px;font-weight:300;color:var(--text2);line-height:1.65;}
+
+.est-card{background:var(--white);border-radius:var(--radius);overflow:hidden;animation:rise 0.25s ease;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.est-card-stripe{height:4px;background:var(--mango);}
+.est-card-top{padding:16px 20px 14px;display:flex;align-items:flex-start;gap:12px;}
+.est-info{flex:1;min-width:0;}
+.est-job{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.est-date{font-size:11px;font-weight:400;color:var(--text2);}
+.est-price{font-size:24px;font-weight:900;color:var(--mango);white-space:nowrap;flex-shrink:0;letter-spacing:-0.5px;}
+.est-actions{border-top:1px solid var(--border);display:flex;}
+.est-action{flex:1;padding:12px;text-align:center;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;transition:all 0.15s;background:none;border:none;font-family:'Outfit',sans-serif;border-right:1px solid var(--border);}
+.est-action:last-child{border-right:none;}
+.est-action:active{background:var(--bg);}
+.est-action.share{color:var(--green);}
+.est-action.del{color:#c4440a;}
+
+/* SETTINGS */
+#settingsScreen{background:var(--bg);}
+.settings-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px;}
+.settings-row:last-child{border-bottom:none;}
+.s-lbl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.s-sub{font-size:11px;font-weight:300;color:var(--text2);}
+.settings-input{width:80px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:center;outline:none;transition:border-color 0.2s;}
+.settings-input:focus{border-color:var(--mango);background:var(--white);}
+
+/* MODALS */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(26,24,20,0.5);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-bg.open{display:flex;}
+.modal{background:var(--white);border-radius:28px 28px 0 0;padding:28px 22px 44px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:16px;animation:slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);max-height:85vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;align-self:center;margin-bottom:4px;}
+.modal-title{font-size:20px;font-weight:800;}
+.modal-sub{font-size:13px;font-weight:300;color:var(--text2);line-height:1.55;}
+.modal-sub a{color:var(--mango);text-decoration:none;}
+.modal-row{display:flex;gap:8px;}
+.modal-input{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:300;color:var(--text);outline:none;transition:border-color 0.2s;}
+.modal-input:focus{border-color:var(--mango);}
+.modal-input::placeholder{color:#b8b2aa;}
+.modal-eye{background:none;border:1.5px solid var(--border);border-radius:14px;padding:0 16px;font-size:16px;cursor:pointer;color:var(--text2);}
+.modal-save{background:var(--mango);color:#fff;border:none;border-radius:14px;padding:16px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(232,146,10,0.35);}
+.modal-cancel{background:none;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;text-align:center;padding:4px;}
+.detail-body{font-size:14px;font-weight:300;line-height:1.85;white-space:pre-wrap;background:var(--bg);border-radius:14px;padding:18px;color:var(--text);}
+.detail-share{background:var(--card-sage);color:#fff;border:none;border-radius:14px;padding:16px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+
+#fileInput{display:none;}
 </style>
 </head>
 <body>
-<div id="root"></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo"><b>407</b>AI</div>
+  <div class="splash-bar"></div>
+  <div class="splash-sub">Construction Intelligence</div>
+</div>
+
+<header>
+  <div class="logo"><b>407</b>AI</div>
+  <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none">API Key</button>
+</header>
+
+<!-- CHAT -->
+<div class="screen active" id="chatScreen">
+  <div id="chat">
+    <div class="msg-ai">
+      <div class="msg-ai-lbl">407AI</div>
+      <div class="msg-ai-plain">Describe the job — get a price instantly. Tap <strong>Photo</strong> to quote from a picture.</div>
+    </div>
+  </div>
+  <div class="chips">
+    <button class="chip" onclick="q('Bathroom 8x8 full renovation big tiles')">Bathroom 8×8</button>
+    <button class="chip" onclick="q('Kitchen standard full renovation')">Kitchen</button>
+    <button class="chip" onclick="q('Living room 15x20 hardwood floors')">Floors 15×20</button>
+    <button class="chip" onclick="q('Bedroom 12x12 drywall and paint')">Drywall + Paint</button>
+    <button class="chip" onclick="q('Tile shower walls 5x8, I bring materials')">Tile Shower</button>
+    <button class="chip" onclick="q('Paint interior 3 bed 2 bath house')">House Paint</button>
+    <button class="chip" onclick="q('Replace kitchen cabinets 10x12 kitchen')">Cabinets</button>
+    <button class="chip" onclick="q('Basement finishing 20x30')">Basement</button>
+  </div>
+  <div class="bar">
+    <textarea id="inp" placeholder="e.g. Bathroom 8x8 full reno, big tiles…" rows="1"></textarea>
+    <button id="go" onclick="send()">↑</button>
+  </div>
+</div>
+
+<!-- PHOTO -->
+<div class="screen" id="photoScreen">
+  <div class="scroll">
+    <div class="sec-lbl">Photo Quote</div>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <img id="previewImg" />
+      <div id="uploadPlaceholder">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">Take a photo or upload</div>
+        <div class="upload-sub">Room, job site, or damage — I'll analyze and price it</div>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handlePhoto(event)" />
+    <div class="sec-lbl">Add details (optional)</div>
+    <textarea class="photo-note" id="photoNote" placeholder="e.g. Full reno, client wants big tiles, I bring materials…" rows="3"></textarea>
+    <button class="primary-btn" id="analyzeBtn" onclick="analyzePhoto()" disabled>Analyze &amp; Price This Job</button>
+    <div class="photo-result" id="photoResult"></div>
+    <button class="ghost-btn" id="clearBtn" onclick="clearPhoto()" style="display:none">✕ Clear Photo</button>
+  </div>
+</div>
+
+<!-- ESTIMATES -->
+<div class="screen" id="estimatesScreen">
+  <div class="est-list" id="estList"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="settingsScreen">
+  <div class="scroll" style="gap:18px;">
+    <div class="sec-lbl">Your Rates</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div><div class="s-lbl">Your Labor Rate</div><div class="s-sub">Your hourly rate ($/hr)</div></div>
+        <input class="settings-input" id="setLaborRate" type="number" placeholder="65" />
+      </div>
+      <div class="settings-row">
+        <div><div class="s-lbl">Helper Rate</div><div class="s-sub">Second worker ($/hr)</div></div>
+        <input class="settings-input" id="setHelperRate" type="number" placeholder="45" />
+      </div>
+      <div class="settings-row">
+        <div><div class="s-lbl">Profit Markup</div><div class="s-sub">Added on top of all costs (%)</div></div>
+        <input class="settings-input" id="setMarkup" type="number" placeholder="20" />
+      </div>
+      <div class="settings-row">
+        <div><div class="s-lbl">Your City</div><div class="s-sub">Adjusts prices for your market</div></div>
+        <input class="settings-input" id="setCity" type="text" placeholder="Orlando" style="width:100px;font-size:13px;" />
+      </div>
+    </div>
+    <button class="primary-btn" onclick="saveSettings()">Save Settings</button>
+    <div id="settingsSaved" style="text-align:center;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--green);display:none">✓ SAVED</div>
+  </div>
+</div>
+
+<!-- BOTTOM TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-chat" onclick="switchTab('chat')">
+    <div class="tab-top-label">$</div>
+    <div class="tab-label">Quote</div>
+  </div>
+  <div class="tab" id="tab-photo" onclick="switchTab('photo')">
+    <div class="tab-top-label">CAM</div>
+    <div class="tab-label">Photo</div>
+  </div>
+  <div class="tab" id="tab-estimates" onclick="switchTab('estimates')">
+    <div class="tab-top-label">EST</div>
+    <div class="tab-label">Estimates</div>
+  </div>
+  <div class="tab" id="tab-settings" onclick="switchTab('settings')">
+    <div class="tab-top-label">SET</div>
+    <div class="tab-label">Settings</div>
+  </div>
+</div>
+
+<!-- KEY MODAL -->
+<div class="modal-bg" id="keyModal" onclick="closeKeyModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">API Key</div>
+    <div class="modal-sub">Get one at <a href="https://platform.anthropic.com" target="_blank">platform.anthropic.com</a> → API Keys → Create Key.</div>
+    <div class="modal-row">
+      <input class="modal-input" id="keyInp" type="password" placeholder="sk-ant-api03-…" />
+      <button class="modal-eye" onclick="toggleKey()">👁</button>
+    </div>
+    <button class="modal-save" onclick="saveKey()">Save Key</button>
+    <button class="modal-cancel" onclick="closeKeyModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="detailModal" onclick="closeDetail(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="detailTitle"></div>
+    <div class="modal-sub" id="detailDate"></div>
+    <div class="detail-body" id="detailBody"></div>
+    <button class="detail-share" onclick="shareCurrentDetail()">📤 Share Estimate</button>
+    <button class="modal-cancel" onclick="closeDetail()">Close</button>
+  </div>
+</div>
+
 <script>
-const {createElement:h, useState, useEffect, useRef} = React;
+let history=[],keyVis=false,currentDetail=null,currentPhotoB64=null;
 
-// ── COLORS ──
-const M="#F5A623",ML="#FFF3DC",MD="#C4831A",BLACK="#0A0A0A";
-const CREAM="#F2EFE9",CREAM2="#E8E4DC",WHITE="#FFFFFF";
-const GRAY100="#F0EDE6",GRAY200="#E5E0D8",GRAY400="#9A9590",GRAY500="#6B6560";
-const GREEN="#2D6A4F",GREENL="#E8F5EE",RED="#C0392B",REDL="#FDECEA";
-const CARD_MANGO="#F5A623",CARD_RED="#C0392B",CARD_GREEN="#2D6A4F";
-const CARD_BLUE="#2C5F8A",CARD_DARK="#1C1C1E",ORANGEL="#FEF3E8";
+function getKey(){return localStorage.getItem('407ai_key')||'';}
+function saveKey(){
+  const v=document.getElementById('keyInp').value.trim();
+  if(!v.startsWith('sk-ant-')){alert('Please enter a valid key (starts with sk-ant-)');return;}
+  localStorage.setItem('407ai_key',v);
+  document.getElementById('keyBtn').textContent='Key ✓';
+  document.getElementById('keyBtn').classList.add('set');
+  closeKeyModal();
+}
+function openKeyModal(){document.getElementById('keyModal').classList.add('open');if(getKey())document.getElementById('keyInp').value=getKey();}
+function closeKeyModal(e){if(!e||e.target===document.getElementById('keyModal'))document.getElementById('keyModal').classList.remove('open');}
+function toggleKey(){const el=document.getElementById('keyInp');keyVis=!keyVis;el.type=keyVis?'text':'password';}
 
-// ── SUPABASE ──
-const SUPA_URL="https://feducxxoewcztqrwddyi.supabase.co";
-const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlZHVjeHhvZXdjenRxcndkZHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDEyMjksImV4cCI6MjA5MDMxNzIyOX0.orlTPVn2OpL9mwDlYYgabJzCwbQkfefyRq52HZvpIxI";
-const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-
-// ── HELPERS ──
-const daysUntil = d => d ? Math.ceil((new Date(d)-new Date())/86400000) : null;
-const avatar = n => (n||"?").trim().split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
-const getRemStatus = p => {
-  const d = daysUntil(p.next_due||p.nextDue);
-  if(d===null) return null;
-  if(d<0) return {type:"overdue",days:Math.abs(d)};
-  if(d<=5) return {type:"soon",days:d};
-  return null;
-};
-const freqLabel = f => ({monthly:"Monthly",weekly:"Weekly",biweekly:"Bi-Weekly",contract:"Contract",nightly:"Nightly"}[f]||f);
-const fmt = n => Number(n||0).toLocaleString();
-
-// ── STYLE HELPERS ──
-const s = obj => obj;
-const card = (extra={}) => ({background:WHITE,borderRadius:22,border:"none",boxShadow:"0 2px 14px rgba(0,0,0,.07)",padding:18,...extra});
-const sBtn = (bg,color,extra={}) => ({background:bg,border:"none",borderRadius:16,color,fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:15,padding:"14px 20px",cursor:"pointer",...extra});
-
-// ── SPLASH ──
-function Splash({onDone}) {
-  useEffect(() => { setTimeout(onDone, 2200); }, []);
-  return h("div", {style:{position:"fixed",inset:0,background:BLACK,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",zIndex:9999}},
-    h("style", null, `
-      @keyframes iconDrop{0%{opacity:0;transform:translateY(-18px) scale(.9)}70%{opacity:1;transform:translateY(3px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
-      @keyframes wordIn{0%{opacity:0;transform:translateX(-10px)}100%{opacity:1;transform:translateX(0)}}
-      @keyframes tagIn{0%{opacity:0}100%{opacity:1}}
-      @keyframes barGrow{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
-    `),
-    h("div", {style:{animation:"iconDrop .65s cubic-bezier(.34,1.4,.64,1) .05s both",marginBottom:24}},
-      h("div", {style:{width:96,height:96,borderRadius:28,background:BLACK,border:"1px solid rgba(255,255,255,.08)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 22px",boxShadow:"0 0 60px rgba(0,0,0,.9)"}},
-        h("svg",{width:54,height:50,viewBox:"0 0 54 50",fill:"none"},
-          h("rect",{x:34,y:13,width:5,height:10,rx:2,fill:M}),
-          h("path",{d:"M4 26 L27 6 L50 26",stroke:M,strokeWidth:3,strokeLinecap:"round",strokeLinejoin:"round",fill:"none"}),
-          h("rect",{x:10,y:25,width:34,height:22,rx:3,fill:M}),
-          h("rect",{x:20,y:31,width:14,height:16,rx:3,fill:BLACK}),
-          h("circle",{cx:31,cy:39,r:1.5,fill:M}),
-          h("rect",{x:12,y:28,width:7,height:7,rx:2,fill:BLACK,opacity:.5}),
-          h("rect",{x:35,y:28,width:7,height:7,rx:2,fill:BLACK,opacity:.5})
-        )
-      ),
-      h("div", {style:{display:"flex",alignItems:"baseline",justifyContent:"center",animation:"wordIn .5s ease .5s both"}},
-        h("span",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:42,fontWeight:100,color:WHITE,letterSpacing:"-2.5px",lineHeight:1}},"Prop"),
-        h("span",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:42,fontWeight:100,color:M,letterSpacing:"-2.5px",lineHeight:1}},"ra")
-      )
-    ),
-    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:11,fontWeight:300,color:"rgba(255,255,255,.3)",letterSpacing:4,textTransform:"uppercase",marginBottom:48,animation:"tagIn .6s ease .9s both"}},"Property · Simplified"),
-    h("div",{style:{width:56,height:2,background:"rgba(255,255,255,.08)",borderRadius:2,overflow:"hidden"}},
-      h("div",{style:{height:"100%",background:M,borderRadius:2,transformOrigin:"left",animation:"barGrow 2s cubic-bezier(.22,1,.36,1) .4s both"}})
-    ),
-    h("div",{style:{position:"absolute",bottom:42,display:"flex",alignItems:"center",gap:8,animation:"tagIn .5s ease 1.2s both"}},
-      h("div",{style:{width:18,height:1,background:"rgba(255,255,255,.15)"}}),
-      h("span",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:11,fontWeight:200,color:"rgba(255,255,255,.2)",letterSpacing:3,textTransform:"uppercase"}},"propra.co"),
-      h("div",{style:{width:18,height:1,background:"rgba(255,255,255,.15)"}})
-    )
-  );
+function switchTab(t){
+  ['chat','photo','estimates','settings'].forEach(s=>{
+    document.getElementById(s+'Screen').classList.toggle('active',s===t);
+    document.getElementById('tab-'+s).classList.toggle('active',s===t);
+  });
+  if(t==='estimates')renderEstimates();
+  if(t==='settings')loadSettingsUI();
 }
 
-// ── TOAST ──
-function Toast({msg}) {
-  return h("div",{style:{position:"fixed",top:20,left:"50%",transform:"translateX(-50%)",zIndex:9999,background:BLACK,color:WHITE,padding:"12px 24px",borderRadius:50,fontWeight:600,fontSize:13,boxShadow:"0 8px 32px rgba(0,0,0,.25)",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:8}},
-    h("span",{style:{width:8,height:8,borderRadius:"50%",background:M,flexShrink:0}}),
-    msg
-  );
+function getSettings(){try{return JSON.parse(localStorage.getItem('407ai_settings')||'{}');}catch{return{};}}
+function loadSettingsUI(){
+  const s=getSettings();
+  document.getElementById('setLaborRate').value=s.laborRate||'';
+  document.getElementById('setHelperRate').value=s.helperRate||'';
+  document.getElementById('setMarkup').value=s.markup||'';
+  document.getElementById('setCity').value=s.city||'';
+}
+function saveSettings(){
+  const s={laborRate:document.getElementById('setLaborRate').value||'65',helperRate:document.getElementById('setHelperRate').value||'45',markup:document.getElementById('setMarkup').value||'20',city:document.getElementById('setCity').value||'Orlando'};
+  localStorage.setItem('407ai_settings',JSON.stringify(s));
+  const el=document.getElementById('settingsSaved');el.style.display='block';
+  setTimeout(()=>el.style.display='none',3000);
 }
 
-// ── FIELD ──
-function Fld({label,children}) {
-  return h("div",{style:{marginBottom:14}},
-    label && h("label",{style:{fontSize:10,fontWeight:600,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}},label),
-    children
-  );
+function buildSystem(){
+  const s=getSettings();
+  const laborRate=parseFloat(s.laborRate)||65;
+  const helperRate=parseFloat(s.helperRate)||45;
+  const markup=parseFloat(s.markup)||20;
+  const city=s.city||'Orlando';
+
+  // City material cost multipliers
+  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'la':1.6,'san francisco':1.7,'sf':1.7,'miami':1.3,'fort lauderdale':1.2,'boca raton':1.3,'chicago':1.4,'boston':1.5,'washington':1.4,'dc':1.4,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'phoenix':1.1,'las vegas':1.2,'tampa':1.05,'jacksonville':0.95,'orlando':1.0,'kissimmee':0.95,'atlanta':1.1,'charlotte':1.05,'nashville':1.1};
+  const m=cityMult[city.toLowerCase().trim()]||1.0;
+
+  // Pre-calculate real numbers
+  const twoWorkers=laborRate+helperRate;
+  const oneWorker=laborRate;
+
+  // Paint calculations
+  const paintRoomWallsLabor=Math.round(oneWorker*3.5); // 3.5hrs 1 worker
+  const paintRoomWallsMat=Math.round(60*m); // paint + primer
+  const paintRoomWallsTotal=Math.round((paintRoomWallsLabor+paintRoomWallsMat)*(1+markup/100));
+
+  const paintRoomFullLabor=Math.round(oneWorker*5.5); // 5.5hrs 1 worker
+  const paintRoomFullMat=Math.round(90*m);
+  const paintRoomFullTotal=Math.round((paintRoomFullLabor+paintRoomFullMat)*(1+markup/100));
+
+  const paintHouseLabor=Math.round(twoWorkers*28); // 3.5 days 2 workers
+  const paintHouseMat=Math.round(600*m);
+  const paintHouseTotal=Math.round((paintHouseLabor+paintHouseMat+100)*(1+markup/100));
+
+  // Bathroom
+  const bathSmallLabor=Math.round(twoWorkers*60); // ~7.5 days
+  const bathSmallMat=Math.round(3500*m);
+  const bathSmallTotal=Math.round((bathSmallLabor+bathSmallMat+250)*(1+markup/100));
+
+  const bathLargeLabor=Math.round(twoWorkers*90);
+  const bathLargeMat=Math.round(5500*m);
+  const bathLargeTotal=Math.round((bathLargeLabor+bathLargeMat+350)*(1+markup/100));
+
+  // Kitchen
+  const kitchenLabor=Math.round(twoWorkers*160); // ~3 weeks
+  const kitchenMat=Math.round(8000*m);
+  const kitchenTotal=Math.round((kitchenLabor+kitchenMat+500)*(1+markup/100));
+
+  // Per sqft installed
+  const tilePerSqft=Math.round((laborRate*0.15+4*m)*(1+markup/100)*10)/10;
+  const lvpPerSqft=Math.round((laborRate*0.08+3*m)*(1+markup/100)*10)/10;
+  const hwPerSqft=Math.round((laborRate*0.12+6*m)*(1+markup/100)*10)/10;
+  const drywallRepair=Math.round((oneWorker*3+80*m)*(1+markup/100));
+
+  return `You are 407AI — construction quoting assistant for ${city}.
+You MUST use ONLY the pre-calculated numbers below. Do NOT use any other prices. These are calculated from the contractor's actual rates.
+
+YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers together = $${twoWorkers}/hr | Profit markup: ${markup}%
+CITY: ${city} (material multiplier: ${m}x)
+
+PRE-CALCULATED PRICES — USE THESE EXACT NUMBERS:
+- Paint 1 room walls only (up to 12x12): LABOR $${paintRoomWallsLabor} | MAT $${paintRoomWallsMat} | TOTAL ~$${paintRoomWallsTotal}
+- Paint 1 room full walls+ceiling+trim: LABOR $${paintRoomFullLabor} | MAT $${paintRoomFullMat} | TOTAL ~$${paintRoomFullTotal}
+- Paint whole house 3bed/2bath: LABOR $${paintHouseLabor} | MAT $${paintHouseMat} | TOTAL ~$${paintHouseTotal}
+- Bathroom small full reno (<60sqft): LABOR $${bathSmallLabor} | MAT $${bathSmallMat} | TOTAL ~$${bathSmallTotal}
+- Bathroom large full reno: LABOR $${bathLargeLabor} | MAT $${bathLargeMat} | TOTAL ~$${bathLargeTotal}
+- Kitchen standard full reno: LABOR $${kitchenLabor} | MAT $${kitchenMat} | TOTAL ~$${kitchenTotal}
+- Tile floor per sqft installed: ~$${tilePerSqft}/sqft total
+- LVP floor per sqft installed: ~$${lvpPerSqft}/sqft total
+- Hardwood floor per sqft installed: ~$${hwPerSqft}/sqft total
+- Drywall repair small: ~$${drywallRepair} total
+- Transport: $${Math.round(50*m)} | Disposal large jobs: $${Math.round(120*m)}
+
+SCALING RULES:
+- Scale prices proportionally for different room sizes (e.g. 10x10 room = 70% of 12x12 price)
+- Scale for complexity (basic vs high-end finishes = +20-40%)
+- "I bring materials" = LABOR ONLY, remove all material costs
+- Small jobs = 1 worker | Large jobs = 2 workers
+
+RESPOND ONLY in this exact format, no other text:
+TITLE: [job name max 4 words]
+LABOR: $X
+MATERIALS: $X
+MAT_LIST: [item1 ~$X, item2 ~$X]
+OTHER: $X
+OTHER_LIST: [Transport ~$X, Disposal ~$X]
+SUBTOTAL: $X
+PROFIT: $X
+QUOTE: $X – $X
+NOTE: [one sentence about what could change this price]`;
 }
 
-// ── OVERLAY ──
-function Overlay({children,onClose}) {
-  return h("div",{className:"sheet-overlay",onClick:e=>e.target===e.currentTarget&&onClose()},
-    h("div",{className:"sheet-box"},
-      h("div",{className:"handle"}),
-      h("div",{style:{padding:"0 20px"}},children)
-    )
-  );
+function buildPhotoSystem(){
+  const s=getSettings();
+  const laborRate=parseFloat(s.laborRate)||65;
+  const helperRate=parseFloat(s.helperRate)||45;
+  const markup=parseFloat(s.markup)||20;
+  const city=s.city||'Orlando';
+  const twoWorkers=laborRate+helperRate;
+  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'miami':1.3,'chicago':1.4,'boston':1.5,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'tampa':1.05,'orlando':1.0,'atlanta':1.1};
+  const m=cityMult[city.toLowerCase().trim()]||1.0;
+
+  return `You are 407AI — construction quoting assistant for ${city}.
+Analyze the photo and give a renovation quote using ONLY these rates:
+
+YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers = $${twoWorkers}/hr | ${markup}% profit | City material multiplier: ${m}x
+
+CALCULATE: Estimate hours needed × labor rate + materials cost × ${m} + ${markup}% profit = quote
+Always show your math in the breakdown.
+
+RESPOND ONLY in this exact format:
+TITLE: [job name max 4 words]
+SCOPE: [what you see and what needs doing, 1 line]
+LABOR: $X
+MATERIALS: $X
+OTHER: $X
+SUBTOTAL: $X
+PROFIT: $X
+QUOTE: $X – $X
+NOTE: [one sentence what could change this price]`;
 }
 
-// ── EMPTY ──
-function Empty() {
-  return h("div",{style:{textAlign:"center",padding:"36px 24px",background:"rgba(255,255,255,.7)",borderRadius:20,border:`1.5px dashed ${GRAY200}`,marginBottom:12}},
-    h("div",{style:{fontSize:36,marginBottom:8,opacity:.3}},"○"),
-    h("div",{style:{fontSize:14,color:GRAY400}}, "Nothing yet — tap + to add.")
-  );
+function parseStructured(text){
+  const get=(key)=>{const m=text.match(new RegExp('^'+key+':\\s*(.+)','im'));return m?m[1].trim():'';};
+  return{title:get('TITLE'),labor:get('LABOR'),materials:get('MATERIALS'),matList:get('MAT_LIST'),other:get('OTHER'),otherList:get('OTHER_LIST'),subtotal:get('SUBTOTAL'),profit:get('PROFIT'),quote:get('QUOTE'),scope:get('SCOPE'),note:get('NOTE')};
 }
 
-// ── PILL ──
-function Pill({label,bg,color}) {
-  return h("span",{className:"pill",style:{background:bg,color:color}},label);
+function toggleExpand(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
 }
 
-const statusStyle = s => ({
-  "Resolved":   {bg:GREENL,color:GREEN},
-  "In Progress":{bg:ORANGEL,color:"#B45309"},
-  "Open":       {bg:REDL,color:RED},
-  "Scheduled":  {bg:ML,color:MD},
-  "Done":       {bg:GREENL,color:GREEN},
-}[s]||{bg:GRAY100,color:GRAY400});
-
-// ── FORM BUTTONS ──
-function FormBtns({onSave,onCancel}) {
-  return h("div",{style:{display:"flex",gap:10,marginTop:20,paddingBottom:10}},
-    h("button",{className:"tap",onClick:onCancel,style:sBtn(CREAM2,BLACK,{flex:1})},"Cancel"),
-    h("button",{className:"tap",onClick:onSave,style:sBtn(M,BLACK,{flex:2})},"Save")
-  );
+function renderQuoteCard(p,rawText){
+  const esc=rawText.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+  const tj=(p.title||'Job Estimate').replace(/'/g,"\\'");
+  const pq=(p.quote||'').replace(/'/g,"\\'");
+  const uid=Date.now();
+  // Format mat list
+  const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px"><span>${i.trim()}</span></div>`).join(''):'';
+  const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;color:rgba(255,255,255,0.8)"><span>${i.trim()}</span></div>`).join(''):'';
+  return `<div class="quote-card">
+  <div class="qcard-total">
+    <div class="qcard-eyebrow">Estimate · 407AI</div>
+    <div class="qcard-price">${p.quote||'—'}</div>
+    <div class="qcard-job">${p.title||''}</div>
+  </div>
+  <div class="qcard-grid">
+    ${p.labor?`<div class="qcard-mini qcard-labor"><div class="qcard-mini-label">Labor</div><div class="qcard-mini-val">${p.labor}</div><div class="qcard-mini-sub">2 workers</div></div>`:''}
+    ${p.materials?`<div class="qcard-mini qcard-materials" onclick="toggleExpand('mat-${uid}')" style="cursor:pointer">
+      <div class="qcard-mini-label">Materials <span style="opacity:0.5;font-size:8px">▼ TAP</span></div>
+      <div class="qcard-mini-val">${p.materials}</div>
+      <div class="qcard-mini-sub">Tap to see breakdown</div>
+      <div id="mat-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:8px">${matItems}</div>
+    </div>`:''}
+    ${p.other?`<div class="qcard-mini qcard-other" onclick="toggleExpand('oth-${uid}')" style="cursor:pointer">
+      <div class="qcard-mini-label">Job Costs <span style="opacity:0.5;font-size:8px">▼ TAP</span></div>
+      <div class="qcard-mini-val">${p.other}</div>
+      <div class="qcard-mini-sub">Tap to see breakdown</div>
+      <div id="oth-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">${otherItems}</div>
+    </div>`:''}
+    ${p.profit?`<div class="qcard-mini" style="background:#2a2a2a;color:#fff;cursor:pointer" onclick="toggleExpand('prof-${uid}')">
+      <div class="qcard-mini-label" style="opacity:0.5">My Numbers <span style="font-size:8px">▼</span></div>
+      <div class="qcard-mini-val" style="font-size:18px">🔒 Private</div>
+      <div class="qcard-mini-sub" style="opacity:0.4">Tap to view</div>
+      <div id="prof-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px">
+        <div style="font-size:11px;opacity:0.6;margin-bottom:4px">Subtotal: ${p.subtotal||'—'}</div>
+        <div style="font-size:22px;font-weight:900;color:var(--mango)">+${p.profit}</div>
+        <div style="font-size:10px;opacity:0.5;margin-top:2px">Your profit margin</div>
+      </div>
+    </div>`:''}
+  </div>
+  ${p.note?`<div class="qcard-note">${p.note}</div>`:''}
+  <button class="qc-save" onclick="(function(b){addEstimate('${tj}','${pq}',\`${esc}\`);b.textContent='✓ Saved to Estimates';b.classList.add('saved');b.onclick=null;})(this)">Save to Estimates</button>
+</div>`;
 }
 
-// ── PROP FORM ──
-function PropForm({onSave,onCancel}) {
-  const [f,setF] = useState({name:"",address:"",propType:"rental",tenantName:"",phone:"",emailAddr:"",payFreq:"monthly",rentAmount:"",nextDue:"",leaseStart:"",leaseEnd:"",deposit:"",notes:""});
-  const u = (k,v) => setF(p=>({...p,[k]:v}));
-  const ab = f.propType==="airbnb";
-  return h("div",null,
-    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:800,fontSize:22,color:BLACK,marginBottom:20}},"New Property"),
-    h(Fld,{label:"Property Name"},h("input",{value:f.name,onChange:e=>u("name",e.target.value),placeholder:"e.g. Main St House"})),
-    h(Fld,{label:"Address"},h("input",{value:f.address,onChange:e=>u("address",e.target.value)})),
-    h(Fld,{label:"Type"},
-      h("select",{value:f.propType,onChange:e=>u("propType",e.target.value)},
-        h("option",{value:"rental"},"🏠 Long-Term Rental"),
-        h("option",{value:"airbnb"},"🏨 Airbnb / Short-Term"),
-        h("option",{value:"commercial"},"🏢 Commercial")
-      )
-    ),
-    h(Fld,{label:"Tenant Name"},h("input",{value:f.tenantName,onChange:e=>u("tenantName",e.target.value)})),
-    h(Fld,{label:"Phone"},h("input",{type:"tel",value:f.phone,onChange:e=>u("phone",e.target.value)})),
-    h(Fld,{label:"Email"},h("input",{type:"email",value:f.emailAddr,onChange:e=>u("emailAddr",e.target.value)})),
-    h(Fld,{label:"Payment Frequency"},
-      h("select",{value:f.payFreq,onChange:e=>u("payFreq",e.target.value)},
-        h("option",{value:"monthly"},"Monthly"),
-        h("option",{value:"weekly"},"Weekly"),
-        h("option",{value:"biweekly"},"Bi-Weekly"),
-        h("option",{value:"contract"},"One-Time Contract"),
-        h("option",{value:"nightly"},"Nightly (Airbnb)")
-      )
-    ),
-    h(Fld,{label:"Rent / Rate ($)"},h("input",{type:"number",value:f.rentAmount,onChange:e=>u("rentAmount",e.target.value),placeholder:"0"})),
-    !ab && h(Fld,{label:"Next Due Date"},h("input",{type:"date",value:f.nextDue,onChange:e=>u("nextDue",e.target.value)})),
-    !ab && h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
-      h(Fld,{label:"Lease Start"},h("input",{type:"date",value:f.leaseStart,onChange:e=>u("leaseStart",e.target.value)})),
-      h(Fld,{label:"Lease End"},h("input",{type:"date",value:f.leaseEnd,onChange:e=>u("leaseEnd",e.target.value)}))
-    ),
-    h(Fld,{label:"Security Deposit ($)"},h("input",{type:"number",value:f.deposit,onChange:e=>u("deposit",e.target.value),placeholder:"0"})),
-    h(Fld,{label:"Notes"},h("textarea",{rows:2,value:f.notes,onChange:e=>u("notes",e.target.value),style:{resize:"none"}})),
-    h(FormBtns,{onSave:()=>onSave({...f,rentAmount:Number(f.rentAmount),deposit:Number(f.deposit)}),onCancel})
-  );
-}
-
-// ── REPAIR FORM ──
-function RepairForm({props_,onSave,onCancel}) {
-  const works = ["Plumbing","Electrical","HVAC","Roof","Paint","Appliance","Pest Control","Cleaning","Structural","Locks","Other"];
-  const [f,setF] = useState({propId:"",date:new Date().toISOString().split("T")[0],type:"",description:"",cost:"",status:"Open",contractor:""});
-  const u = (k,v) => setF(p=>({...p,[k]:v}));
-  return h("div",null,
-    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:800,fontSize:22,color:BLACK,marginBottom:20}},"Log Repair"),
-    h(Fld,{label:"Property"},
-      h("select",{value:f.propId,onChange:e=>u("propId",Number(e.target.value))},
-        h("option",{value:""},"Select property..."),
-        ...props_.map(p=>h("option",{key:p.id,value:p.id},p.name))
-      )
-    ),
-    h(Fld,{label:"Type of Work"},
-      h("select",{value:f.type,onChange:e=>u("type",e.target.value)},
-        h("option",{value:""},"Select type..."),
-        ...works.map(w=>h("option",{key:w,value:w},w))
-      )
-    ),
-    h(Fld,{label:"Description"},h("textarea",{rows:3,value:f.description,onChange:e=>u("description",e.target.value),placeholder:"What happened?",style:{resize:"none"}})),
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
-      h(Fld,{label:"Date"},h("input",{type:"date",value:f.date,onChange:e=>u("date",e.target.value)})),
-      h(Fld,{label:"Cost ($)"},h("input",{type:"number",value:f.cost,onChange:e=>u("cost",e.target.value),placeholder:"0"}))
-    ),
-    h(Fld,{label:"Contractor"},h("input",{value:f.contractor,onChange:e=>u("contractor",e.target.value),placeholder:"Contractor name"})),
-    h(Fld,{label:"Status"},
-      h("select",{value:f.status,onChange:e=>u("status",e.target.value)},
-        h("option",{value:"Open"},"Open"),
-        h("option",{value:"In Progress"},"In Progress"),
-        h("option",{value:"Resolved"},"Resolved"),
-        h("option",{value:"Scheduled"},"Scheduled")
-      )
-    ),
-    h(FormBtns,{onSave:()=>onSave({...f,cost:Number(f.cost)}),onCancel})
-  );
-}
-
-// ── TASK FORM ──
-function TaskForm({props_,onSave,onCancel}) {
-  const cats = ["Paint","Filters","HVAC Service","Roof Inspection","Landscaping","Deep Clean","Pest Control","Safety Check","Plumbing","Electrical","Other"];
-  const [f,setF] = useState({propId:"",task:"",category:"",dueDate:"",priority:"Medium",estimatedCost:""});
-  const u = (k,v) => setF(p=>({...p,[k]:v}));
-  return h("div",null,
-    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:800,fontSize:22,color:BLACK,marginBottom:20}},"Add Task"),
-    h(Fld,{label:"Property"},
-      h("select",{value:f.propId,onChange:e=>u("propId",Number(e.target.value))},
-        h("option",{value:""},"Select..."),
-        ...props_.map(p=>h("option",{key:p.id,value:p.id},p.name))
-      )
-    ),
-    h(Fld,{label:"Task Description"},h("input",{value:f.task,onChange:e=>u("task",e.target.value),placeholder:"e.g. Replace air filter"})),
-    h(Fld,{label:"Category"},
-      h("select",{value:f.category,onChange:e=>u("category",e.target.value)},
-        h("option",{value:""},"Select..."),
-        ...cats.map(c=>h("option",{key:c,value:c},c))
-      )
-    ),
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
-      h(Fld,{label:"Due Date"},h("input",{type:"date",value:f.dueDate,onChange:e=>u("dueDate",e.target.value)})),
-      h(Fld,{label:"Priority"},
-        h("select",{value:f.priority,onChange:e=>u("priority",e.target.value)},
-          h("option",{value:"High"},"High"),
-          h("option",{value:"Medium"},"Medium"),
-          h("option",{value:"Low"},"Low")
-        )
-      )
-    ),
-    h(Fld,{label:"Est. Cost ($)"},h("input",{type:"number",value:f.estimatedCost,onChange:e=>u("estimatedCost",e.target.value),placeholder:"0"})),
-    h(FormBtns,{onSave:()=>onSave({...f,estimatedCost:Number(f.estimatedCost)}),onCancel})
-  );
-}
-
-// ── MSG FORM ──
-function MsgForm({prop,onSend,onCancel}) {
-  const [text,setText] = useState("");
-  const name = prop.tenant_name||prop.tenantName||prop.name||"";
-  const amt = prop.rent_amount||prop.rentAmount||"";
-  const tmpls = [
-    {l:"Rent Reminder",v:`Hi ${name}, your payment of $${amt} is due soon. Please pay on time. Thank you.`},
-    {l:"Late Notice",v:`Hi ${name}, your payment of $${amt} is overdue. Please pay immediately.`},
-    {l:"Maintenance",v:`Hi ${name}, our team will visit soon for pending maintenance.`},
-    {l:"5-Day Warning",v:`Hi ${name}, heads up — your payment of $${amt} is due in 5 days.`},
-  ];
-  return h("div",null,
-    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:20,color:BLACK,marginBottom:4}},"💬 Message"),
-    h("div",{style:{fontSize:13,color:GRAY400,marginBottom:16}},"To: "+name),
-    h("div",{style:{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:8}},"Templates"),
-    h("div",{style:{display:"flex",gap:7,flexWrap:"wrap",marginBottom:14}},
-      ...tmpls.map(tp=>h("button",{key:tp.l,className:"tap",onClick:()=>setText(tp.v),
-        style:{padding:"7px 13px",borderRadius:50,border:`1.5px solid ${GRAY200}`,background:WHITE,color:GRAY500,fontSize:12,fontWeight:600,fontFamily:"'Montserrat',sans-serif"}},tp.l))
-    ),
-    h("textarea",{value:text,onChange:e=>setText(e.target.value),placeholder:"Write your message...",style:{minHeight:120,resize:"none",marginBottom:14,fontSize:15}}),
-    h("div",{style:{display:"flex",gap:10,paddingBottom:10}},
-      h("button",{className:"tap",onClick:onCancel,style:sBtn(CREAM2,BLACK,{flex:1})},"Cancel"),
-      h("button",{className:"tap",onClick:()=>onSend(text),style:sBtn(M,BLACK,{flex:2})},"📤 Send")
-    )
-  );
-}
-
-// ── LANDING ──
-function Landing({onL,onT,onC,lang,toggleLang}) {
-  const [tab,setTab] = useState("rentals");
-  return h("div",{style:{background:CREAM,minHeight:"100vh",paddingBottom:40}},
-
-    h("div",{style:{padding:"24px 22px 0"}},
-      // Hero
-      h("div",{style:{background:M,borderRadius:24,padding:"30px 26px 28px",position:"relative",overflow:"hidden",marginBottom:24}},
-        h("div",{style:{position:"absolute",top:-30,right:-30,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,.15)"}}),
-        h("div",{style:{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:"uppercase",color:"rgba(0,0,0,.45)",marginBottom:10}},lang==="en"?"Property Management, Simplified":"Administración de Propiedades"),
-        h("h1",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:30,fontWeight:800,lineHeight:1.15,color:BLACK,marginBottom:12}},
-          lang==="en"?"Manage smarter,\nearn better.":"Administra mejor,\ngana más."
-        ),
-        h("p",{style:{fontSize:14,color:"rgba(0,0,0,.55)",lineHeight:1.6,marginBottom:0}},lang==="en"?"Rentals, Airbnb & repairs in one clean app.":"Rentas, Airbnb y reparaciones en una app."),
-
-      ),
-      // App name centered hero
-      h("div",{style:{textAlign:"center",padding:"40px 20px 32px"}},
-        h("div",{style:{width:80,height:80,borderRadius:24,background:BLACK,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 4px 24px rgba(0,0,0,.15)"}},
-          h("svg",{width:46,height:42,viewBox:"0 0 54 50",fill:"none"},
-            h("rect",{x:34,y:13,width:5,height:10,rx:2,fill:M}),
-            h("path",{d:"M4 26 L27 6 L50 26",stroke:M,strokeWidth:3,strokeLinecap:"round",strokeLinejoin:"round",fill:"none"}),
-            h("rect",{x:10,y:25,width:34,height:22,rx:3,fill:M}),
-            h("rect",{x:20,y:31,width:14,height:16,rx:3,fill:BLACK}),
-            h("circle",{cx:31,cy:39,r:1.5,fill:M}),
-            h("rect",{x:12,y:28,width:7,height:7,rx:2,fill:BLACK,opacity:.5}),
-            h("rect",{x:35,y:28,width:7,height:7,rx:2,fill:BLACK,opacity:.5})
-          )
-        ),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:38,fontWeight:100,letterSpacing:"6px",color:BLACK,marginBottom:8}},
-          "PROP",h("span",{style:{color:M}},"RA")
-        ),
-        h("div",{style:{fontSize:12,color:GRAY400,fontWeight:400,letterSpacing:3,textTransform:"uppercase",marginBottom:16}},
-          lang==="en"?"Property Management, Simplified":"Administración de Propiedades"
-        ),
-        h("button",{className:"tap",onClick:toggleLang,style:{background:"none",border:`1px solid ${GRAY200}`,color:GRAY400,padding:"6px 16px",borderRadius:50,fontSize:11,fontWeight:500,fontFamily:"'Montserrat',sans-serif",letterSpacing:1}},
-          "🌐 "+(lang==="en"?"Español":"English")
-        )
-      ),
-
-      // Feature pills
-      h("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:24}},
-        ...["🏠\nRentals","🏨\nAirbnb","🔧\nRepairs","📊\nReports"].map(item=>{
-          const [icon,label] = item.split("\n");
-          return h("div",{key:label,style:{background:WHITE,borderRadius:16,padding:"12px 8px",textAlign:"center",boxShadow:"0 2px 10px rgba(0,0,0,.06)"}},
-            h("div",{style:{fontSize:20,marginBottom:6}},icon),
-            h("div",{style:{fontSize:10,color:GRAY400,fontWeight:600,textTransform:"uppercase",letterSpacing:.5}},label)
-          );
-        })
-      ),
-      // Preview section
-      h("div",{style:{fontSize:11,fontWeight:800,color:GRAY400,textTransform:"uppercase",letterSpacing:2,marginBottom:6}},lang==="en"?"Live Preview":"Vista Previa"),
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:22,fontWeight:800,color:BLACK,marginBottom:16}},lang==="en"?"See how it works":"Cómo funciona"),
-      // Tabs
-      h("div",{style:{display:"flex",gap:0,background:CREAM2,borderRadius:14,padding:4,marginBottom:20}},
-        ...["rentals","airbnb","repairs"].map(id=>
-          h("button",{key:id,className:"tap",onClick:()=>setTab(id),style:{
-            flex:1,padding:"10px 4px",borderRadius:11,border:"none",
-            background:tab===id?WHITE:"transparent",
-            color:tab===id?BLACK:GRAY400,
-            fontWeight:tab===id?700:400,
-            fontSize:12,fontFamily:"'Montserrat',sans-serif",
-            boxShadow:tab===id?"0 2px 8px rgba(0,0,0,.08)":"none"
-          }},{rentals:"🏠 Rentals",airbnb:"🏨 Airbnb",repairs:"🔧 Repairs"}[id])
-        )
-      ),
-      // Tab content - empty state
-      h("div",{style:{textAlign:"center",padding:"40px 20px",background:"rgba(255,255,255,.7)",borderRadius:16,border:`1.5px dashed ${GRAY200}`,marginBottom:32}},
-        h("div",{style:{fontSize:36,marginBottom:10,opacity:.2}},tab==="rentals"?"🏠":tab==="airbnb"?"🏨":"🔧"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:200,fontSize:16,color:BLACK,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}},"Ready for you"),
-        h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.7}},lang==="en"?"Sign in and add your first property to see it here.":"Inicia sesión para agregar tu primera propiedad.")
-      ),
-      // CTA - single clean section
-      h("div",{style:{paddingTop:28,borderTop:`1px solid ${GRAY200}`}},
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:22,fontWeight:800,color:BLACK,marginBottom:4,textAlign:"center"}},
-          lang==="en"?"Choose your portal":"Elige tu portal"
-        ),
-        h("div",{style:{fontSize:13,color:GRAY400,textAlign:"center",marginBottom:24,lineHeight:1.6}},
-          lang==="en"?"Sign in or create your account":"Inicia sesión o crea tu cuenta"
-        ),
-        // Landlord - main big button
-        h("button",{className:"tap",onClick:onL,style:{width:"100%",padding:"18px",background:BLACK,border:"none",borderRadius:20,color:WHITE,fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",gap:12,marginBottom:10,boxShadow:"0 4px 20px rgba(0,0,0,.15)"}},
-          h("span",{style:{width:32,height:32,borderRadius:"50%",background:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}},"🏠"),
-          h("div",{style:{textAlign:"left"}},
-            h("div",null,lang==="en"?"Landlord Portal":"Portal Propietario"),
-            h("div",{style:{fontSize:11,fontWeight:400,opacity:.6,marginTop:1}},lang==="en"?"Manage properties, repairs & tenants":"Gestiona propiedades y reparaciones")
-          )
-        ),
-        // Tenant + Contractor row
-        h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}},
-          h("button",{className:"tap",onClick:onT,style:{padding:"16px 12px",background:WHITE,border:`1.5px solid ${GRAY200}`,borderRadius:16,color:BLACK,fontFamily:"'Montserrat',sans-serif",fontWeight:600,fontSize:14,display:"flex",flexDirection:"column",alignItems:"center",gap:6}},
-            h("span",{style:{fontSize:24}},"👤"),
-            h("div",null,lang==="en"?"Tenant":"Inquilino"),
-            h("div",{style:{fontSize:10,color:GRAY400,fontWeight:400}},lang==="en"?"Pay rent & report":"Pagar renta")
-          ),
-          h("button",{className:"tap",onClick:onC,style:{padding:"16px 12px",background:CARD_BLUE,border:"none",borderRadius:16,color:WHITE,fontFamily:"'Montserrat',sans-serif",fontWeight:600,fontSize:14,display:"flex",flexDirection:"column",alignItems:"center",gap:6}},
-            h("span",{style:{fontSize:24}},"🔧"),
-            h("div",null,lang==="en"?"Contractor":"Contratista"),
-            h("div",{style:{fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:400}},lang==="en"?"Jobs & time log":"Trabajos y tiempo")
-          )
-        ),
-        // What each can do
-        h("div",{style:{background:GRAY100,borderRadius:16,padding:"14px 16px",marginTop:4}},
-          h("div",{style:{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}},lang==="en"?"What each portal includes":"Qué incluye cada portal"),
-          ...[
-            ["🏠",lang==="en"?"Landlord":"Propietario", lang==="en"?"Full access — properties, finances, documents, reports":"Acceso total — propiedades, finanzas, documentos"],
-            ["👤",lang==="en"?"Tenant":"Inquilino",      lang==="en"?"Pay rent, report issues, view lease":"Pagar renta, reportar problemas, ver contrato"],
-            ["🔧",lang==="en"?"Contractor":"Contratista",lang==="en"?"Open jobs, clock in/out, time log — no private data":"Trabajos, registro de tiempo — sin datos privados"],
-          ].map(([icon,role,desc])=>
-            h("div",{key:role,style:{display:"flex",gap:10,alignItems:"flex-start",marginBottom:8}},
-              h("span",{style:{fontSize:16,flexShrink:0}},icon),
-              h("div",null,
-                h("div",{style:{fontSize:13,fontWeight:600,color:BLACK}},role),
-                h("div",{style:{fontSize:11,color:GRAY500,lineHeight:1.4}},desc)
-              )
-            )
-          )
-        )
-      )
-    )
-  );
-}
-
-// ── LOGIN ──
-function Login({role,onBack,lang,toggleLang}) {
-  const [email,setEmail] = useState("");
-  const [pass,setPass] = useState("");
-  const [loading,setLoading] = useState(false);
-  const [error,setError] = useState("");
-  const [isSignup,setIsSignup] = useState(false);
-  const isL = role==="l";
-  const isC = role==="c";
-
-  const handleAuth = async () => {
-    if(!email||!pass){setError("Enter email and password");return;}
-    setLoading(true);setError("");
-    try {
-      if(isSignup) {
-        const {data,error:e} = await sb.auth.signUp({
-          email, password:pass,
-          options:{data:{role: isC?"contractor":isL?"landlord":"tenant"}}
-        });
-        if(e) setError(e.message);
-        else setError("✓ Check your email to confirm signup");
-      } else {
-        const {error:e} = await sb.auth.signInWithPassword({email,password:pass});
-        if(e) setError("Invalid email or password");
-      }
-    } catch(e){setError("Error — try again");}
-    setLoading(false);
-  };
-
-  const isSuccess = error.startsWith("✓");
-
-  return h("div",{style:{minHeight:"100vh",background:CREAM,display:"flex",flexDirection:"column",padding:"0 22px 40px"}},
-    h("div",{style:{paddingTop:22,marginBottom:40}},
-      h("button",{className:"tap",onClick:onBack,style:{background:"none",border:"none",color:GRAY400,fontSize:14,fontWeight:500,padding:0,fontFamily:"'Montserrat',sans-serif"}},"← Back")
-    ),
-    h("div",{style:{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}},
-      h("div",{style:{marginBottom:36}},
-        h("div",{style:{width:64,height:64,borderRadius:20,background:isC?"#2C5F8A":isL?BLACK:M,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,.15)"}},(isC?"🔧":isL?"🏠":"👤")),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:800,color:BLACK,marginBottom:4}},isSignup?"Create Account":"Welcome back"),
-        h("div",{style:{fontSize:14,color:GRAY400,fontWeight:400}},isC?"Contractor":isL?"Landlord":"Tenant")
-      ),
-      h(Fld,{label:"Email"},h("input",{type:"email",value:email,onChange:e=>setEmail(e.target.value),placeholder:"your@email.com"})),
-      h(Fld,{label:"Password"},h("input",{type:"password",value:pass,onChange:e=>setPass(e.target.value),placeholder:"••••••••",onKeyDown:e=>e.key==="Enter"&&handleAuth()})),
-      error && h("div",{style:{background:isSuccess?GREENL:REDL,color:isSuccess?GREEN:RED,padding:"12px 16px",borderRadius:12,fontSize:13,marginBottom:12,fontWeight:500}},error),
-      h("div",{style:{height:8}}),
-      h("button",{className:"tap",onClick:handleAuth,disabled:loading,style:{...sBtn(isC?CARD_BLUE:isL?BLACK:M,isC?WHITE:isL?WHITE:BLACK),width:"100%",padding:17,fontSize:16,opacity:loading?.7:1}},
-        loading?"Loading...":(isSignup?"Create Account →":"Sign In →")
-      ),
-      h("div",{style:{textAlign:"center",marginTop:16}},
-        h("button",{className:"tap",onClick:()=>{setIsSignup(!isSignup);setError("");},style:{background:"none",border:"none",color:GRAY400,fontSize:13,fontFamily:"'Montserrat',sans-serif"}},
-          isSignup?"Already have account? Sign in":"No account? Sign up free"
-        )
-      )
-    ),
-    h("button",{className:"tap",onClick:toggleLang,style:{background:"none",border:"none",color:GRAY400,fontSize:13,textAlign:"center",marginTop:20,fontFamily:"'Montserrat',sans-serif"}},"🌐 "+(lang==="en"?"Español":"English"))
-  );
-}
-
-// ── LANDLORD ──
-function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang}) {
-  const [tab,setTab] = useState("home");
-  const [sheet,setSheet] = useState(null);
-
-  const spend = maint.reduce((s,m)=>s+(Number(m.cost)||0),0);
-  const openC = maint.filter(m=>m.status==="Open"||m.status==="In Progress").length;
-  const resC  = maint.filter(m=>m.status==="Resolved").length;
-  const reminders = props_.filter(p=>getRemStatus(p));
-
-  const navs = [
-    {id:"home",icon:"⊞",label:"Home"},
-    {id:"props",icon:"🏘",label:"Properties"},
-    {id:"repair",icon:"🔧",label:"Repairs"},
-    {id:"tasks",icon:"☑",label:"Tasks"},
-    {id:"more",icon:"···",label:"More"},
-  ];
-
-  const handleLogout = async () => { await sb.auth.signOut(); };
-
-  const Header = () => h("div",{style:{background:CREAM,padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 12px rgba(0,0,0,.04)"}},
-    h("div",null,
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:15,fontWeight:200,color:BLACK,letterSpacing:"6px",textTransform:"uppercase"}},"PROPRA"),
-      user && h("div",{style:{fontSize:10,color:GRAY400,marginTop:1}},user.email)
-    ),
-    h("div",{style:{display:"flex",gap:8,alignItems:"center"}},
-      reminders.length>0 && h("div",{style:{background:M,color:BLACK,width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800}},reminders.length),
-      h("button",{className:"tap",onClick:toggleLang,style:{background:GRAY100,border:"none",color:GRAY500,padding:"6px 14px",borderRadius:50,fontSize:12,fontWeight:600,fontFamily:"'Montserrat',sans-serif"}},"🌐")
-    )
-  );
-
-  const NavBar = () => h("div",{className:"nav-bar"},
-    ...navs.map(n=>h("button",{key:n.id,className:"tap",onClick:()=>setTab(n.id),style:{flex:1,padding:"10px 4px 8px",background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer",position:"relative",fontFamily:"'Montserrat',sans-serif"}},
-      h("span",{style:{fontSize:18,lineHeight:1.4}},n.icon),
-      h("span",{style:{fontSize:9,fontWeight:700,color:tab===n.id?BLACK:GRAY400,letterSpacing:.3}},n.label),
-      tab===n.id && h("div",{style:{position:"absolute",bottom:2,left:"50%",transform:"translateX(-50%)",width:20,height:3,borderRadius:2,background:M}})
-    ))
-  );
-
-  // HOME TAB
-  const HomeTab = () => h("div",{className:"fade"},
-    h("div",{style:{padding:"4px 4px 18px"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},(()=>{const hr=new Date().getHours();return hr<12?"Good morning 👋":hr<17?"Good afternoon 👋":hr<21?"Good evening 👋":"Good night 👋";})()),
-      h("div",{style:{fontSize:13,color:GRAY400,marginTop:2,fontWeight:400}},"Here's your portfolio today")
-    ),
-    // Colorful stats
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}},
-      // Mango hero
-      h("div",{style:{background:CARD_MANGO,borderRadius:22,padding:"20px 18px",gridColumn:"span 2",display:"flex",justifyContent:"space-between",alignItems:"flex-end",position:"relative",overflow:"hidden",minHeight:100}},
-        h("div",{style:{position:"absolute",top:-20,right:-20,width:120,height:120,borderRadius:"50%",background:"rgba(255,255,255,.12)"}}),
-        h("div",null,
-          h("div",{style:{fontSize:10,fontWeight:700,color:"rgba(0,0,0,.45)",textTransform:"uppercase",letterSpacing:2,marginBottom:6}},"Properties"),
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:52,fontWeight:700,color:BLACK,lineHeight:1,letterSpacing:"-2px"}},props_.length)
-        ),
-        h("div",{style:{textAlign:"right"}},
-          h("div",{style:{fontSize:10,fontWeight:600,color:"rgba(0,0,0,.4)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}},"Portfolio"),
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:600,color:"rgba(0,0,0,.6)"}},"propra.co")
-        )
-      ),
-      // Red card
-      h("div",{style:{background:CARD_RED,borderRadius:22,padding:"18px 16px",position:"relative",overflow:"hidden"}},
-        h("div",{style:{position:"absolute",top:-15,right:-15,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,.1)"}}),
-        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:2,marginBottom:8}},"Open Issues"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:36,fontWeight:700,color:WHITE,letterSpacing:"-1px",lineHeight:1}},openC),
-        h("div",{style:{fontSize:10,color:"rgba(255,255,255,.5)",marginTop:6}},"Issues")
-      ),
-      // Green card
-      h("div",{style:{background:CARD_GREEN,borderRadius:22,padding:"18px 16px",position:"relative",overflow:"hidden"}},
-        h("div",{style:{position:"absolute",top:-15,right:-15,width:70,height:70,borderRadius:"50%",background:"rgba(255,255,255,.1)"}}),
-        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:2,marginBottom:8}},"Resolved"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:36,fontWeight:700,color:WHITE,letterSpacing:"-1px",lineHeight:1}},resC),
-        h("div",{style:{fontSize:10,color:"rgba(255,255,255,.5)",marginTop:6}},"Fixed")
-      ),
-      // Dark spend card
-      h("div",{style:{background:CARD_DARK,borderRadius:22,padding:"18px 16px",gridColumn:"span 2",display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative",overflow:"hidden"}},
-        h("div",{style:{position:"absolute",right:-20,top:"50%",transform:"translateY(-50%)",width:100,height:100,borderRadius:"50%",background:"rgba(255,255,255,.04)"}}),
-        h("div",null,
-          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:2,marginBottom:6}},"Total Spend"),
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:32,fontWeight:600,color:M,letterSpacing:"-1px"}},"$"+fmt(spend))
-        ),
-        h("div",{style:{textAlign:"right"}},
-          h("div",{style:{fontSize:10,color:"rgba(255,255,255,.3)",marginBottom:3}},"Repair costs"),
-          h("div",{style:{fontSize:12,fontWeight:500,color:"rgba(255,255,255,.5)"}},"This year")
-        )
-      )
-    ),
-    // Reminders
-    reminders.length>0 && h("div",{style:{...card(),overflow:"hidden",marginBottom:16}},
-      h("div",{style:{padding:"14px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}},
-        h("div",{style:{fontWeight:700,fontSize:14,color:BLACK}},"🔔 Payment Reminders"),
-        h("span",{className:"pill",style:{background:ML,color:MD}},reminders.length)
-      ),
-      ...reminders.map(p=>{
-        const r=getRemStatus(p);
-        return h("div",{key:p.id,style:{padding:"14px 16px",borderBottom:`1px solid ${GRAY100}`,display:"flex",gap:12,alignItems:"center"}},
-          h("div",{style:{flex:1}},
-            h("div",{style:{fontWeight:600,fontSize:14,color:BLACK}},p.name),
-            h("div",{style:{fontSize:12,color:GRAY400,marginTop:1}},(p.tenant_name||p.tenantName)+" · $"+(p.rent_amount||p.rentAmount)),
-            h("div",{style:{marginTop:5}},
-              r.type==="overdue"
-                ? h("span",{className:"pill",style:{background:REDL,color:RED}},"⚠ OVERDUE "+r.days+"d")
-                : r.days===0
-                  ? h("span",{className:"pill",style:{background:ML,color:MD}},"Due TODAY")
-                  : h("span",{className:"pill",style:{background:ML,color:MD}},"🔔 Due in "+r.days+"d")
-            )
-          ),
-          h("button",{className:"tap",onClick:()=>sendRem(p),style:sBtn(BLACK,WHITE,{padding:"9px 14px",borderRadius:12,fontSize:12})},"🔔 Remind")
-        );
-      })
-    ),
-    // Empty state
-    props_.length===0 && h("div",{style:{textAlign:"center",padding:"48px 24px",background:WHITE,borderRadius:20,border:`2px dashed ${GRAY200}`}},
-      h("div",{style:{fontSize:52,marginBottom:12}},"🏘"),
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:800,color:BLACK,marginBottom:6}},"Add your first property"),
-      h("div",{style:{color:GRAY400,fontSize:13,marginBottom:24}},"Tap below to get started"),
-      h("button",{className:"tap",onClick:()=>{setTab("props");setSheet("addProp");},style:{...sBtn(M,BLACK),borderRadius:50,padding:"13px 28px",fontSize:15}},"+ Add Property")
-    )
-  );
-
-  // PROPERTIES TAB
-  const PropsTab = () => h("div",{className:"fade"},
-    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"Properties"),
-      h("button",{className:"tap",onClick:()=>setSheet("addProp"),style:sBtn(BLACK,WHITE,{padding:"10px 18px",borderRadius:50,fontSize:13})},"+ Add")
-    ),
-    props_.length===0 && h(Empty),
-    h("div",{style:{display:"flex",flexDirection:"column",gap:12}},
-      ...props_.map(p=>{
-        const r=getRemStatus(p);
-        const oc=maint.filter(m=>m.prop_id===p.id&&m.status!=="Resolved").length;
-        const isAB=p.prop_type==="airbnb"||p.propType==="airbnb";
-        const docCount=docs.filter(d=>d.prop_id===p.id||d.propId===p.id).length;
-        return h("div",{key:p.id,style:{background:WHITE,border:"none",boxShadow:`0 2px 16px rgba(0,0,0,.07)`,borderRadius:22,overflow:"hidden"}},
-          r && h("div",{style:{height:4,background:M,width:"100%"}}),
-          h("div",{style:{padding:18}},
-            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}},
-              h("div",{style:{flex:1}},
-                h("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:3}},
-                  h("span",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:800,fontSize:17,color:BLACK}},p.name),
-                  isAB && h("span",{className:"pill",style:{background:"#fff0f3",color:"#E11D48"}},"Airbnb")
-                ),
-                h("div",{style:{fontSize:12,color:GRAY400}},p.address)
-              ),
-              h("div",{style:{textAlign:"right",flexShrink:0,marginLeft:10}},
-                h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:800,fontSize:20,color:BLACK}},"$"+fmt(p.rent_amount||p.rentAmount)),
-                h("div",{style:{fontSize:10,color:GRAY400,marginTop:1}},freqLabel(p.pay_freq||p.payFreq))
-              )
-            ),
-            h("div",{style:{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}},
-              oc>0 && h("span",{className:"pill",style:{background:REDL,color:RED}},oc+" open"),
-              r?.type==="overdue" && h("span",{className:"pill",style:{background:REDL,color:RED}},"⚠ OVERDUE"),
-              r?.type==="soon" && h("span",{className:"pill",style:{background:ML,color:MD}},r.days===0?"Due TODAY":"🔔 "+r.days+"d"),
-              docCount>0 && h("span",{className:"pill",style:{background:GRAY100,color:GRAY500}},"📄 "+docCount)
-            ),
-            h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:12,borderTop:`1px solid ${GRAY100}`}},
-              h("div",{style:{display:"flex",alignItems:"center",gap:10}},
-                h("div",{style:{width:36,height:36,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,color:MD,flexShrink:0}},
-                  avatar(p.tenant_name||p.tenantName)
-                ),
-                h("div",null,
-                  h("div",{style:{fontWeight:600,fontSize:14}},(p.tenant_name||p.tenantName)||"—"),
-                  (p.next_due||p.nextDue) && h("div",{style:{fontSize:11,color:r?MD:GRAY400}},"📅 "+(p.next_due||p.nextDue))
-                )
-              ),
-              h("div",{style:{display:"flex",gap:8}},
-                r && h("button",{className:"tap",onClick:()=>sendRem(p),style:sBtn(M,BLACK,{padding:"8px 12px",borderRadius:10,fontSize:12})},"🔔"),
-                h("button",{className:"tap",onClick:()=>setSheet({type:"docs",prop:p}),style:sBtn(GRAY100,BLACK,{padding:"8px 12px",borderRadius:10,fontSize:13})},"📄"),
-                h("button",{className:"tap",onClick:()=>setSheet({type:"msg",prop:p}),style:sBtn(GRAY100,BLACK,{padding:"8px 14px",borderRadius:10,fontSize:13})},"💬")
-              )
-            )
-          )
-        );
-      })
-    )
-  );
-
-  // REPAIRS TAB
-  const RepairsTab = () => {
-    const inProg = maint.filter(m=>m.status==="In Progress").length;
-    return h("div",{className:"fade"},
-      h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}},
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"🔧 Repairs"),
-        h("button",{className:"tap",onClick:()=>setSheet("addRepair"),style:sBtn(BLACK,WHITE,{padding:"10px 18px",borderRadius:50,fontSize:13})},"+ Log")
-      ),
-      h("div",{style:{display:"flex",gap:8,marginBottom:14}},
-        h("div",{style:{flex:1,background:CARD_RED,borderRadius:16,padding:"14px 10px",textAlign:"center",position:"relative",overflow:"hidden"}},
-          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Open"),
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:26,fontWeight:700,color:WHITE,marginTop:2}},openC)
-        ),
-        h("div",{style:{flex:1,background:CARD_MANGO,borderRadius:16,padding:"14px 10px",textAlign:"center"}},
-          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(0,0,0,.45)",textTransform:"uppercase",letterSpacing:1}},"In Progress"),
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:26,fontWeight:700,color:BLACK,marginTop:2}},inProg)
-        ),
-        h("div",{style:{flex:1,background:CARD_GREEN,borderRadius:16,padding:"14px 10px",textAlign:"center"}},
-          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Resolved"),
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:26,fontWeight:700,color:WHITE,marginTop:2}},resC)
-        )
-      ),
-      maint.length===0 && h(Empty),
-      h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-        ...maint.slice().sort((a,b)=>new Date(b.date||b.created_at)-new Date(a.date||a.created_at)).map(m=>{
-          const p=props_.find(x=>x.id===(m.prop_id||m.propId));
-          const st=statusStyle(m.status);
-          return h("div",{key:m.id,style:{...card()}},
-            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}},
-              h("div",{style:{fontWeight:700,fontSize:15,color:BLACK}},m.type),
-              h("span",{className:"pill",style:{background:st.bg,color:st.color}},m.status)
-            ),
-            h("div",{style:{fontSize:13,color:GRAY500,marginBottom:4}},m.description),
-            h("div",{style:{fontSize:12,color:GRAY400,marginBottom:12}},(p?.name||"")+(m.date?" · "+m.date:"")+(m.contractor?" · "+m.contractor:"")),
-            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:10,borderTop:`1px solid ${GRAY100}`}},
-              h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:18,color:BLACK}},m.cost>0?"$"+fmt(m.cost):"—"),
-              m.status!=="Resolved" && h("button",{className:"tap",onClick:()=>resolve(m.id),style:sBtn(GREENL,GREEN,{padding:"8px 16px",borderRadius:10,fontSize:13})},"✓ Resolve")
-            )
-          );
-        })
-      )
-    );
-  };
-
-  // TASKS TAB
-  const TasksTab = () => h("div",{className:"fade"},
-    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"☑ Tasks"),
-      h("button",{className:"tap",onClick:()=>setSheet("addTask"),style:sBtn(BLACK,WHITE,{padding:"10px 18px",borderRadius:50,fontSize:13})},"+ Add")
-    ),
-    tasks.length===0 && h(Empty),
-    h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-      ...tasks.slice().sort((a,b)=>new Date(a.due_date||a.dueDate||0)-new Date(b.due_date||b.dueDate||0)).map(tk=>{
-        const done=tk.status==="Done";
-        const p=props_.find(x=>x.id===(tk.prop_id||tk.propId));
-        const prioColor=({High:RED,Medium:"#D97706",Low:GREEN})[tk.priority]||GRAY400;
-        return h("div",{key:tk.id,style:{...card(),opacity:done?.5:1}},
-          h("div",{style:{display:"flex",alignItems:"flex-start",gap:12}},
-            h("div",{className:"tap",onClick:async()=>{
-              if(!done){
-                await sb.from("tasks").update({status:"Done"}).eq("id",tk.id);
-                notify("Task done ✓");
-              }
-            },style:{width:22,height:22,borderRadius:6,border:`2px solid ${done?GREEN:GRAY200}`,background:done?GREEN:WHITE,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1,cursor:"pointer"}},
-              done && h("span",{style:{color:WHITE,fontSize:13,fontWeight:800}},"✓")
-            ),
-            h("div",{style:{flex:1}},
-              h("div",{style:{fontWeight:600,fontSize:15,color:BLACK,textDecoration:done?"line-through":"none"}},tk.task),
-              h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},(p?.name||"")+(tk.due_date||tk.dueDate?" · "+(tk.due_date||tk.dueDate):"")),
-              h("div",{style:{display:"flex",gap:8,marginTop:8,alignItems:"center"}},
-                h("span",{style:{fontSize:11,fontWeight:700,color:prioColor,background:GRAY100,padding:"3px 9px",borderRadius:20}},tk.priority),
-                (tk.estimated_cost||tk.estimatedCost)>0 && h("span",{style:{fontSize:13,fontWeight:700,color:GRAY500}},"$"+fmt(tk.estimated_cost||tk.estimatedCost))
-              )
-            )
-          )
-        );
-      })
-    )
-  );
-
-  // MORE TAB
-  const MoreTab = () => {
-    const [moreSec, setMoreSec] = useState("tenants");
-    const [inviteEmail, setInviteEmail] = useState("");
-    const [inviteRole, setInviteRole] = useState("tenant");
-    const [inviteProp, setInviteProp] = useState("");
-    const [generatedLink, setGeneratedLink] = useState("");
-    const [copied, setCopied] = useState(false);
-
-    const generateInvite = async () => {
-      if(!inviteEmail) { notify("Enter an email address"); return; }
-      try {
-        // Save invite to Supabase
-        const {data,error} = await sb.from("invites").insert([{
-          landlord_id: user.id,
-          email: inviteEmail,
-          role: inviteRole,
-          prop_id: inviteProp ? Number(inviteProp) : null,
-          used: false
-        }]).select().single();
-
-        if(error) { notify("Error creating invite"); return; }
-
-        // Generate invite link
-        const link = `https://propra.co?invite=${data.id}&role=${inviteRole}&email=${encodeURIComponent(inviteEmail)}`;
-        setGeneratedLink(link);
-        setInviteEmail("");
-      } catch(e) { notify("Error — try again"); }
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const maxW=1024,scale=img.width>maxW?maxW/img.width:1;
+      canvas.width=img.width*scale;canvas.height=img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      const compressed=canvas.toDataURL('image/jpeg',0.7);
+      currentPhotoB64=compressed.split(',')[1];
+      const prev=document.getElementById('previewImg');
+      prev.src=compressed;prev.style.display='block';
+      document.getElementById('uploadPlaceholder').style.display='none';
+      document.getElementById('uploadZone').classList.add('has-img');
+      document.getElementById('analyzeBtn').disabled=false;
+      document.getElementById('clearBtn').style.display='block';
+      document.getElementById('photoResult').classList.remove('show');
     };
-
-    const copyLink = () => {
-      navigator.clipboard.writeText(generatedLink).then(()=>{
-        setCopied(true);
-        notify("Link copied! Send it on WhatsApp 🚀");
-        setTimeout(()=>setCopied(false), 3000);
-      });
-    };
-
-    const whatsappLink = "https://wa.me/?text="+encodeURIComponent("Hi! Youre invited to Propra - property management app. Create your account here: "+generatedLink);
-
-    return h("div",{className:"fade"},
-      h("div",{style:{padding:"4px 4px 18px",fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"···"),
-
-      // Settings card
-      h("div",{style:{...card(),overflow:"hidden",marginBottom:16}},
-        h("button",{className:"tap",onClick:toggleLang,style:{width:"100%",padding:"16px 18px",background:"none",border:"none",color:BLACK,fontSize:15,textAlign:"left",borderBottom:`1px solid ${GRAY100}`,display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}},"🌐 "+(lang==="en"?"Español":"English")),
-        h("button",{className:"tap",onClick:handleLogout,style:{width:"100%",padding:"16px 18px",background:"none",border:"none",color:RED,fontSize:15,textAlign:"left",display:"flex",alignItems:"center",gap:12,fontFamily:"'Montserrat',sans-serif",fontWeight:500}},"↩ Sign Out")
-      ),
-
-      // Section tabs
-      h("div",{style:{display:"flex",gap:0,background:CREAM2,borderRadius:14,padding:4,marginBottom:16}},
-        ...["tenants","contractors"].map(id=>
-          h("button",{key:id,className:"tap",onClick:()=>setMoreSec(id),style:{
-            flex:1,padding:"10px 4px",borderRadius:11,border:"none",
-            background:moreSec===id?WHITE:"transparent",
-            color:moreSec===id?BLACK:GRAY400,
-            fontWeight:moreSec===id?700:400,
-            fontSize:13,fontFamily:"'Montserrat',sans-serif",
-            boxShadow:moreSec===id?"0 2px 8px rgba(0,0,0,.08)":"none"
-          }},{tenants:"👥 Tenants",contractors:"🔧 Contractors"}[id])
-        )
-      ),
-
-      // ── INVITE FORM ──
-      h("div",{style:{background:CARD_DARK,borderRadius:22,padding:20,marginBottom:16}},
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:700,color:WHITE,marginBottom:4}},
-          "✉️ Invite "+(moreSec==="tenants"?"Tenant":"Contractor")
-        ),
-        h("div",{style:{fontSize:12,color:"rgba(255,255,255,.4)",marginBottom:16}},"They will get a link to create their account"),
-
-        // Email input
-        h("div",{style:{marginBottom:12}},
-          h("input",{
-            value:inviteEmail,
-            onChange:e=>setInviteEmail(e.target.value),
-            placeholder:"their@email.com",
-            style:{background:"rgba(255,255,255,.1)",border:"1.5px solid rgba(255,255,255,.15)",color:WHITE,borderRadius:12,padding:"12px 16px",fontFamily:"'Montserrat',sans-serif",fontSize:14,width:"100%"}
-          })
-        ),
-
-        // Property selector (for tenants)
-        moreSec==="tenants" && props_.length>0 && h("div",{style:{marginBottom:12}},
-          h("select",{
-            value:inviteProp,
-            onChange:e=>setInviteProp(e.target.value),
-            style:{background:"rgba(255,255,255,.1)",border:"1.5px solid rgba(255,255,255,.15)",color:WHITE,borderRadius:12,padding:"12px 16px",fontFamily:"'Montserrat',sans-serif",fontSize:14,width:"100%"}
-          },
-            h("option",{value:"",style:{background:BLACK}},"Select property (optional)"),
-            ...props_.map(p=>h("option",{key:p.id,value:p.id,style:{background:BLACK}},p.name))
-          )
-        ),
-
-        h("button",{className:"tap",onClick:()=>{setInviteRole(moreSec==="tenants"?"tenant":"contractor");generateInvite();},
-          style:sBtn(M,BLACK,{width:"100%",borderRadius:12,padding:13,fontSize:14})},
-          "Generate Invite Link →"
-        ),
-
-        // Generated link
-        generatedLink && h("div",{style:{marginTop:14,background:"rgba(255,255,255,.08)",borderRadius:14,padding:14}},
-          h("div",{style:{fontSize:11,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:1,marginBottom:8}},"✓ Invite Ready"),
-          h("div",{style:{fontSize:11,color:"rgba(255,255,255,.5)",wordBreak:"break-all",marginBottom:12,lineHeight:1.5}},generatedLink),
-          h("div",{style:{display:"flex",gap:8}},
-            h("button",{className:"tap",onClick:copyLink,style:sBtn(copied?GREENL:WHITE,copied?GREEN:BLACK,{flex:1,borderRadius:10,padding:10,fontSize:13})},
-              copied?"✓ Copied!":"📋 Copy Link"
-            ),
-            h("a",{href:whatsappLink,target:"_blank",style:{...sBtn("#25D366",WHITE,{flex:1,borderRadius:10,padding:10,fontSize:13,textDecoration:"none",display:"flex",alignItems:"center",justifyContent:"center",gap:6})}},
-              "💬 WhatsApp"
-            )
-          )
-        )
-      ),
-
-      // ── TENANTS LIST ──
-      moreSec==="tenants" && h("div",null,
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:14,fontWeight:700,color:GRAY500,textTransform:"uppercase",letterSpacing:1,marginBottom:10}},"Current Tenants"),
-        props_.length===0 && h(Empty),
-        h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-          ...props_.filter(p=>p.tenant_name||p.tenantName).map(p=>
-            h("div",{key:p.id,style:{...card()}},
-              h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:14}},
-                h("div",{style:{width:48,height:48,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:16,color:MD,flexShrink:0}},avatar(p.tenant_name||p.tenantName)),
-                h("div",null,
-                  h("div",{style:{fontWeight:700,fontSize:16,color:BLACK}},(p.tenant_name||p.tenantName)||"—"),
-                  h("div",{style:{fontSize:12,color:GRAY400}},p.name)
-                )
-              ),
-              h("div",{style:{display:"flex",gap:8}},
-                h("button",{className:"tap",onClick:()=>setSheet({type:"msg",prop:p}),style:sBtn(BLACK,WHITE,{flex:1,borderRadius:12,padding:11,fontSize:13})},"💬 Message"),
-                h("button",{className:"tap",onClick:()=>notify("Calling "+(p.tenant_name||p.name)+"..."),style:sBtn(GRAY100,BLACK,{flex:1,borderRadius:12,padding:11,fontSize:13,border:`1px solid ${GRAY200}`})},"📞 Call")
-              )
-            )
-          )
-        )
-      ),
-
-      // ── CONTRACTORS LIST ──
-      moreSec==="contractors" && h("div",null,
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:14,fontWeight:700,color:GRAY500,textTransform:"uppercase",letterSpacing:1,marginBottom:10}},"Active Contractors"),
-        h("div",{style:{...card(),textAlign:"center",padding:"32px 20px"}},
-          h("div",{style:{fontSize:40,marginBottom:10,opacity:.3}},"🔧"),
-          h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.6}},"Invite contractors using the form above. They will see open repairs and can clock in/out.")
-        )
-      )
-    );
+    img.src=ev.target.result;
   };
-
-  // DOCS SHEET
-  const DocsSheetComp = ({prop}) => {
-    const [adding,setAdding] = useState(false);
-    const [f,setF] = useState({name:"",type:"lease",notes:"",date:new Date().toISOString().split("T")[0],expiry:""});
-    const u = (k,v) => setF(p=>({...p,[k]:v}));
-    const propDocs = docs.filter(d=>d.prop_id===prop.id||d.propId===prop.id);
-    const DOC_TYPES = {
-      lease:{icon:"📋",label:"Lease",color:GREEN,bg:GREENL},
-      insurance:{icon:"🛡",label:"Insurance",color:"#1D4ED8",bg:"#EFF6FF"},
-      inspection:{icon:"🔍",label:"Inspection",color:"#7C3AED",bg:"#F5F3FF"},
-      permit:{icon:"📜",label:"Permit",color:"#B45309",bg:ORANGEL},
-      photo:{icon:"📷",label:"Photos",color:"#0F766E",bg:"#F0FDFA"},
-      tax:{icon:"🧾",label:"Tax Doc",color:RED,bg:REDL},
-      other:{icon:"📎",label:"Other",color:GRAY500,bg:GRAY100},
-    };
-    return h("div",null,
-      h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:18}},
-        h("div",null,
-          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:20,color:BLACK}},"Documents"),
-          h("div",{style:{fontSize:12,color:GRAY400,marginTop:3}},prop.name)
-        ),
-        h("span",{className:"pill",style:{background:GRAY100,color:GRAY500}},propDocs.length+" files")
-      ),
-      !adding && h("button",{className:"tap",onClick:()=>setAdding(true),style:{...sBtn(BLACK,WHITE),width:"100%",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"center",gap:10}},
-        h("span",{style:{fontSize:20,fontWeight:200}},"+"),"Add Document"
-      ),
-      adding && h("div",{style:{background:WHITE,borderRadius:20,padding:18,marginBottom:16,boxShadow:`0 0 0 2px ${M}`}},
-        h("div",{style:{fontWeight:700,fontSize:16,color:BLACK,marginBottom:14}},"New Document"),
-        h(Fld,{label:"Document Name"},h("input",{value:f.name,onChange:e=>u("name",e.target.value),placeholder:"e.g. Lease Agreement 2025"})),
-        h(Fld,{label:"Type"},
-          h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
-            ...Object.entries(DOC_TYPES).map(([k,v])=>h("button",{key:k,className:"tap",onClick:()=>u("type",k),style:{padding:"10px 12px",borderRadius:12,border:`1.5px solid ${f.type===k?v.color:GRAY200}`,background:f.type===k?v.bg:WHITE,color:f.type===k?v.color:GRAY400,fontSize:12,fontWeight:f.type===k?700:400,fontFamily:"'Montserrat',sans-serif",display:"flex",alignItems:"center",gap:6,textAlign:"left"}},v.icon+" "+v.label))
-          )
-        ),
-        h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}},
-          h(Fld,{label:"Date"},h("input",{type:"date",value:f.date,onChange:e=>u("date",e.target.value)})),
-          h(Fld,{label:"Expiry"},h("input",{type:"date",value:f.expiry,onChange:e=>u("expiry",e.target.value)}))
-        ),
-        h(Fld,{label:"Notes"},h("textarea",{rows:2,value:f.notes,onChange:e=>u("notes",e.target.value),placeholder:"Policy number, renewal info...",style:{resize:"none"}})),
-        h("div",{style:{display:"flex",gap:10}},
-          h("button",{className:"tap",onClick:()=>setAdding(false),style:sBtn(CREAM2,BLACK,{flex:1})},"Cancel"),
-          h("button",{className:"tap",onClick:()=>{if(!f.name.trim())return;addDoc({...f,propId:prop.id});setAdding(false);setF({name:"",type:"lease",notes:"",date:new Date().toISOString().split("T")[0],expiry:""});},style:sBtn(M,BLACK,{flex:2})},"Save Document")
-        )
-      ),
-      propDocs.length===0&&!adding && h("div",{style:{textAlign:"center",padding:"40px 20px",background:"rgba(255,255,255,.7)",borderRadius:16,border:`1.5px dashed ${GRAY200}`}},
-        h("div",{style:{fontSize:40,marginBottom:10,opacity:.2}},"📄"),
-        h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.6}},"Add leases, insurance, inspection reports and more")
-      ),
-      h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-        ...propDocs.map(doc=>{
-          const dt=DOC_TYPES[doc.type]||DOC_TYPES.other;
-          const expD=doc.expiry?Math.ceil((new Date(doc.expiry)-new Date())/86400000):null;
-          const expired=expD!==null&&expD<0;
-          const expiring=expD!==null&&expD>=0&&expD<=30;
-          return h("div",{key:doc.id,style:{background:WHITE,border:"none",boxShadow:"0 2px 14px rgba(0,0,0,.07)",borderRadius:20,padding:16,position:"relative",overflow:"hidden"}},
-            h("div",{style:{position:"absolute",left:0,top:0,bottom:0,width:3,background:dt.color,borderRadius:"3px 0 0 3px"}}),
-            h("div",{style:{display:"flex",gap:12,alignItems:"flex-start",paddingLeft:8}},
-              h("div",{style:{width:44,height:44,borderRadius:13,background:dt.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}},dt.icon),
-              h("div",{style:{flex:1,minWidth:0}},
-                h("div",{style:{fontWeight:600,fontSize:15,color:BLACK,marginBottom:2}},doc.name),
-                h("div",{style:{fontSize:11,color:dt.color,fontWeight:600,marginBottom:4}},dt.label),
-                doc.expiry && h("div",{style:{marginBottom:6}},
-                  expired
-                    ? h("span",{className:"pill",style:{background:REDL,color:RED}},"⚠ Expired · "+doc.expiry)
-                    : expiring
-                      ? h("span",{className:"pill",style:{background:ML,color:MD}},"🔔 Expires · "+doc.expiry)
-                      : h("span",{className:"pill",style:{background:GREENL,color:GREEN}},"✓ Valid until "+doc.expiry)
-                ),
-                doc.notes && h("div",{style:{fontSize:12,color:GRAY500,lineHeight:1.5}},doc.notes)
-              ),
-              h("button",{className:"tap",onClick:()=>deleteDoc(doc.id),style:{background:"none",border:"none",color:GRAY200,fontSize:20,padding:4,flexShrink:0,lineHeight:1,cursor:"pointer"}},"×")
-            )
-          );
-        })
-      )
-    );
-  };
-
-  return h("div",{style:{minHeight:"100vh",background:CREAM,paddingBottom:80}},
-    h(Header),
-    h("div",{style:{padding:"16px 16px 0"}},
-      tab==="home"   && h(HomeTab),
-      tab==="props"  && h(PropsTab),
-      tab==="repair" && h(RepairsTab),
-      tab==="tasks"  && h(TasksTab),
-      tab==="more"   && h(MoreTab)
-    ),
-    h(NavBar),
-    // Sheets
-    sheet==="addProp"   && h(Overlay,{onClose:()=>setSheet(null)},h(PropForm,{onSave:addProp,onCancel:()=>setSheet(null)})),
-    sheet==="addRepair" && h(Overlay,{onClose:()=>setSheet(null)},h(RepairForm,{props_,onSave:addMaint,onCancel:()=>setSheet(null)})),
-    sheet==="addTask"   && h(Overlay,{onClose:()=>setSheet(null)},h(TaskForm,{props_,onSave:addTask,onCancel:()=>setSheet(null)})),
-    sheet&&typeof sheet==="object"&&sheet.type==="docs" && h(Overlay,{onClose:()=>setSheet(null)},h(DocsSheetComp,{prop:sheet.prop})),
-    sheet&&typeof sheet==="object"&&sheet.type==="msg"  && h(Overlay,{onClose:()=>setSheet(null)},h(MsgForm,{prop:sheet.prop,onSend:m=>{notify("Message sent ✓");setSheet(null);},onCancel:()=>setSheet(null)}))
-  );
+  reader.readAsDataURL(file);
 }
 
-
-// ── CONTRACTOR PORTAL ─────────────────────────────────────────────────────
-function Contractor({user,props_,maint,tasks,notify,lang,toggleLang,resolve}) {
-  const [tab,setTab] = useState("jobs");
-  const [clockedIn,setClockedIn] = useState(null); // {jobId, propName, startTime}
-  const [clockLog,setClockLog] = useState([]);
-
-  const handleLogout = async () => { await sb.auth.signOut(); };
-
-  // Only show open/in-progress repairs — NO private data
-  const openJobs = maint.filter(m=>m.status==="Open"||m.status==="In Progress");
-  const myDone   = maint.filter(m=>m.status==="Resolved");
-
-  // Clock in/out
-  const clockIn = (job) => {
-    if(clockedIn) { notify("Clock out first!"); return; }
-    setClockedIn({jobId:job.id,propName:props_.find(p=>p.id===job.prop_id)?.name||"Property",type:job.type,startTime:new Date()});
-    notify("Clocked in ✓ Timer started");
-  };
-  const clockOut = async () => {
-    if(!clockedIn) return;
-    const hrs = ((new Date()-clockedIn.startTime)/3600000).toFixed(2);
-    setClockLog(l=>[...l,{...clockedIn,endTime:new Date(),hours:hrs,date:new Date().toLocaleDateString()}]);
-    // Update job to in progress
-    await sb.from("repairs").update({status:"In Progress"}).eq("id",clockedIn.jobId);
-    notify(`Clocked out — ${hrs}h logged ✓`);
-    setClockedIn(null);
-  };
-
-  const elapsed = clockedIn ? ((new Date()-clockedIn.startTime)/60000).toFixed(0)+"m" : null;
-
-  const Header = () => h("div",{style:{background:CARD_BLUE,padding:"20px 20px 16px",position:"sticky",top:0,zIndex:10}},
-    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
-      h("div",null,
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:13,fontWeight:200,color:"rgba(255,255,255,.5)",letterSpacing:"4px",textTransform:"uppercase",marginBottom:4}},"PROPRA"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:700,color:WHITE}},"Contractor Portal"),
-        user && h("div",{style:{fontSize:11,color:"rgba(255,255,255,.5)",marginTop:2}},user.email)
-      ),
-      h("div",{style:{display:"flex",gap:8,alignItems:"center"}},
-        h("button",{className:"tap",onClick:toggleLang,style:{background:"rgba(255,255,255,.15)",border:"none",color:WHITE,padding:"6px 12px",borderRadius:50,fontSize:12,fontWeight:600,fontFamily:"'Montserrat',sans-serif"}},"🌐"),
-        h("button",{className:"tap",onClick:handleLogout,style:{background:"rgba(255,255,255,.15)",border:"none",color:WHITE,padding:"6px 12px",borderRadius:50,fontSize:12,fontFamily:"'Montserrat',sans-serif"}},"↩")
-      )
-    ),
-    // Clock in banner
-    clockedIn && h("div",{style:{background:"rgba(255,255,255,.12)",borderRadius:16,padding:"14px 16px",marginTop:14,display:"flex",alignItems:"center",justifyContent:"space-between"}},
-      h("div",null,
-        h("div",{style:{color:WHITE,fontWeight:700,fontSize:14}},"⏱ "+clockedIn.type+" · "+clockedIn.propName),
-        h("div",{style:{color:"rgba(255,255,255,.6)",fontSize:12,marginTop:2}},"Started "+clockedIn.startTime.toLocaleTimeString()+" · "+elapsed+" elapsed")
-      ),
-      h("button",{className:"tap",onClick:clockOut,style:{background:RED,border:"none",color:WHITE,padding:"10px 16px",borderRadius:12,fontWeight:700,fontSize:13,fontFamily:"'Montserrat',sans-serif"}},"Clock Out")
-    )
-  );
-
-  const navs = [
-    {id:"jobs",icon:"🔧",label:"Open Jobs"},
-    {id:"done",icon:"✓",label:"Done"},
-    {id:"time",icon:"⏱",label:"Time Log"},
-  ];
-
-  const NavBar = () => h("div",{className:"nav-bar"},
-    ...navs.map(n=>h("button",{key:n.id,className:"tap",onClick:()=>setTab(n.id),style:{flex:1,padding:"10px 4px 8px",background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer",position:"relative",fontFamily:"'Montserrat',sans-serif"}},
-      h("span",{style:{fontSize:18,lineHeight:1.4}},n.icon),
-      h("span",{style:{fontSize:9,fontWeight:700,color:tab===n.id?BLACK:GRAY400,letterSpacing:.3}},n.label),
-      tab===n.id && h("div",{style:{position:"absolute",bottom:2,left:"50%",transform:"translateX(-50%)",width:20,height:3,borderRadius:2,background:CARD_BLUE}})
-    ))
-  );
-
-  // OPEN JOBS
-  const JobsTab = () => h("div",{className:"fade"},
-    h("div",{style:{padding:"4px 4px 18px"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"Open Jobs"),
-      h("div",{style:{fontSize:13,color:GRAY400,marginTop:2}},openJobs.length+" jobs need attention")
-    ),
-    // Stats
-    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:16}},
-      h("div",{style:{background:CARD_RED,borderRadius:18,padding:"14px 10px",textAlign:"center"}},
-        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Open"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:700,color:WHITE,marginTop:2}},maint.filter(m=>m.status==="Open").length)
-      ),
-      h("div",{style:{background:CARD_MANGO,borderRadius:18,padding:"14px 10px",textAlign:"center"}},
-        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(0,0,0,.45)",textTransform:"uppercase",letterSpacing:1}},"Active"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:700,color:BLACK,marginTop:2}},maint.filter(m=>m.status==="In Progress").length)
-      ),
-      h("div",{style:{background:CARD_GREEN,borderRadius:18,padding:"14px 10px",textAlign:"center"}},
-        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Done"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:28,fontWeight:700,color:WHITE,marginTop:2}},myDone.length)
-      )
-    ),
-    openJobs.length===0 && h("div",{style:{textAlign:"center",padding:"48px 24px",background:WHITE,borderRadius:20,border:`2px dashed ${GRAY200}`}},
-      h("div",{style:{fontSize:52,marginBottom:12}},"✅"),
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:700,color:BLACK,marginBottom:6}},"All clear!"),
-      h("div",{style:{color:GRAY400,fontSize:13}},"No open jobs right now")
-    ),
-    h("div",{style:{display:"flex",flexDirection:"column",gap:12}},
-      ...openJobs.map(job=>{
-        const p = props_.find(x=>x.id===job.prop_id);
-        const st = statusStyle(job.status);
-        const isActive = clockedIn?.jobId===job.id;
-        return h("div",{key:job.id,style:{background:WHITE,borderRadius:22,boxShadow:`0 2px 14px rgba(0,0,0,.08)`,overflow:"hidden",border:isActive?`2px solid ${CARD_BLUE}`:"none"}},
-          isActive && h("div",{style:{background:CARD_BLUE,padding:"8px 16px",display:"flex",alignItems:"center",gap:8}},
-            h("div",{style:{width:8,height:8,borderRadius:"50%",background:"#4ade80",flexShrink:0}}),
-            h("div",{style:{color:WHITE,fontSize:12,fontWeight:600}},"⏱ Active · "+elapsed+" elapsed")
-          ),
-          h("div",{style:{padding:18}},
-            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}},
-              h("div",null,
-                h("div",{style:{fontWeight:800,fontSize:16,color:BLACK,marginBottom:4}},job.type),
-                // Property name shown — but NO rent/financial info
-                h("div",{style:{fontSize:13,color:GRAY500}},p?.name||"Property"),
-                h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},p?.address||"")
-              ),
-              h("span",{className:"pill",style:{background:st.bg,color:st.color}},job.status)
-            ),
-            job.description && h("div",{style:{background:GRAY100,borderRadius:12,padding:"10px 14px",marginBottom:12,fontSize:13,color:BLACK}},job.description),
-            h("div",{style:{fontSize:11,color:GRAY400,marginBottom:12}},job.date?" Reported: "+job.date:""),
-            // Actions — NO cost info shown to contractor
-            h("div",{style:{display:"flex",gap:8}},
-              !isActive
-                ? h("button",{className:"tap",onClick:()=>clockIn(job),style:{...sBtn(CARD_BLUE,WHITE),flex:1,borderRadius:12,padding:11,fontSize:13}},"⏱ Clock In")
-                : h("button",{className:"tap",onClick:clockOut,style:{...sBtn(RED,WHITE),flex:1,borderRadius:12,padding:11,fontSize:13}},"⏹ Clock Out"),
-              job.status!=="Resolved" && h("button",{className:"tap",onClick:()=>resolve(job.id),style:{...sBtn(GREENL,GREEN),flex:1,borderRadius:12,padding:11,fontSize:13}},"✓ Mark Done")
-            )
-          )
-        );
-      })
-    )
-  );
-
-  // DONE JOBS
-  const DoneTab = () => h("div",{className:"fade"},
-    h("div",{style:{padding:"4px 4px 18px"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"Completed"),
-    ),
-    myDone.length===0 && h(Empty),
-    h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-      ...myDone.map(job=>{
-        const p=props_.find(x=>x.id===job.prop_id);
-        return h("div",{key:job.id,style:{...card()}},
-          h("div",{style:{display:"flex",alignItems:"center",gap:12}},
-            h("div",{style:{width:40,height:40,borderRadius:12,background:GREENL,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}},"✓"),
-            h("div",{style:{flex:1}},
-              h("div",{style:{fontWeight:700,fontSize:15,color:BLACK}},job.type),
-              h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},(p?.name||"")+(job.date?" · "+job.date:""))
-            ),
-            h("span",{className:"pill",style:{background:GREENL,color:GREEN}},"Done")
-          )
-        );
-      })
-    )
-  );
-
-  // TIME LOG
-  const TimeTab = () => h("div",{className:"fade"},
-    h("div",{style:{padding:"4px 4px 18px"}},
-      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"⏱ Time Log"),
-    ),
-    // Total hours today
-    h("div",{style:{background:CARD_DARK,borderRadius:22,padding:"20px 18px",marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}},
-      h("div",null,
-        h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:2,marginBottom:6}},"Total Hours Today"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:36,fontWeight:700,color:M}},
-          clockLog.reduce((s,e)=>s+Number(e.hours),0).toFixed(1)+"h"
-        )
-      ),
-      h("div",{style:{textAlign:"right"}},
-        h("div",{style:{fontSize:10,color:"rgba(255,255,255,.3)",marginBottom:3}},"Jobs completed"),
-        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:24,color:WHITE}},clockLog.length)
-      )
-    ),
-    clockLog.length===0 && h("div",{style:{textAlign:"center",padding:"36px",background:"rgba(255,255,255,.7)",borderRadius:20,border:`1.5px dashed ${GRAY200}`}},
-      h("div",{style:{fontSize:36,marginBottom:8,opacity:.3}},"⏱"),
-      h("div",{style:{fontSize:13,color:GRAY400}},"Clock in on a job to start tracking time")
-    ),
-    h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
-      ...clockLog.slice().reverse().map((entry,i)=>{
-        return h("div",{key:i,style:{...card()}},
-          h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
-            h("div",null,
-              h("div",{style:{fontWeight:700,fontSize:15,color:BLACK}},entry.type),
-              h("div",{style:{fontSize:12,color:GRAY400,marginTop:2}},entry.propName+" · "+entry.date)
-            ),
-            h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:22,color:CARD_BLUE}},entry.hours+"h")
-          )
-        );
-      })
-    )
-  );
-
-  return h("div",{style:{minHeight:"100vh",background:CREAM,paddingBottom:80}},
-    h(Header),
-    h("div",{style:{padding:"16px 16px 0"}},
-      tab==="jobs" && h(JobsTab),
-      tab==="done" && h(DoneTab),
-      tab==="time" && h(TimeTab)
-    ),
-    h(NavBar)
-  );
+function clearPhoto(){
+  currentPhotoB64=null;
+  document.getElementById('previewImg').style.display='none';
+  document.getElementById('previewImg').src='';
+  document.getElementById('uploadPlaceholder').style.display='flex';
+  document.getElementById('uploadZone').classList.remove('has-img');
+  document.getElementById('analyzeBtn').disabled=true;
+  document.getElementById('clearBtn').style.display='none';
+  document.getElementById('photoResult').classList.remove('show');
+  document.getElementById('fileInput').value='';
 }
 
-// ── APP ──
-function App() {
-  const [screen,setScreen] = useState("splash");
-  const [lang,setLang] = useState("en");
-  const [toast,setToast] = useState(null);
-  const [user,setUser] = useState(null);
-  const [props_,setProps] = useState([]);
-  const [maint,setMaint] = useState([]);
-  const [tasks,setTasks] = useState([]);
-  const [docs,setDocs] = useState([]);
-
-  const notify = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
-  const toggleLang = () => setLang(l=>l==="en"?"es":"en");
-
-  const loadAll = async uid => {
-    const [p,r,tk,d] = await Promise.all([
-      sb.from("properties").select("*").eq("user_id",uid).order("created_at"),
-      sb.from("repairs").select("*").eq("user_id",uid).order("created_at"),
-      sb.from("tasks").select("*").eq("user_id",uid).order("created_at"),
-      sb.from("documents").select("*").eq("user_id",uid).order("created_at"),
-    ]);
-    if(p.data) setProps(p.data);
-    if(r.data) setMaint(r.data);
-    if(tk.data) setTasks(tk.data);
-    if(d.data) setDocs(d.data);
-  };
-
-  useEffect(()=>{
-    sb.auth.getSession().then(({data:{session}})=>{
-      if(session?.user){
-        setUser(session.user);
-        loadAll(session.user.id);
-        const role = session.user.user_metadata?.role||"landlord";
-        setScreen(role==="contractor"?"contractor":role==="tenant"?"tenant":"landlord");
-      } else setScreen("landing");
-    }).catch(()=>setScreen("landing"));
-
-    const {data:{subscription}} = sb.auth.onAuthStateChange((event,session)=>{
-      if(event==="SIGNED_IN"&&session?.user){
-        setUser(session.user);
-        loadAll(session.user.id);
-        const role = session.user.user_metadata?.role||"landlord";
-        setScreen(role==="contractor"?"contractor":role==="tenant"?"tenant":"landlord");
-      }
-      else if(event==="SIGNED_OUT"){setUser(null);setProps([]);setMaint([]);setTasks([]);setDocs([]);setScreen("landing");}
+async function analyzePhoto(){
+  if(!currentPhotoB64)return;
+  const note=document.getElementById('photoNote').value.trim();
+  const btn=document.getElementById('analyzeBtn');
+  const resultEl=document.getElementById('photoResult');
+  btn.disabled=true;btn.textContent='Analyzing…';resultEl.classList.remove('show');
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,system:buildPhotoSystem(),messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:currentPhotoB64}},
+        {type:'text',text:note?`Photo of job. Extra info: ${note}`:'Analyze this photo and give me a renovation quote.'}
+      ]}]})
     });
-    return ()=>subscription.unsubscribe();
-  },[]);
-
-  // CRUD
-  const addProp = async d => {
-    const {data,error} = await sb.from("properties").insert([{user_id:user.id,name:d.name,address:d.address,prop_type:d.propType,tenant_name:d.tenantName,phone:d.phone,email:d.emailAddr,pay_freq:d.payFreq,rent_amount:d.rentAmount,next_due:d.nextDue||null,lease_start:d.leaseStart||null,lease_end:d.leaseEnd||null,deposit:d.deposit,notes:d.notes}]).select().single();
-    if(!error&&data){setProps(p=>[...p,data]);notify("Property added ✓");}
-    else notify("Error saving — try again");
-  };
-  const addMaint = async d => {
-    const {data,error} = await sb.from("repairs").insert([{user_id:user.id,prop_id:d.propId||null,type:d.type,description:d.description,cost:d.cost,status:d.status,contractor:d.contractor,date:d.date||null}]).select().single();
-    if(!error&&data){setMaint(m=>[...m,data]);notify("Repair logged ✓");}
-    else notify("Error saving — try again");
-  };
-  const addTask = async d => {
-    const {data,error} = await sb.from("tasks").insert([{user_id:user.id,prop_id:d.propId||null,task:d.task,category:d.category,due_date:d.dueDate||null,priority:d.priority,estimated_cost:d.estimatedCost,status:"Pending"}]).select().single();
-    if(!error&&data){setTasks(tk=>[...tk,data]);notify("Task added ✓");}
-    else notify("Error saving — try again");
-  };
-  const addDoc = async d => {
-    const {data,error} = await sb.from("documents").insert([{user_id:user.id,prop_id:d.propId||null,name:d.name,type:d.type,notes:d.notes,date:d.date||null,expiry:d.expiry||null}]).select().single();
-    if(!error&&data){setDocs(x=>[...x,data]);notify("Document saved ✓");}
-    else notify("Error saving — try again");
-  };
-  const deleteDoc = async id => { await sb.from("documents").delete().eq("id",id); setDocs(x=>x.filter(d=>d.id!==id)); };
-  const resolve = async id => { await sb.from("repairs").update({status:"Resolved"}).eq("id",id); setMaint(m=>m.map(r=>r.id===id?{...r,status:"Resolved"}:r)); notify("Resolved ✓"); };
-  const sendRem = p => notify("Reminder sent to "+(p.tenant_name||p.tenantName||p.name)+" ✓");
-
-  return h("div",{style:{fontFamily:"'Montserrat',sans-serif",minHeight:"100vh",background:CREAM,color:BLACK,maxWidth:480,margin:"0 auto",position:"relative"}},
-    toast && h(Toast,{msg:toast}),
-    screen==="splash"   && h(Splash,{onDone:null}),
-    screen==="landing"  && h(Landing,{onL:()=>setScreen("login-l"),onT:()=>setScreen("login-t"),onC:()=>setScreen("login-c"),lang,toggleLang}),
-    screen==="login-l"  && h(Login,{role:"l",onBack:()=>setScreen("landing"),lang,toggleLang}),
-    screen==="login-t"  && h(Login,{role:"t",onBack:()=>setScreen("landing"),lang,toggleLang}),
-    screen==="login-c"  && h(Login,{role:"c",onBack:()=>setScreen("landing"),lang,toggleLang}),
-    screen==="landlord" && h(Landlord,{user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang}),
-    screen==="contractor" && h(Contractor,{user,props_,maint,tasks,notify,lang,toggleLang,resolve})
-  );
+    const raw=await res.text();let data;
+    try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
+    if(!res.ok)throw new Error(data?.error?.message||'API error '+res.status);
+    const reply=data?.content?.[0]?.text||'Could not analyze.';
+    const p=parseStructured(reply);
+    const s=getSettings(),markup=s.markup||'20';
+    resultEl.innerHTML=`
+      <div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Photo Analysis</div>
+      ${p.scope?`<div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.55;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">${p.scope}</div>`:''}
+      <div style="font-size:42px;font-weight:900;color:var(--mango);letter-spacing:-2px;line-height:1">${p.quote||'—'}</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin:8px 0 18px">${p.title||'Photo Quote'}</div>
+      <div style="display:flex;flex-direction:column;gap:10px;padding-top:4px;border-top:1px solid var(--border)">
+        ${p.labor?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${p.labor}</span></div>`:''}
+        ${p.materials?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${p.materials}</span></div>`:''}
+        ${p.other?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${p.other}</span></div>`:''}
+        ${p.profit?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700">${p.profit}</span></div>`:''}
+      </div>
+      ${p.note?`<div style="margin-top:14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.55">${p.note}</div>`:''}
+    `;
+    const saveBtn=document.createElement('button');
+    saveBtn.className='qc-save';saveBtn.style.marginTop='16px';saveBtn.style.width='100%';saveBtn.style.borderRadius='12px';
+    saveBtn.textContent='Save to Estimates';
+    saveBtn.onclick=function(){addEstimate(p.title||'Photo Quote',p.quote||'',reply);this.textContent='✓ Saved';this.classList.add('saved');this.onclick=null;};
+    resultEl.appendChild(saveBtn);
+    resultEl.classList.add('show');
+  }catch(e){
+    resultEl.innerHTML='<span style="color:#c4440a;font-size:14px">Error: '+(e.message||'Check your API key.')+'</span>';
+    resultEl.classList.add('show');
+  }
+  btn.disabled=false;btn.textContent='Analyze & Price This Job';
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+function getEstimates(){try{return JSON.parse(localStorage.getItem('407ai_est')||'[]');}catch{return[];}}
+function saveEstimates(arr){localStorage.setItem('407ai_est',JSON.stringify(arr));}
+function addEstimate(job,price,fullText){
+  const arr=getEstimates();
+  arr.unshift({id:Date.now(),job,price,fullText,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})});
+  saveEstimates(arr);
+}
+function deleteEstimate(id){saveEstimates(getEstimates().filter(e=>e.id!==id));renderEstimates();}
+function renderEstimates(){
+  const arr=getEstimates();const el=document.getElementById('estList');el.innerHTML='';
+  if(!arr.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No estimates yet</div><div class="empty-sub">Quote a job and tap Save — share directly with clients from here.</div></div>`;return;}
+  arr.forEach(e=>{
+    const c=document.createElement('div');c.className='est-card';
+    c.innerHTML=`<div class="est-card-stripe"></div><div class="est-card-top"><div class="est-info"><div class="est-job">${e.job}</div><div class="est-date">${e.date}</div></div><div class="est-price">${e.price}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">View</button><button class="est-action share" onclick="shareEst(${e.id})">Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">Delete</button></div>`;
+    el.appendChild(c);
+  });
+}
+function openDetail(id){
+  const e=getEstimates().find(x=>x.id===id);if(!e)return;currentDetail=e;
+  document.getElementById('detailTitle').textContent=e.job;
+  document.getElementById('detailDate').textContent=e.date;
+  document.getElementById('detailBody').textContent=e.fullText;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetail(ev){if(!ev||ev.target===document.getElementById('detailModal'))document.getElementById('detailModal').classList.remove('open');}
+function shareCurrentDetail(){if(currentDetail)shareEst(currentDetail.id);closeDetail();}
+function shareEst(id){
+  const e=getEstimates().find(x=>x.id===id);if(!e)return;
+  const text=`ESTIMATE — 407 Renovations\nOrlando, FL\n\n${e.job}\n${e.date}\n\n${e.fullText}\n\n— Javier\n407 Renovations`;
+  if(navigator.share){navigator.share({title:'407 Renovations Estimate',text});}
+  else{navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste in text or email.'));}
+}
+
+const chatEl=document.getElementById('chat');
+const inp=document.getElementById('inp');
+const go=document.getElementById('go');
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,100)+'px';});
+function q(t){inp.value=t;send();}
+
+function addMsg(role,text,rawText){
+  if(role==='user'){
+    const m=document.createElement('div');m.className='msg-user';
+    m.innerHTML=`<div class="msg-user-lbl">You</div><div class="msg-user-bbl">${text}</div>`;
+    chatEl.appendChild(m);
+  }else{
+    const m=document.createElement('div');m.className='msg-ai';
+    m.innerHTML=`<div class="msg-ai-lbl">407AI</div>`;
+    const p=parseStructured(rawText||text);
+    if(p.quote){m.innerHTML+=renderQuoteCard(p,rawText||text);}
+    else{m.innerHTML+=`<div class="msg-ai-plain">${text.replace(/\n/g,'<br>')}</div>`;}
+    chatEl.appendChild(m);
+  }
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function showDots(){const el=document.createElement('div');el.className='thinking';el.id='dots';el.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;}
+function hideDots(){const el=document.getElementById('dots');if(el)el.remove();}
+
+async function send(){
+  const text=inp.value.trim();if(!text||go.disabled)return;
+  inp.value='';inp.style.height='auto';go.disabled=true;
+  addMsg('user',text);history.push({role:'user',content:text});showDots();
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:buildSystem(),messages:history})
+    });
+    const raw=await res.text();let data;
+    try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
+    if(!res.ok)throw new Error(data?.error?.message||'API error '+res.status);
+    const reply=data?.content?.[0]?.text||'No response — try again.';
+    hideDots();addMsg('ai',reply,reply);history.push({role:'assistant',content:reply});
+  }catch(e){
+    hideDots();addMsg('ai','Error: '+(e.message||'Something went wrong. Try again.'));
+  }
+  go.disabled=false;inp.focus();
+}
+
+if(getKey()){document.getElementById('keyBtn').style.display='none';}
+setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('hide');setTimeout(()=>s.remove(),600);},2200);
 </script>
 </body>
 </html>

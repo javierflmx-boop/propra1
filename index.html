@@ -1384,6 +1384,10 @@ function Contractor({user,props_,maint,tasks,notify,lang,toggleLang,resolve}) {
 
 // ── REPORTS TAB ────────────────────────────────────────────────────────────
 function ReportsTab({props_,maint,expenses,addExpense,deleteExpense,lang}) {
+  const months2 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const now2 = new Date();
+  const thisMonth2 = now2.getMonth();
+  const thisYear2 = now2.getFullYear();
   const [view,setView] = useState("summary");
   const [addingExpense,setAddingExpense] = useState(false);
   const [expForm,setExpForm] = useState({propId:"",category:"utilities",description:"",amount:"",date:new Date().toISOString().split("T")[0],recurring:false});
@@ -1439,6 +1443,32 @@ function ReportsTab({props_,maint,expenses,addExpense,deleteExpense,lang}) {
   });
 
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // Empty state
+  if(props_.length===0) return h("div",{className:"fade",style:{padding:"4px 4px 0"}},
+    h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK,marginBottom:20}},"📊 Reports"),
+    h("div",{style:{background:CARD_DARK,borderRadius:22,padding:"40px 24px",textAlign:"center",marginBottom:16}},
+      h("div",{style:{fontSize:52,marginBottom:16}},"📊"),
+      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:200,color:WHITE,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}},"No Data Yet"),
+      h("div",{style:{fontSize:13,color:"rgba(255,255,255,.4)",lineHeight:1.7,marginBottom:24}},"Add your first property to start seeing financial reports, income and expense tracking."),
+      h("button",{className:"tap",onClick:()=>{},style:sBtn(M,BLACK,{padding:"13px 28px",borderRadius:50,fontSize:14})},"Go Add a Property")
+    ),
+    h("div",{style:{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:2,marginBottom:12}},"What you will see"),
+    ...[
+      [CARD_MANGO,"💰","Monthly Income","Total rent from all properties"],
+      [CARD_RED,"📉","Expenses","Electric, water, insurance, mortgage"],
+      [CARD_GREEN,"📈","Net Profit","Income minus all costs"],
+      [CARD_DARK,"🏘","Per Property","P&L breakdown for each property"],
+    ].map(([bg,icon,title,desc])=>
+      h("div",{key:title,style:{background:bg,borderRadius:16,padding:"14px 16px",marginBottom:8,display:"flex",alignItems:"center",gap:14}},
+        h("div",{style:{fontSize:24,flexShrink:0}},icon),
+        h("div",null,
+          h("div",{style:{fontWeight:600,fontSize:14,color:bg===CARD_MANGO?BLACK:WHITE}},title),
+          h("div",{style:{fontSize:11,color:bg===CARD_MANGO?"rgba(0,0,0,.5)":"rgba(255,255,255,.5)",marginTop:2}},desc)
+        )
+      )
+    )
+  );
 
   return h("div",{className:"fade"},
     // Header

@@ -485,9 +485,10 @@ function Login({role,onBack,lang,toggleLang}) {
 }
 
 // ── LANDLORD ──
-function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang}) {
+function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,deleteProp,resolve,sendRem,lang,toggleLang}) {
   const [tab,setTab] = useState("home");
   const [sheet,setSheet] = useState(null);
+  const [selectedProp,setSelectedProp] = useState(null);
 
   const spend = maint.reduce((s,m)=>s+(Number(m.cost)||0),0);
   const openC = maint.filter(m=>m.status==="Open"||m.status==="In Progress").length;
@@ -604,7 +605,195 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
   );
 
   // PROPERTIES TAB
-  const PropsTab = () => h("div",{className:"fade"},
+  // PROPERTY DETAIL VIEW
+  const PropDetail = ({p}) => {
+    const r = getRemStatus(p);
+    const propRepairs = maint.filter(m=>m.prop_id===p.id).sort((a,b)=>new Date(b.date||b.created_at)-new Date(a.date||a.created_at));
+    const propTasks = tasks.filter(t=>t.prop_id===p.id);
+    const propDocs2 = docs.filter(d=>d.prop_id===p.id);
+    const propSpend = propRepairs.reduce((s,m)=>s+Number(m.cost||0),0);
+    const [detailTab,setDetailTab] = useState("overview");
+    const [confirmDelete,setConfirmDelete] = useState(false);
+
+    return h("div",{className:"fade"},
+      // Header
+      h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:20}},
+        h("button",{className:"tap",onClick:()=>setSelectedProp(null),style:{background:"none",border:"none",fontSize:20,cursor:"pointer",color:GRAY400}},"←"),
+        h("div",{style:{flex:1}},
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:800,color:BLACK}},p.name),
+          h("div",{style:{fontSize:12,color:GRAY400}},p.address)
+        ),
+        // Delete button
+        !confirmDelete
+          ? h("button",{className:"tap",onClick:()=>setConfirmDelete(true),style:{background:REDL,border:"none",color:RED,padding:"8px 12px",borderRadius:10,fontSize:13,cursor:"pointer"}},"🗑")
+          : h("div",{style:{display:"flex",gap:6}},
+              h("button",{className:"tap",onClick:async()=>{await deleteProp(p.id);setSelectedProp(null);},style:sBtn(RED,WHITE,{padding:"8px 14px",borderRadius:10,fontSize:12})},"Delete"),
+              h("button",{className:"tap",onClick:()=>setConfirmDelete(false),style:sBtn(GRAY100,BLACK,{padding:"8px 14px",borderRadius:10,fontSize:12})},"Cancel")
+            )
+      ),
+
+      // Stats row
+      h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}},
+        h("div",{style:{background:CARD_MANGO,borderRadius:16,padding:"14px 10px",textAlign:"center"}},
+          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(0,0,0,.45)",textTransform:"uppercase",letterSpacing:1}},"Rent"),
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:18,fontWeight:700,color:BLACK,marginTop:2}},"$"+fmt(p.rent_amount||p.rentAmount))
+        ),
+        h("div",{style:{background:CARD_RED,borderRadius:16,padding:"14px 10px",textAlign:"center"}},
+          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1}},"Issues"),
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:WHITE,marginTop:2}},propRepairs.filter(m=>m.status!=="Resolved").length)
+        ),
+        h("div",{style:{background:CARD_DARK,borderRadius:16,padding:"14px 10px",textAlign:"center"}},
+          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:1}},"Spend"),
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:16,fontWeight:700,color:M,marginTop:2}},"$"+fmt(propSpend))
+        )
+      ),
+
+      // Sub tabs
+      h("div",{style:{display:"flex",gap:0,background:CREAM2,borderRadius:12,padding:3,marginBottom:14}},
+        ...["overview","repairs","tasks","docs","payments"].map(id=>
+          h("button",{key:id,className:"tap",onClick:()=>setDetailTab(id),style:{
+            flex:1,padding:"8px 4px",borderRadius:10,border:"none",
+            background:detailTab===id?WHITE:"transparent",
+            color:detailTab===id?BLACK:GRAY400,
+            fontWeight:detailTab===id?600:400,
+            fontSize:10,fontFamily:"'Montserrat',sans-serif",
+            boxShadow:detailTab===id?"0 1px 6px rgba(0,0,0,.08)":"none",
+            textTransform:"uppercase",letterSpacing:.5
+          }},{overview:"Info",repairs:"Repairs",tasks:"Tasks",docs:"Docs",payments:"Payments"}[id])
+        )
+      ),
+
+      // OVERVIEW
+      detailTab==="overview" && h("div",{className:"fade"},
+        h("div",{style:{...card(),marginBottom:10}},
+          h("div",{style:{fontSize:10,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1.5,marginBottom:12}},"Tenant Info"),
+          h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:14}},
+            h("div",{style:{width:48,height:48,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:16,color:MD}},avatar(p.tenant_name||p.tenantName||"?")),
+            h("div",null,
+              h("div",{style:{fontWeight:700,fontSize:16,color:BLACK}},(p.tenant_name||p.tenantName)||"No tenant"),
+              p.phone && h("div",{style:{fontSize:13,color:GRAY400,marginTop:2}},"📞 "+p.phone),
+              p.email && h("div",{style:{fontSize:13,color:GRAY400,marginTop:2}},"✉ "+p.email)
+            )
+          ),
+          h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+            ...[
+              ["Payment","$"+fmt(p.rent_amount||p.rentAmount)+" / "+freqLabel(p.pay_freq||p.payFreq)],
+              ["Next Due",(p.next_due||p.nextDue)||"—"],
+              ["Lease Start",(p.lease_start||p.leaseStart)||"—"],
+              ["Lease End",(p.lease_end||p.leaseEnd)||"—"],
+              ["Deposit","$"+fmt(p.deposit||0)],
+              ["Type",(p.prop_type||p.propType)||"rental"],
+            ].map(([label,val])=>
+              h("div",{key:label,style:{background:GRAY100,borderRadius:12,padding:"10px 12px"}},
+                h("div",{style:{fontSize:9,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1,marginBottom:3}},label),
+                h("div",{style:{fontSize:13,fontWeight:500,color:BLACK}},val)
+              )
+            )
+          ),
+          p.notes && h("div",{style:{marginTop:10,padding:"10px 12px",background:GRAY100,borderRadius:12,fontSize:13,color:GRAY500,lineHeight:1.5}},p.notes)
+        ),
+        r && h("div",{style:{background:r.type==="overdue"?CARD_RED:CARD_MANGO,borderRadius:16,padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+          h("div",null,
+            h("div",{style:{fontWeight:700,color:WHITE,fontSize:14}},r.type==="overdue"?"⚠ OVERDUE — "+r.days+" days":"🔔 Due in "+r.days+" days"),
+            h("div",{style:{fontSize:12,color:"rgba(255,255,255,.7)",marginTop:2}},"$"+fmt(p.rent_amount||p.rentAmount)+" payment")
+          ),
+          h("button",{className:"tap",onClick:()=>sendRem(p),style:sBtn(WHITE,r.type==="overdue"?RED:MD,{padding:"9px 14px",borderRadius:10,fontSize:12})},"Send Reminder")
+        )
+      ),
+
+      // REPAIRS
+      detailTab==="repairs" && h("div",{className:"fade"},
+        h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+          h("div",{style:{fontSize:14,fontWeight:700,color:BLACK}},"Repairs & Issues"),
+          h("button",{className:"tap",onClick:()=>setSheet("addRepair"),style:sBtn(BLACK,WHITE,{padding:"8px 14px",borderRadius:50,fontSize:12})},"+ Log")
+        ),
+        propRepairs.length===0 && h(Empty),
+        h("div",{style:{display:"flex",flexDirection:"column",gap:8}},
+          ...propRepairs.map(m=>{
+            const st=statusStyle(m.status);
+            return h("div",{key:m.id,style:{...card(),padding:14}},
+              h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:6}},
+                h("div",{style:{fontWeight:700,fontSize:14,color:BLACK}},m.type),
+                h("span",{className:"pill",style:{background:st.bg,color:st.color}},m.status)
+              ),
+              m.description && h("div",{style:{fontSize:12,color:GRAY500,marginBottom:6}},m.description),
+              h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+                h("div",{style:{fontSize:11,color:GRAY400}},m.date||(m.created_at||"").split("T")[0]),
+                h("div",{style:{display:"flex",gap:8,alignItems:"center"}},
+                  m.cost>0 && h("span",{style:{fontSize:13,fontWeight:700,color:BLACK}},"$"+fmt(m.cost)),
+                  m.status!=="Resolved" && h("button",{className:"tap",onClick:()=>resolve(m.id),style:sBtn(GREENL,GREEN,{padding:"6px 12px",borderRadius:8,fontSize:11})},"✓ Done")
+                )
+              )
+            );
+          })
+        )
+      ),
+
+      // TASKS
+      detailTab==="tasks" && h("div",{className:"fade"},
+        h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+          h("div",{style:{fontSize:14,fontWeight:700,color:BLACK}},"Tasks"),
+          h("button",{className:"tap",onClick:()=>setSheet("addTask"),style:sBtn(BLACK,WHITE,{padding:"8px 14px",borderRadius:50,fontSize:12})},"+ Add")
+        ),
+        propTasks.length===0 && h(Empty),
+        h("div",{style:{display:"flex",flexDirection:"column",gap:8}},
+          ...propTasks.map(tk=>{
+            const done=tk.status==="Done";
+            const prioColor=({High:RED,Medium:"#D97706",Low:GREEN})[tk.priority]||GRAY400;
+            return h("div",{key:tk.id,style:{...card(),padding:14,opacity:done?.5:1}},
+              h("div",{style:{display:"flex",gap:10,alignItems:"flex-start"}},
+                h("div",{className:"tap",onClick:async()=>{if(!done){await sb.from("tasks").update({status:"Done"}).eq("id",tk.id);notify("Done ✓");}},
+                  style:{width:20,height:20,borderRadius:5,border:`2px solid ${done?GREEN:GRAY200}`,background:done?GREEN:WHITE,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1,cursor:"pointer"}},
+                  done && h("span",{style:{color:WHITE,fontSize:11,fontWeight:800}},"✓")
+                ),
+                h("div",{style:{flex:1}},
+                  h("div",{style:{fontWeight:600,fontSize:14,color:BLACK,textDecoration:done?"line-through":"none"}},tk.task),
+                  h("div",{style:{fontSize:11,color:prioColor,marginTop:2}},tk.priority+(tk.due_date?" · "+tk.due_date:""))
+                )
+              )
+            );
+          })
+        )
+      ),
+
+      // DOCS
+      detailTab==="docs" && h("div",{className:"fade"},
+        h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
+          h("div",{style:{fontSize:14,fontWeight:700,color:BLACK}},"Documents"),
+          h("button",{className:"tap",onClick:()=>setSheet({type:"docs",prop:p}),style:sBtn(BLACK,WHITE,{padding:"8px 14px",borderRadius:50,fontSize:12})},"+ Add")
+        ),
+        propDocs2.length===0 && h(Empty),
+        h("div",{style:{display:"flex",flexDirection:"column",gap:8}},
+          ...propDocs2.map(doc=>{
+            const types={lease:{icon:"📋",color:GREEN},insurance:{icon:"🛡",color:"#1D4ED8"},inspection:{icon:"🔍",color:"#7C3AED"},permit:{icon:"📜",color:"#B45309"},photo:{icon:"📷",color:"#0F766E"},tax:{icon:"🧾",color:RED},other:{icon:"📎",color:GRAY500}};
+            const dt=types[doc.type]||types.other;
+            return h("div",{key:doc.id,style:{...card(),padding:14,display:"flex",gap:12,alignItems:"center"}},
+              h("div",{style:{fontSize:24,flexShrink:0}},dt.icon),
+              h("div",{style:{flex:1}},
+                h("div",{style:{fontWeight:600,fontSize:14,color:BLACK}},doc.name),
+                h("div",{style:{fontSize:11,color:dt.color,marginTop:2}},doc.type+(doc.expiry?" · expires "+doc.expiry:""))
+              ),
+              h("button",{className:"tap",onClick:()=>deleteDoc(doc.id),style:{background:"none",border:"none",color:GRAY200,fontSize:18,cursor:"pointer"}},"×")
+            );
+          })
+        )
+      ),
+
+      // PAYMENTS
+      detailTab==="payments" && h("div",{className:"fade"},
+        h("div",{style:{fontSize:14,fontWeight:700,color:BLACK,marginBottom:12}},"Payment History"),
+        h("div",{style:{...card(),textAlign:"center",padding:"32px 20px"}},
+          h("div",{style:{fontSize:40,marginBottom:10,opacity:.2}},"💳"),
+          h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.6}},"Payment tracking coming soon."),
+          h("div",{style:{fontSize:12,color:GRAY400,marginTop:4}},"Connect Stripe to track rent payments automatically.")
+        )
+      )
+    );
+  };
+
+  const PropsTab = () => selectedProp
+    ? h(PropDetail,{p:selectedProp})
+    : h("div",{className:"fade"},
     h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 4px 18px"}},
       h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"Properties"),
       h("button",{className:"tap",onClick:()=>setSheet("addProp"),style:sBtn(BLACK,WHITE,{padding:"10px 18px",borderRadius:50,fontSize:13})},"+ Add")
@@ -616,14 +805,15 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
         const oc=maint.filter(m=>m.prop_id===p.id&&m.status!=="Resolved").length;
         const isAB=p.prop_type==="airbnb"||p.propType==="airbnb";
         const docCount=docs.filter(d=>d.prop_id===p.id||d.propId===p.id).length;
-        return h("div",{key:p.id,style:{background:WHITE,border:"none",boxShadow:`0 2px 16px rgba(0,0,0,.07)`,borderRadius:22,overflow:"hidden"}},
+        return h("div",{key:p.id,className:"tap",onClick:()=>setSelectedProp(p),style:{background:WHITE,border:"none",boxShadow:`0 2px 16px rgba(0,0,0,.07)`,borderRadius:22,overflow:"hidden",cursor:"pointer"}},
           r && h("div",{style:{height:4,background:M,width:"100%"}}),
           h("div",{style:{padding:18}},
             h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}},
               h("div",{style:{flex:1}},
                 h("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:3}},
                   h("span",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:800,fontSize:17,color:BLACK}},p.name),
-                  isAB && h("span",{className:"pill",style:{background:"#fff0f3",color:"#E11D48"}},"Airbnb")
+                  isAB && h("span",{className:"pill",style:{background:"#fff0f3",color:"#E11D48"}},"Airbnb"),
+                  h("span",{style:{fontSize:14,color:GRAY400,marginLeft:"auto"}},"›")
                 ),
                 h("div",{style:{fontSize:12,color:GRAY400}},p.address)
               ),
@@ -638,20 +828,13 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
               r?.type==="soon" && h("span",{className:"pill",style:{background:ML,color:MD}},r.days===0?"Due TODAY":"🔔 "+r.days+"d"),
               docCount>0 && h("span",{className:"pill",style:{background:GRAY100,color:GRAY500}},"📄 "+docCount)
             ),
-            h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:12,borderTop:`1px solid ${GRAY100}`}},
-              h("div",{style:{display:"flex",alignItems:"center",gap:10}},
-                h("div",{style:{width:36,height:36,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:13,color:MD,flexShrink:0}},
-                  avatar(p.tenant_name||p.tenantName)
-                ),
-                h("div",null,
-                  h("div",{style:{fontWeight:600,fontSize:14}},(p.tenant_name||p.tenantName)||"—"),
-                  (p.next_due||p.nextDue) && h("div",{style:{fontSize:11,color:r?MD:GRAY400}},"📅 "+(p.next_due||p.nextDue))
-                )
+            h("div",{style:{display:"flex",alignItems:"center",paddingTop:12,borderTop:`1px solid ${GRAY100}`}},
+              h("div",{style:{width:32,height:32,borderRadius:"50%",background:ML,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:12,color:MD,flexShrink:0,marginRight:10}},
+                avatar(p.tenant_name||p.tenantName)
               ),
-              h("div",{style:{display:"flex",gap:8}},
-                r && h("button",{className:"tap",onClick:()=>sendRem(p),style:sBtn(M,BLACK,{padding:"8px 12px",borderRadius:10,fontSize:12})},"🔔"),
-                h("button",{className:"tap",onClick:()=>setSheet({type:"docs",prop:p}),style:sBtn(GRAY100,BLACK,{padding:"8px 12px",borderRadius:10,fontSize:13})},"📄"),
-                h("button",{className:"tap",onClick:()=>setSheet({type:"msg",prop:p}),style:sBtn(GRAY100,BLACK,{padding:"8px 14px",borderRadius:10,fontSize:13})},"💬")
+              h("div",{style:{flex:1}},
+                h("div",{style:{fontWeight:600,fontSize:14}},(p.tenant_name||p.tenantName)||"—"),
+                (p.next_due||p.nextDue) && h("div",{style:{fontSize:11,color:r?MD:GRAY400}},"📅 "+(p.next_due||p.nextDue))
               )
             )
           )
@@ -1253,6 +1436,17 @@ function App() {
     else notify("Error saving — try again");
   };
   const deleteDoc = async id => { await sb.from("documents").delete().eq("id",id); setDocs(x=>x.filter(d=>d.id!==id)); };
+  const deleteProp = async id => {
+    await sb.from("documents").delete().eq("prop_id",id);
+    await sb.from("repairs").delete().eq("prop_id",id);
+    await sb.from("tasks").delete().eq("prop_id",id);
+    await sb.from("properties").delete().eq("id",id);
+    setProps(x=>x.filter(p=>p.id!==id));
+    setMaint(x=>x.filter(m=>m.prop_id!==id));
+    setTasks(x=>x.filter(t=>t.prop_id!==id));
+    setDocs(x=>x.filter(d=>d.prop_id!==id));
+    notify("Property deleted");
+  };
   const resolve = async id => { await sb.from("repairs").update({status:"Resolved"}).eq("id",id); setMaint(m=>m.map(r=>r.id===id?{...r,status:"Resolved"}:r)); notify("Resolved ✓"); };
   const sendRem = p => notify("Reminder sent to "+(p.tenant_name||p.tenantName||p.name)+" ✓");
 
@@ -1263,7 +1457,7 @@ function App() {
     screen==="login-l"  && h(Login,{role:"l",onBack:()=>setScreen("landing"),lang,toggleLang}),
     screen==="login-t"  && h(Login,{role:"t",onBack:()=>setScreen("landing"),lang,toggleLang}),
     screen==="login-c"  && h(Login,{role:"c",onBack:()=>setScreen("landing"),lang,toggleLang}),
-    screen==="landlord" && h(Landlord,{user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,resolve,sendRem,lang,toggleLang}),
+    screen==="landlord" && h(Landlord,{user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,addDoc,deleteDoc,deleteProp,resolve,sendRem,lang,toggleLang}),
     screen==="contractor" && h(Contractor,{user,props_,maint,tasks,notify,lang,toggleLang,resolve})
   );
 }

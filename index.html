@@ -489,6 +489,20 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
   const [tab,setTab] = useState("home");
   const [sheet,setSheet] = useState(null);
   const [selectedProp,setSelectedProp] = useState(null);
+  const [expenses,setExpenses] = useState([]);
+
+  // Load expenses from localStorage
+  useEffect(()=>{
+    try { const saved=localStorage.getItem("propra_expenses_"+user?.id); if(saved) setExpenses(JSON.parse(saved)); } catch(e){}
+  },[user]);
+
+  const saveExpenses = (list) => {
+    setExpenses(list);
+    try { localStorage.setItem("propra_expenses_"+user?.id, JSON.stringify(list)); } catch(e){}
+  };
+
+  const addExpense = (d) => { saveExpenses([...expenses,{...d,id:Date.now()}]); notify("Expense added ✓"); };
+  const deleteExpense = (id) => { saveExpenses(expenses.filter(e=>e.id!==id)); };
 
   const spend = maint.reduce((s,m)=>s+(Number(m.cost)||0),0);
   const openC = maint.filter(m=>m.status==="Open"||m.status==="In Progress").length;
@@ -500,6 +514,7 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
     {id:"props",icon:"🏘",label:"Properties"},
     {id:"repair",icon:"🔧",label:"Repairs"},
     {id:"tasks",icon:"☑",label:"Tasks"},
+    {id:"reports",icon:"📊",label:"Reports"},
     {id:"more",icon:"···",label:"More"},
   ];
 
@@ -1154,6 +1169,7 @@ function Landlord({user,props_,maint,tasks,docs,notify,addProp,addMaint,addTask,
       tab==="props"  && h(PropsTab),
       tab==="repair" && h(RepairsTab),
       tab==="tasks"  && h(TasksTab),
+      tab==="reports" && h(ReportsTab,{props_,maint,expenses,addExpense,deleteExpense,lang}),
       tab==="more"   && h(MoreTab)
     ),
     h(NavBar),
@@ -1362,6 +1378,294 @@ function Contractor({user,props_,maint,tasks,notify,lang,toggleLang,resolve}) {
       tab==="time" && h(TimeTab)
     ),
     h(NavBar)
+  );
+}
+
+
+// ── REPORTS TAB ────────────────────────────────────────────────────────────
+function ReportsTab({props_,maint,expenses,addExpense,deleteExpense,lang}) {
+  const [view,setView] = useState("summary");
+  const [addingExpense,setAddingExpense] = useState(false);
+  const [expForm,setExpForm] = useState({propId:"",category:"utilities",description:"",amount:"",date:new Date().toISOString().split("T")[0],recurring:false});
+  const u = (k,v) => setExpForm(f=>({...f,[k]:v}));
+
+  const EXP_CATS = {
+    utilities:{icon:"⚡",label:"Utilities",color:"#D97706",bg:"#FFF7E6"},
+    electric:{icon:"💡",label:"Electric",color:"#D97706",bg:"#FFF7E6"},
+    water:{icon:"💧",label:"Water",color:"#2C5F8A",bg:"#E8F0F9"},
+    insurance:{icon:"🛡",label:"Insurance",color:"#7C3AED",bg:"#F5F3FF"},
+    mortgage:{icon:"🏦",label:"Mortgage",color:"#0F766E",bg:"#F0FDFA"},
+    maintenance:{icon:"🔧",label:"Maintenance",color:"#C0392B",bg:"#FDECEA"},
+    tax:{icon:"🧾",label:"Property Tax",color:"#BE123C",bg:"#FFF1F2"},
+    hoa:{icon:"🏘",label:"HOA",color:"#6B3FA0",bg:"#F0EAF9"},
+    landscaping:{icon:"🌿",label:"Landscaping",color:"#2D6A4F",bg:"#E8F5EE"},
+    other:{icon:"📎",label:"Other",color:"#6B6560",bg:"#F0EDE6"},
+  };
+
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+
+  // All income = rent amounts
+  const totalMonthlyIncome = props_.reduce((s,p)=>s+Number(p.rent_amount||p.rentAmount||0),0);
+
+  // This month expenses
+  const thisMonthExpenses = expenses.filter(e=>{
+    const d = new Date(e.date);
+    return d.getMonth()===thisMonth && d.getFullYear()===thisYear;
+  });
+  const totalExpenses = thisMonthExpenses.reduce((s,e)=>s+Number(e.amount||0),0);
+  const repairCosts = maint.filter(m=>{
+    const d = new Date(m.date||m.created_at);
+    return d.getMonth()===thisMonth && d.getFullYear()===thisYear;
+  }).reduce((s,m)=>s+Number(m.cost||0),0);
+
+  const totalCosts = totalExpenses + repairCosts;
+  const netIncome = totalMonthlyIncome - totalCosts;
+
+  // By property
+  const propSummary = props_.map(p=>{
+    const propExpenses = expenses.filter(e=>e.propId==p.id||e.propId===String(p.id));
+    const propRepairs = maint.filter(m=>m.prop_id===p.id);
+    const income = Number(p.rent_amount||p.rentAmount||0);
+    const costs = propExpenses.reduce((s,e)=>s+Number(e.amount||0),0) + propRepairs.reduce((s,m)=>s+Number(m.cost||0),0);
+    return {...p,income,costs,net:income-costs};
+  });
+
+  // By category this month
+  const byCat = {};
+  thisMonthExpenses.forEach(e=>{
+    byCat[e.category] = (byCat[e.category]||0) + Number(e.amount||0);
+  });
+
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  return h("div",{className:"fade"},
+    // Header
+    h("div",{style:{padding:"4px 4px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+      h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:24,fontWeight:700,color:BLACK}},"📊 Reports"),
+      h("div",{style:{fontSize:12,color:GRAY400}},months[thisMonth]+" "+thisYear)
+    ),
+
+    // View tabs
+    h("div",{style:{display:"flex",gap:0,background:CREAM2,borderRadius:14,padding:4,marginBottom:16}},
+      ...["summary","expenses","properties"].map(id=>
+        h("button",{key:id,className:"tap",onClick:()=>setView(id),style:{
+          flex:1,padding:"10px 4px",borderRadius:11,border:"none",
+          background:view===id?WHITE:"transparent",
+          color:view===id?BLACK:GRAY400,
+          fontWeight:view===id?600:400,
+          fontSize:12,fontFamily:"'Montserrat',sans-serif",
+          boxShadow:view===id?"0 2px 8px rgba(0,0,0,.08)":"none"
+        }},{summary:"Summary",expenses:"Expenses",properties:"Properties"}[id])
+      )
+    ),
+
+    // ── SUMMARY VIEW ──
+    view==="summary" && h("div",{className:"fade"},
+      // Big income card
+      h("div",{style:{background:CARD_MANGO,borderRadius:22,padding:"20px 18px",marginBottom:10,position:"relative",overflow:"hidden"}},
+        h("div",{style:{position:"absolute",top:-20,right:-20,width:100,height:100,borderRadius:"50%",background:"rgba(255,255,255,.15)"}}),
+        h("div",{style:{fontSize:10,fontWeight:700,color:"rgba(0,0,0,.45)",textTransform:"uppercase",letterSpacing:2,marginBottom:4}},"Total Monthly Income"),
+        h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:44,fontWeight:700,color:BLACK,letterSpacing:"-2px",lineHeight:1}},"$"+totalMonthlyIncome.toLocaleString()),
+        h("div",{style:{fontSize:12,color:"rgba(0,0,0,.5)",marginTop:6}},props_.length+" properties · "+months[thisMonth])
+      ),
+
+      // 3 cards row
+      h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:10}},
+        h("div",{style:{background:CARD_RED,borderRadius:18,padding:"14px 12px"}},
+          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}},"Expenses"),
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:700,color:WHITE}},"$"+totalCosts.toLocaleString()),
+          h("div",{style:{fontSize:10,color:"rgba(255,255,255,.4)",marginTop:2}},"this month")
+        ),
+        h("div",{style:{background:netIncome>=0?CARD_GREEN:CARD_RED,borderRadius:18,padding:"14px 12px"}},
+          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.6)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}},"Net"),
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:700,color:WHITE}},(netIncome>=0?"+":"")+("$"+Math.abs(netIncome).toLocaleString())),
+          h("div",{style:{fontSize:10,color:"rgba(255,255,255,.4)",marginTop:2}},"profit")
+        ),
+        h("div",{style:{background:CARD_DARK,borderRadius:18,padding:"14px 12px"}},
+          h("div",{style:{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}},"Repairs"),
+          h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:20,fontWeight:700,color:M}},"$"+repairCosts.toLocaleString()),
+          h("div",{style:{fontSize:10,color:"rgba(255,255,255,.3)",marginTop:2}},"this month")
+        )
+      ),
+
+      // Expense by category breakdown
+      Object.keys(byCat).length > 0 && h("div",{style:{background:WHITE,borderRadius:20,padding:18,boxShadow:"0 2px 12px rgba(0,0,0,.06)",marginBottom:10}},
+        h("div",{style:{fontSize:11,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:1.5,marginBottom:14}},"By Category"),
+        ...Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
+          const c = EXP_CATS[cat]||EXP_CATS.other;
+          const max = Math.max(...Object.values(byCat));
+          return h("div",{key:cat,style:{marginBottom:12}},
+            h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+              h("div",{style:{display:"flex",alignItems:"center",gap:6}},
+                h("span",{style:{fontSize:14}},c.icon),
+                h("span",{style:{fontSize:13,fontWeight:500,color:BLACK}},c.label)
+              ),
+              h("span",{style:{fontSize:13,fontWeight:700,color:BLACK}},"$"+Number(amt).toLocaleString())
+            ),
+            h("div",{style:{height:4,background:GRAY100,borderRadius:2}},
+              h("div",{style:{height:"100%",width:Math.round(amt/max*100)+"%",background:c.color,borderRadius:2}})
+            )
+          );
+        })
+      ),
+
+      // Annual projection
+      h("div",{style:{background:CARD_DARK,borderRadius:20,padding:18,marginBottom:10}},
+        h("div",{style:{fontSize:10,fontWeight:700,color:"rgba(255,255,255,.4)",textTransform:"uppercase",letterSpacing:2,marginBottom:12}},"Annual Projection"),
+        h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          h("div",null,
+            h("div",{style:{fontSize:10,color:"rgba(255,255,255,.3)",marginBottom:3}},"Yearly Income"),
+            h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:22,fontWeight:700,color:M}},"$"+(totalMonthlyIncome*12).toLocaleString())
+          ),
+          h("div",null,
+            h("div",{style:{fontSize:10,color:"rgba(255,255,255,.3)",marginBottom:3}},"Yearly Net"),
+            h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontSize:22,fontWeight:700,color:netIncome>=0?"#4ade80":RED}},"$"+(netIncome*12).toLocaleString())
+          )
+        )
+      )
+    ),
+
+    // ── EXPENSES VIEW ──
+    view==="expenses" && h("div",{className:"fade"},
+      // Add expense button
+      !addingExpense && h("button",{className:"tap",onClick:()=>setAddingExpense(true),style:{...sBtn(BLACK,WHITE),width:"100%",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"center",gap:10}},
+        h("span",{style:{fontSize:20,fontWeight:200}},"+"),"Add Expense"
+      ),
+
+      // Add expense form
+      addingExpense && h("div",{style:{background:WHITE,borderRadius:20,padding:18,marginBottom:16,boxShadow:"0 0 0 2px "+M}},
+        h("div",{style:{fontWeight:700,fontSize:16,color:BLACK,marginBottom:14}},"New Expense"),
+
+        // Property selector
+        h("div",{style:{marginBottom:12}},
+          h("label",{style:{fontSize:10,fontWeight:600,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}},"Property"),
+          h("select",{value:expForm.propId,onChange:e=>u("propId",e.target.value)},
+            h("option",{value:""},"All Properties / General"),
+            ...props_.map(p=>h("option",{key:p.id,value:p.id},p.name))
+          )
+        ),
+
+        // Category
+        h("div",{style:{marginBottom:12}},
+          h("label",{style:{fontSize:10,fontWeight:600,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}},"Category"),
+          h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}},
+            ...Object.entries(EXP_CATS).map(([k,v])=>
+              h("button",{key:k,className:"tap",onClick:()=>u("category",k),style:{
+                padding:"8px 10px",borderRadius:10,
+                border:"1.5px solid "+(expForm.category===k?v.color:GRAY200),
+                background:expForm.category===k?v.bg:WHITE,
+                color:expForm.category===k?v.color:GRAY400,
+                fontSize:11,fontWeight:expForm.category===k?700:400,
+                fontFamily:"'Montserrat',sans-serif",
+                display:"flex",alignItems:"center",gap:6,textAlign:"left"
+              }},v.icon+" "+v.label)
+            )
+          )
+        ),
+
+        // Description
+        h("div",{style:{marginBottom:12}},
+          h("label",{style:{fontSize:10,fontWeight:600,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}},"Description"),
+          h("input",{value:expForm.description,onChange:e=>u("description",e.target.value),placeholder:"e.g. FPL Electric Bill March"})
+        ),
+
+        // Amount + Date
+        h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}},
+          h("div",null,
+            h("label",{style:{fontSize:10,fontWeight:600,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}},"Amount ($)"),
+            h("input",{type:"number",value:expForm.amount,onChange:e=>u("amount",e.target.value),placeholder:"0"})
+          ),
+          h("div",null,
+            h("label",{style:{fontSize:10,fontWeight:600,color:GRAY400,display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:2}},"Date"),
+            h("input",{type:"date",value:expForm.date,onChange:e=>u("date",e.target.value)})
+          )
+        ),
+
+        h("div",{style:{display:"flex",gap:10}},
+          h("button",{className:"tap",onClick:()=>setAddingExpense(false),style:sBtn(CREAM2,BLACK,{flex:1})},"Cancel"),
+          h("button",{className:"tap",onClick:()=>{
+            if(!expForm.amount||!expForm.description) return;
+            addExpense({...expForm,amount:Number(expForm.amount)});
+            setAddingExpense(false);
+            setExpForm({propId:"",category:"utilities",description:"",amount:"",date:new Date().toISOString().split("T")[0],recurring:false});
+          },style:sBtn(M,BLACK,{flex:2})},"Save Expense")
+        )
+      ),
+
+      // Expenses list
+      expenses.length===0&&!addingExpense && h("div",{style:{textAlign:"center",padding:"40px 20px",background:"rgba(255,255,255,.7)",borderRadius:20,border:"1.5px dashed "+GRAY200}},
+        h("div",{style:{fontSize:40,marginBottom:10,opacity:.2}},"💰"),
+        h("div",{style:{fontSize:13,color:GRAY400,lineHeight:1.6}},"Add expenses like electricity, water, mortgage, insurance and more")
+      ),
+
+      h("div",{style:{display:"flex",flexDirection:"column",gap:8}},
+        ...expenses.slice().reverse().map(e=>{
+          const c = EXP_CATS[e.category]||EXP_CATS.other;
+          const prop = props_.find(p=>p.id==e.propId||String(p.id)===e.propId);
+          return h("div",{key:e.id,style:{background:WHITE,borderRadius:18,padding:16,boxShadow:"0 2px 10px rgba(0,0,0,.06)",display:"flex",gap:12,alignItems:"center"}},
+            h("div",{style:{width:44,height:44,borderRadius:13,background:c.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}},c.icon),
+            h("div",{style:{flex:1}},
+              h("div",{style:{fontWeight:600,fontSize:14,color:BLACK}},e.description),
+              h("div",{style:{fontSize:11,color:GRAY400,marginTop:2}},c.label+(prop?" · "+prop.name:" · All Properties")+" · "+e.date)
+            ),
+            h("div",{style:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}},
+              h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:16,color:BLACK}},"$"+Number(e.amount).toLocaleString()),
+              h("button",{className:"tap",onClick:()=>deleteExpense(e.id),style:{background:"none",border:"none",color:GRAY200,fontSize:16,cursor:"pointer"}},"×")
+            )
+          );
+        })
+      )
+    ),
+
+    // ── PROPERTIES VIEW ──
+    view==="properties" && h("div",{className:"fade"},
+      props_.length===0 && h("div",{style:{textAlign:"center",padding:"40px 20px",background:"rgba(255,255,255,.7)",borderRadius:20,border:"1.5px dashed "+GRAY200}},
+        h("div",{style:{fontSize:40,marginBottom:10,opacity:.2}},"🏘"),
+        h("div",{style:{fontSize:13,color:GRAY400}})
+      ),
+      h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+        ...propSummary.map(p=>
+          h("div",{key:p.id,style:{background:WHITE,borderRadius:20,padding:18,boxShadow:"0 2px 12px rgba(0,0,0,.06)"}},
+            h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}},
+              h("div",null,
+                h("div",{style:{fontWeight:700,fontSize:15,color:BLACK}},p.name),
+                h("div",{style:{fontSize:11,color:GRAY400,marginTop:2}},p.address)
+              ),
+              h("div",{style:{textAlign:"right"}},
+                h("div",{style:{fontFamily:"'Montserrat',sans-serif",fontWeight:700,fontSize:20,color:p.net>=0?GREEN:RED}},(p.net>=0?"+":"")+("$"+Math.abs(p.net).toLocaleString())),
+                h("div",{style:{fontSize:10,color:GRAY400}},"net")
+              )
+            ),
+            h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+              h("div",{style:{background:GREENL,borderRadius:12,padding:"10px",textAlign:"center"}},
+                h("div",{style:{fontSize:9,fontWeight:700,color:GREEN,textTransform:"uppercase",letterSpacing:.5}},"Income"),
+                h("div",{style:{fontSize:16,fontWeight:700,color:GREEN,marginTop:2}},"$"+p.income.toLocaleString())
+              ),
+              h("div",{style:{background:REDL,borderRadius:12,padding:"10px",textAlign:"center"}},
+                h("div",{style:{fontSize:9,fontWeight:700,color:RED,textTransform:"uppercase",letterSpacing:.5}},"Expenses"),
+                h("div",{style:{fontSize:16,fontWeight:700,color:RED,marginTop:2}},"$"+p.costs.toLocaleString())
+              ),
+              h("div",{style:{background:GRAY100,borderRadius:12,padding:"10px",textAlign:"center"}},
+                h("div",{style:{fontSize:9,fontWeight:700,color:GRAY400,textTransform:"uppercase",letterSpacing:.5}},"Repairs"),
+                h("div",{style:{fontSize:16,fontWeight:700,color:BLACK,marginTop:2}},"$"+maint.filter(m=>m.prop_id===p.id).reduce((s,m)=>s+Number(m.cost||0),0).toLocaleString())
+              )
+            ),
+            // Progress bar — income vs expenses
+            h("div",{style:{marginTop:12}},
+              h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+                h("span",{style:{fontSize:10,color:GRAY400}},p.income>0?Math.round(p.costs/p.income*100)+"% of income spent":"No income"),
+                h("span",{style:{fontSize:10,color:GRAY400}})
+              ),
+              h("div",{style:{height:5,background:GRAY100,borderRadius:3}},
+                p.income>0 && h("div",{style:{height:"100%",width:Math.min(100,Math.round(p.costs/p.income*100))+"%",background:p.costs>p.income?RED:M,borderRadius:3}})
+              )
+            )
+          )
+        )
+      )
+    )
   );
 }
 
